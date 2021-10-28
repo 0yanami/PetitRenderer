@@ -1,1 +1,1 @@
-# petitRender
+# PetitRenderer
