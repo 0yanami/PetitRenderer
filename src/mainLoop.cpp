@@ -1,7 +1,12 @@
 #include "mainLoop.hpp"
 
 MainLoop::MainLoop(Scene& _scene, Ui& _ui, Camera& _camera)
-    : scene(_scene), ui(_ui), currentCamera(_camera) {
+    : scene(_scene), ui(_ui), cam(_camera) {
+
+    // camera defines window/viewport size
+    windowWidth = cam.getResWidth();
+    windowHeight = cam.getResHeight();
+
     // GLFW
     glfwInit();
     // opengl 4.0
@@ -12,10 +17,11 @@ MainLoop::MainLoop(Scene& _scene, Ui& _ui, Camera& _camera)
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
     glfwWindowHint(GLFW_SAMPLES, 2);
 
-    window = glfwCreateWindow(currentCamera.getResWidth(), currentCamera.getResHeight(),
+    window = glfwCreateWindow(windowWidth, windowHeight,
                               windowName.c_str(), nullptr, nullptr);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(0);
+    //glfwSetCursorPos(window,windowWidth/2, windowHeight/2);
 
     //Callbacks binding
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -39,7 +45,7 @@ MainLoop::MainLoop(Scene& _scene, Ui& _ui, Camera& _camera)
     ImGui_ImplOpenGL3_Init("#version 330");
 
     //setup inputs
-    inputs = {&currentCamera};
+    inputs = {&cam};
 
     deltaTime = 0.0;
     lastFrame = 0.0;
@@ -49,6 +55,17 @@ void MainLoop::run() {
 
     while (!glfwWindowShouldClose(window)) {
         inputs.processInput(window,deltaTime);
+
+        if( windowHeight != cam.getResHeight()||
+            windowWidth != cam.getResWidth()
+            ){
+            windowHeight = cam.getResHeight();
+            windowWidth = cam.getResWidth();
+
+            glfwSetWindowSize(window, windowWidth, windowHeight);
+            glViewport(0, 0, windowWidth, windowHeight);
+            //glfwSetCursorPos(window,windowWidth/2, windowHeight/2);
+        }
 
 
         double currentFrame = glfwGetTime();
@@ -63,7 +80,7 @@ void MainLoop::run() {
         
 
         // render objects of scene;
-        scene.render(currentCamera);
+        scene.render(cam);
 
         // imgui part
         ImGui_ImplOpenGL3_NewFrame();
@@ -96,10 +113,6 @@ void MainLoop::updateFpsCounter(uint32_t _updateRateMs){
     }
 }
 
-void MainLoop::setWindowSize(int w,int h){
-    windowWidth = w;
-    windowHeight = h;
-}
 
 // end of render loop
 MainLoop::~MainLoop() {

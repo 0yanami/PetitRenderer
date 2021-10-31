@@ -3,23 +3,33 @@
 Inputs::Inputs(Camera* _cam){
     cam = _cam;
     mouseSensitivity = 0.07f;
-    lastMouseX = 0.0; 
-    lastMouseY = 0.0;
+    lastMouseX = cam->getResWidth()/2; 
+    lastMouseY = cam->getResHeight()/2;
+    resetFocus = true;
 }
 
 
 void Inputs::framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
+    resetFocus = true;
+    cam->setRes(width,height);
 }
 
 void Inputs::mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-    double xoffset = xpos - lastMouseX;
-    double yoffset = lastMouseY - ypos;
+    if(!resetFocus){
+        double xoffset = xpos - lastMouseX;
+        double yoffset = lastMouseY - ypos;
 
-    lastMouseX = xpos;
-    lastMouseY = ypos;
-    cam->offsetYaw(xoffset, mouseSensitivity);
-    cam->offsetPitch(yoffset, mouseSensitivity);
+        lastMouseX = xpos;
+        lastMouseY = ypos;
+        cam->offsetYaw(xoffset, mouseSensitivity);
+        cam->offsetPitch(yoffset, mouseSensitivity);
+    } else {
+        lastMouseX = cam->getResWidth()/2;
+        lastMouseX = cam->getResHeight()/2;
+        glfwSetCursorPos(window,lastMouseX, lastMouseY);
+        resetFocus = false;
+    }
+    
 }
 
 void Inputs::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -41,7 +51,7 @@ void Inputs::processInput(GLFWwindow* window, double deltaTime) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
     // camera movement
-    const float cameraSpeed = 2.0f * deltaTime;  // framerate independent
+    const float cameraSpeed = 2.0f * (float)deltaTime;  // framerate independent
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) cam->moveZ(cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) cam->moveZ(-cameraSpeed);
@@ -63,6 +73,7 @@ void Inputs::processInput(GLFWwindow* window, double deltaTime) {
         glfwSetScrollCallback(window, nullptr);
     }
     if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) {
+        resetFocus = true;
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwSetCursorPosCallback(window, mouse_callback);
         glfwSetScrollCallback(window, scroll_callback);

@@ -103,4 +103,9 @@ void Camera::moveZ(float _offset)
 	cameraPos += cameraFront * _offset;
 }
 
-
+void Camera::setRes(int w,int h){
+	resWidth = w;
+	resHeight = h;
+	lastX = h / 2.0;
+	lastY = w / 2.0;
+}
