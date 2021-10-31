@@ -63,6 +63,8 @@ public:
 	void moveY(float _offset);
 	//! Move camera in Z axis my an offset
 	void moveZ(float _offset);
+	//! change resolution of camera
+	void setRes(int w,int h);
 };
 
 #endif

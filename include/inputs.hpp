@@ -13,6 +13,7 @@ private:
     inline static double lastMouseY;
     inline static float mouseSensitivity;
     inline static Camera* cam;
+    inline static bool resetFocus;
 
 public:
     Inputs(){};

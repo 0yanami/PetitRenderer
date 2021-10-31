@@ -14,7 +14,7 @@ class MainLoop {
 private:
     Scene scene;
     Ui ui;
-    Camera& currentCamera;
+    Camera& cam;
     Inputs inputs;
 
     GLFWwindow* window;
@@ -38,8 +38,6 @@ public:
      **/
     MainLoop(Scene& _scene, Ui& _ui, Camera& _camera);
     ~MainLoop();
-    //! Set our window size 
-    void setWindowSize(int w,int h);
     //! Start the render loop
     void run();
 };
