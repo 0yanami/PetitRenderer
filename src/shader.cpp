@@ -6,8 +6,6 @@ char* loadShader(std::string path) {
 	std::string str((std::istreambuf_iterator<char>(file)),
 		std::istreambuf_iterator<char>());
 	int fSize = str.length();
-	//cout for debug purposes
-	//std::cout << "fichier:\n " << str << "\n\n";
 
 	char* cstr = new char[fSize + 1];
 	strcpy(cstr, str.c_str());
@@ -18,6 +16,7 @@ char* loadShader(std::string path) {
 Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	const char* vertexShaderSource = loadShader(vertexPath);
 	const char* fragmentShaderSource = loadShader(fragmentPath);
+
 	//vertex shader creation and compilation
 	unsigned int vertexShader;
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);

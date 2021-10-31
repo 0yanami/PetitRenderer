@@ -9,7 +9,6 @@ Scene::Scene(){
 //! Load the scene models on GPU before rendering
 void Scene::load(){
     for(uint32_t i = 0;i<models.size(); i++){
-        std::cout << "loading obj"<<i<<std::endl;
         models[i]->load();
     }
 }
