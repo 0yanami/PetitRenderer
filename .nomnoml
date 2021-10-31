@@ -1,0 +1,49 @@
+#lineWidth: 1
+#bendSize: 01
+#leading: 1.6
+
+[main||includes|setup scene|setup Camera(s) and give to Scene|setup UI|send all to render loop]
+
+[Inputs||Inputs(Camera* _cam)|setCamera(Camera* _cam) //to manipulate;processInput(GLFWwindow* window, double deltaTime)
+scroll_callback(window, double xoffset, double yoffset);
+framebuffer_size_callback( window, int width, int height);
+mouse_callback(window, double xpos, double ypos)]->[main]
+
+[UI||imgui menu to render]->[main]
+[Scene]->[main]
+
+[MainLoop|| MainLoop(Scene& _scene, Ui& _ui, Camera& _camera)|
+void setWindowSize(int w,int h);
+    void run();
+    void shutdown()]->[main]
+
+[Scene||std::vector<Model> models;std::vector<Light> lights|addObject(Model model);void render(Camera _cam)]
+
+[Model||Model()|void render();Model& setScale(glm::mat4 _scale);
+    Model& setRotation(glm::mat4 _rotation);
+    Model& setPosition(glm::mat4 _position);
+    Model& setView(glm::mat4 _view);
+    Model& setShader(Shader _shader)]->[Scene]
+
+
+[Shaders (Utility)|Shader(vertexPath,fragmentPath)|use()setBool();setInt();setFloat();setMat4();setVec3()]->[Model]
+
+
+[Camera||Camera(glm::vec3 _cameraPos,
+double _fov, int _resWidth, int _resHeight)|
+getPos();getDir();getView();getFov()|int getResWidth();int getResHeight()|double offsetPitch();double offsetYaw();double offsetFov()|
+updateDirection();moveX(float _offset);moveY(float _offset);moveZ(float _offset)
+]->[Scene]
+
+
+[Plane||]->[Model]
+[IcoSphere||]->[Model]
+[UVSphere||]->[Model]
+[Cube||Cube(float _edgeSize)]->[Model]
+[Object||]->[Model]
+
+[Light||Light(glm::vec3 _position, glm::vec3 _color)|void setAmbiantStrength(float _strength);
+    void setSpecular(glm::vec3 _color);
+    void setConstant(float _val);
+    void setLinear(float _val);
+    void setQuadratic(float _val)]-[Scene]
