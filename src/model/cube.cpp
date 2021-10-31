@@ -135,47 +135,58 @@ Cube::Cube(float _edgeSize){
 		0.0f,  1.0f
     };
 	translate = glm::mat4{1.0};
-	scale     = glm::mat4{1.0};
+	scale     = glm::scale(glm::mat4{1.0},glm::vec3(_edgeSize));
 	rotation  = glm::mat4{1.0};
 }
 
 //! Load vertex buffers and shader of cube
 void Cube::load(){
 
+
+
 	shader = {"colors.vert", "colors.frag"};
 
     // gen geometry buffers
     glGenBuffers(1, &vbo);
     glGenBuffers(1, &nbo);
-    glGenBuffers(1, &ebo);
+    glGenBuffers(1, &tbo);
     glGenVertexArrays(1, &vao);
 
-    // Bind the vao
+	// Bind the vao
     glBindVertexArray(vao);
 
-    // copy vertices to vbo
+    // create and fill vertex data buffer
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
-
-
-    // create normals buffer
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)0);
+	// set vertex attribute pointer
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)0);
     glEnableVertexAttribArray(0);
+
+
     // copy normals to nbo
     glBindBuffer(GL_ARRAY_BUFFER, nbo);
     glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(GLfloat), normals.data(), GL_STATIC_DRAW);
-
-
-    // Copy our vertices array in a buffer for OpenGL to use
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)0);
+    // define array for normals
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)0);
     glEnableVertexAttribArray(1);
 
-    // Copy our index array in a element buffer for OpenGL to use
+    // Copy texture array in element buffer
     glBindBuffer(GL_ARRAY_BUFFER, tbo);
     glBufferData(GL_ARRAY_BUFFER, textureCoord.size() * sizeof(GLfloat), textureCoord.data(), GL_STATIC_DRAW);
-    
+	// define array for texture
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *)0);
+    glEnableVertexAttribArray(2);
+
     // Unbind the VAO
     glBindVertexArray(0);
+
+	// load textures if defined
+	if (diffuseMapPath != ""){
+		diffuseMap = loadTexture(diffuseMapPath.c_str());
+	}
+	if (specularMapPath != ""){
+		specularMap = loadTexture(specularMapPath.c_str());
+	}
 
 }
 
@@ -193,6 +204,20 @@ void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
 
     // for specular highlight
     shader.setVec3("viewPos", _cam.getPos());
+	
+	shader.setFloat("material.specularStrength", 2.0f);
+	//if textures are defined
+	if(specularMap != -1){
+		shader.setInt("material.specular", 1);
+	}
+	if(diffuseMap != -1){
+		shader.setInt("material.diffuse", 0);
+	} else {
+		shader.setVec3("material.diffuse", glm::vec3{1,0,0});
+	}
+	
+
+	shader.setFloat("material.shininess", 128.0f);
 
 
     for(uint32_t i = 0; i<_lights.size(); i++){
@@ -208,6 +233,14 @@ void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
     }
 
     // mat4 scale, rotation, position, view
+	if (diffuseMap  != -1){
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, diffuseMap);
+	}
+	if(specularMap  != -1){
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, specularMap);
+	}
 
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, vertices.size()/3);
@@ -238,3 +271,11 @@ Cube& Cube::setShader(Shader _shader){
     return *this;
 }
 
+Cube& Cube::setTexDiffuse(std::string _path){
+	diffuseMapPath = _path;
+	return *this;
+}
+Cube& Cube::setTexSpecular(std::string _path){
+	specularMapPath = _path;
+	return *this;
+}

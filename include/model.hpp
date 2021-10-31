@@ -5,8 +5,10 @@
 #include "shader.hpp"
 #include "light.hpp"
 #include "camera.hpp"
+#include "utils.hpp"
 
 #include <vector>
+#include <string>
 
 class Model{
 protected:
@@ -20,7 +22,10 @@ protected:
     // le shader
     Shader shader;
     // les textures
-    uint32_t diffuseMap, specularMap;
+    uint32_t diffuseMap = -1;
+    uint32_t specularMap = -1;
+    std::string diffuseMapPath = "";
+    std::string specularMapPath = "";
     
     //la géométrie
     std::vector<GLfloat> vertices, normals, textureCoord;
@@ -38,6 +43,8 @@ public:
     virtual Model& setRotation(float _angle, glm::vec3 _axis) = 0;
     virtual Model& setPosition(glm::vec3 _translate) = 0;
     virtual Model& setShader(Shader _shader) = 0;
+    virtual Model& setTexDiffuse(std::string _path) = 0;
+    virtual Model& setTexSpecular(std::string _path) = 0;
 
     virtual void load() = 0;
     
@@ -59,6 +66,8 @@ public:
     Cube& setRotation(float _angle, glm::vec3 _axis) override;
     Cube& setPosition(glm::vec3 _translate) override;
     Cube& setShader(Shader _shader) override;
+    Cube& setTexDiffuse(std::string _path) override;
+    Cube& setTexSpecular(std::string _path) override;
 };
 
 class Sphere : public Model{
