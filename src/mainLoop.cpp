@@ -1,17 +1,18 @@
 #include "mainLoop.hpp"
 
-MainLoop::MainLoop(Scene& _scene, Ui& _ui, Inputs& _inputs)
-    : activeScene(_scene), ui(_ui), inputs(_inputs) {
+MainLoop::MainLoop(Scene& _scene, Ui& _ui, Camera& _camera)
+    : scene(_scene), ui(_ui), currentCamera(_camera) {
     // GLFW
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    // opengl 4.0
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
     glfwWindowHint(GLFW_SAMPLES, 2);
 
-    window = glfwCreateWindow(windowWidth, windowHeight,
+    window = glfwCreateWindow(currentCamera.getResWidth(), currentCamera.getResHeight(),
                               windowName.c_str(), nullptr, nullptr);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(0);
@@ -31,11 +32,14 @@ MainLoop::MainLoop(Scene& _scene, Ui& _ui, Inputs& _inputs)
     // ImGui Setup
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO(); //TODO: a voir en cas de bug imgui
     (void)io;
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
+
+    //setup inputs
+    inputs = {&currentCamera};
 
     deltaTime = 0.0;
     lastFrame = 0.0;
@@ -55,12 +59,11 @@ void MainLoop::run() {
         glClearColor(0.2f, 0.2f, 0.2f, 0.2f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        updateFpsCounter();
-
+        updateFpsCounter(500);
         
 
-        // render things
-
+        // render objects of scene;
+        scene.render(currentCamera);
 
         // imgui part
         ImGui_ImplOpenGL3_NewFrame();
@@ -79,13 +82,14 @@ void MainLoop::run() {
     }
 }
 
-
-void MainLoop::updateFpsCounter(){ //TODO: a verifier (chrono)
+//! Shows fps on window title, update rate in ms
+void MainLoop::updateFpsCounter(uint32_t _updateRateMs){
     using namespace std::chrono;
-    if ((int)(glfwGetTime()*1000)%200 == 0.0) {
+    if ((int)(glfwGetTime()*1000)%_updateRateMs == 0.0) {
         std::stringstream sstr;
-        //double fps = 1.0 / ((glfwGetTime() - fpsTime) / 20.0);
-        sstr << windowName<<"  |  frametime : " << std::setprecision(3) << 1/deltaTime;
+        sstr << windowName<<"  |  FPS : " << std::fixed << 
+        std::setprecision(1) << 1/deltaTime;
+
         std::string titleStr = sstr.str();
         const char* title = (char*)titleStr.c_str();
         glfwSetWindowTitle(window, title);
@@ -98,7 +102,7 @@ void MainLoop::setWindowSize(int w,int h){
 }
 
 // end of render loop
-void MainLoop::shutdown() {
+MainLoop::~MainLoop() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

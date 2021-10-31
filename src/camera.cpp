@@ -1,15 +1,18 @@
 #include "camera.hpp"
 
-Camera::Camera(glm::vec3 _cameraPos, double _fov, int _windowWidth, int _windowHeight) :
+Camera::Camera(glm::vec3 _cameraPos, double _fov, int _resWidth, int _resHeight) :
 fov(_fov),
 cameraPos(_cameraPos)
 {
 	yaw = -90.0;
 	pitch = -0.0;
-	lastX = _windowHeight / 2;
-	lastY = _windowWidth / 2;
+	lastX = _resHeight / 2.0;
+	lastY = _resWidth / 2.0;
 	cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	resWidth = _resWidth;
+	resHeight = _resHeight;
 }
 
 glm::vec3 Camera::getPos() {
@@ -26,6 +29,11 @@ glm::mat4 Camera::getView()
 	return glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 }
 
+glm::mat4 Camera::getProj()
+{
+	return glm::perspective(glm::radians(fov), (double)resWidth / resHeight, 0.1, 100.0);
+}
+
 //direction
 void Camera::updateDirection()
 {
@@ -36,7 +44,7 @@ void Camera::updateDirection()
 	cameraFront = glm::normalize(direction);
 }
 
-float Camera::offsetPitch(float _offset, float _sensitivity)
+double Camera::offsetPitch(double _offset, double _sensitivity)
 {
 	if (pitch + _offset > 45) {
 		pitch = 45.0f;
@@ -50,7 +58,7 @@ float Camera::offsetPitch(float _offset, float _sensitivity)
 	return pitch;
 }
 
-float Camera::offsetYaw(float _offset, float _sensitivity)
+double Camera::offsetYaw(double _offset, double _sensitivity)
 {
 	yaw += _offset * _sensitivity;
 	if (yaw < 0)
@@ -62,7 +70,7 @@ float Camera::offsetYaw(float _offset, float _sensitivity)
 }
 
 //fov
-float Camera::offsetFov(float _offset)
+double Camera::offsetFov(double _offset)
 {
 	if (fov + _offset > 90) {
 		fov = 90.0f;
@@ -74,7 +82,7 @@ float Camera::offsetFov(float _offset)
 	return fov;
 }
 
-float Camera::getFov()
+double Camera::getFov()
 {
 	return this->fov;
 }

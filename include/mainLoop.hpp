@@ -8,15 +8,18 @@
 #include "inputs.hpp"
 #include "headers.hpp"
 
+//! The render loop of the app, setups the window and UI to render a given scene. 
 class MainLoop {
 
 private:
-    Scene activeScene;
+    Scene scene;
     Ui ui;
+    Camera& currentCamera;
     Inputs inputs;
 
     GLFWwindow* window;
 
+    // default window size
     int windowWidth=800;
     int windowHeight=600;
     double deltaTime;
@@ -24,16 +27,21 @@ private:
 
     std::string windowName = "MiniRenderer";
 
-    void updateFpsCounter();
+    void updateFpsCounter(uint32_t _updateRateMs);
 
 public:
-    // setup render loop
-    MainLoop(Scene& _scene, Ui& _ui, Inputs& _inputs);
-
+    /**
+     *  Starts the render procedure 
+     * \param _scene The scene object we want to render
+     * \param _ui The ImGUI IU to render on screen
+     * \param _camera The camera form which we view the scene
+     **/
+    MainLoop(Scene& _scene, Ui& _ui, Camera& _camera);
+    ~MainLoop();
+    //! Set our window size 
     void setWindowSize(int w,int h);
-
+    //! Start the render loop
     void run();
-    void shutdown();
 };
 
 

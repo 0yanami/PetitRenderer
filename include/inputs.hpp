@@ -15,8 +15,9 @@ private:
     inline static Camera* cam;
 
 public:
+    Inputs(){};
     Inputs(Camera* _cam);
-
+    
     void setCamera(Camera* _cam){
         cam = _cam;
     };

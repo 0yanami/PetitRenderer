@@ -30,7 +30,6 @@ void Inputs::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 void Inputs::processInput(GLFWwindow* window, double deltaTime) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
         glfwSetWindowShouldClose(window, true);
-        std::cout << "pd";
     }
         
     // keys 1,2,3 to switch polygon display mode
