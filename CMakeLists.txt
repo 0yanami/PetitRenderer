@@ -8,7 +8,7 @@ option(GLFW_BUILD_TESTS OFF)
 add_subdirectory(third_party/glfw)
 
 if(MSVC)                                           #disable "formal param not ref error"
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /DGLFW_INCLUDE_NONE /std:c++17 /wd4100")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /DGLFW_INCLUDE_NONE /std:c++17 /wd4100 /wd4505")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -std=c++17")
 endif()
@@ -20,13 +20,16 @@ include_directories(include/
                     third_party/stb/
 					third_party/zlib/
                     third_party/imgui/
+                    third_party/imgui/backends/
 					)
 
 file(GLOB VENDORS_SOURCES third_party/glad/src/glad.c)
 file(GLOB PROJECT_HEADERS include/*.hpp)
 file(GLOB PROJECT_SOURCES src/*.cpp
-                            src/model/*.cpp
+                          src/model/*.cpp
                           third_party/imgui/*.cpp
+                          third_party/imgui/backends/*opengl3.cpp
+                          third_party/imgui/backends/*glfw.cpp
                         )
 
 file(GLOB PROJECT_SHADERS shaders/*.frag

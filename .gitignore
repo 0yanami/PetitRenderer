@@ -12,3 +12,4 @@ _deps
 /build
 /shaders
 /.vscode
+/third_party
