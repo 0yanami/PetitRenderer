@@ -1,4 +1,5 @@
 #version 400 core
+
 out vec4 FragColor;
 
 struct Material {
@@ -10,7 +11,8 @@ struct Material {
 
 
 //light bulb light
-struct PointLight {    
+struct PointLight {  
+    bool enabled;   
     vec3 position; 
 
     vec3 ambient;
@@ -30,7 +32,7 @@ in vec2 TexCoords;
 uniform vec3 viewPos;
 uniform Material material;
 
-#define NR_POINT_LIGHTS 1
+#define NR_POINT_LIGHTS 64
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);  
@@ -43,7 +45,8 @@ void main()
     vec3 result = vec3(0,0,0);
 
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
-        result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);    
+        if(pointLights[i].enabled)
+            result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);    
 
     FragColor = vec4(result, 1.0);
 
