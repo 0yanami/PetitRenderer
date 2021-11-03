@@ -142,10 +142,6 @@ Cube::Cube(float _edgeSize){
 //! Load vertex buffers and shader of cube
 void Cube::load(){
 
-
-
-	shader = {"colors.vert", "colors.frag"};
-
     // gen geometry buffers
     glGenBuffers(1, &vbo);
     glGenBuffers(1, &nbo);
@@ -188,6 +184,13 @@ void Cube::load(){
 		specularMap = loadTexture(specularMapPath.c_str());
 	}
 
+	// load right shader
+	if ((diffuseMapPath != "") || (specularMapPath != "")){
+		shader = {"cubeTex.vert", "cubeTex.frag"};
+	} else {
+		shader = {"cube.vert", "cube.frag"};
+	}
+
 }
 
 
@@ -205,22 +208,25 @@ void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
     // for specular highlight
     shader.setVec3("viewPos", _cam.getPos());
 	
-	shader.setFloat("material.specularStrength", 2.0f);
+	shader.setFloat("material.specularStrength", 1.0f);
+
 	//if textures are defined
 	if(specularMap != -1){
 		shader.setInt("material.specular", 1);
+	} else {
+		shader.setVec3("material.diffuse", glm::vec3{1,0.1,0.1});
 	}
 	if(diffuseMap != -1){
 		shader.setInt("material.diffuse", 0);
 	} else {
-		shader.setVec3("material.diffuse", glm::vec3{1,0,0});
+		shader.setVec3("material.specular", glm::vec3{1,1,1});
 	}
 	
-
 	shader.setFloat("material.shininess", 128.0f);
 
 
     for(uint32_t i = 0; i<_lights.size(); i++){
+		shader.setBool("pointLights["+   std::to_string(i) + "].enabled",1);
         shader.setVec3("pointLights["+   std::to_string(i) + "].position",  _lights[i].getPos());
 		
         shader.setVec3("pointLights[" +  std::to_string(i) + "].ambient",   _lights[i].getAmbiant());
@@ -231,51 +237,27 @@ void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
 	    shader.setFloat("pointLights[" + std::to_string(i) + "].linear",    _lights[i].getLinear());
 	    shader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", _lights[i].getQuadratic());
     }
+	if (_lights.size()<64){
+		for (size_t i = _lights.size(); i<64; i++){
+			shader.setBool("pointLights["+   std::to_string(i) + "].enabled",0);
+		}
+	}
 
     // mat4 scale, rotation, position, view
+	glActiveTexture(GL_TEXTURE0);
 	if (diffuseMap  != -1){
-		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, diffuseMap);
+	} else {
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+	glActiveTexture(GL_TEXTURE1);
 	if(specularMap  != -1){
-		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, specularMap);
+	} else {
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, vertices.size()/3);
 
-}
-
-
-Cube& Cube::setScale(glm::vec3 _scale){
-    scale = glm::mat4(1.0);
-    scale = glm::scale(scale,_scale);
-    return *this;
-}
-
-Cube& Cube::setRotation(float _angle, glm::vec3 _axis){
-    rotation = glm::mat4(1.0);
-    rotation = glm::rotate(rotation, glm::radians(_angle), _axis);
-    return *this;
-}
-
-Cube& Cube::setPosition(glm::vec3 _pos){
-    translate = glm::mat4{1.0};
-    translate = glm::translate(translate, _pos);
-    return *this;
-}
-
-Cube& Cube::setShader(Shader _shader){
-    shader = _shader;
-    return *this;
-}
-
-Cube& Cube::setTexDiffuse(std::string _path){
-	diffuseMapPath = _path;
-	return *this;
-}
-Cube& Cube::setTexSpecular(std::string _path){
-	specularMapPath = _path;
-	return *this;
 }

@@ -1,6 +1,6 @@
 #include "shader.hpp"
 
-char* loadShader(std::string path) {
+char* Shader::loadShader(std::string path) {
 	std::ifstream file(path);
 
 	std::string str((std::istreambuf_iterator<char>(file)),

@@ -21,22 +21,29 @@ int main(int argc, char* argv[]) {
     Camera cam{glm::vec3{0,0,6}, 50.0f, windowWidth, windowHeight};
     //Create a light
     Light light1{glm::vec3{0,0,4},glm::vec3{2.0f}};
+    Light light2{glm::vec3{2,3,0},glm::vec3{0,3,3}};
     // create a scene
     Scene baseScene{};
 
     // add object to scene
     Cube cube1(1.0f);
     Cube cube2(1.0f);
+    Cube cubelight1(0.2f);
+    Cube cubelight2(0.2f);
     //Cube lightpos(0.3f);
 
     //lightpos.setPosition(glm::vec3{0,2,0});
+    cube1.setTex("containerDiffuse.png","containerSpecular.png");
 
     cube2.setScale(glm::vec3{1.2}).setRotation(40.0,glm::vec3{0,0.5,0})
         .setPosition(glm::vec3{2.5,0,0});
 
-    cube1.setTexDiffuse("containerDiffuse.png").setTexSpecular("containerSpecular.png");
+    cubelight1.setPosition(light1.getPos());
 
-    baseScene.addModel(cube1).addLight(light1);
+    cubelight2.setPosition(light2.getPos());
+
+    baseScene.addModel(cube1).addModel(cube2).addModel(cubelight1).addModel(cubelight2)
+            .addLight(light1).addLight(light2);
 
     // start render loop, open GLFW window
     MainLoop renderLoop{baseScene,interface,cam};

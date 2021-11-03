@@ -22,8 +22,8 @@ protected:
     // le shader
     Shader shader;
     // les textures
-    uint32_t diffuseMap = -1;
-    uint32_t specularMap = -1;
+    int diffuseMap = -1;
+    int specularMap = -1;
     std::string diffuseMapPath = "";
     std::string specularMapPath = "";
     
@@ -39,12 +39,11 @@ public:
 
     virtual void render(std::vector<Light>& _lights,Camera& _cam) = 0;
 
-    virtual Model& setScale(glm::vec3 _scale) = 0;
-    virtual Model& setRotation(float _angle, glm::vec3 _axis) = 0;
-    virtual Model& setPosition(glm::vec3 _translate) = 0;
-    virtual Model& setShader(Shader _shader) = 0;
-    virtual Model& setTexDiffuse(std::string _path) = 0;
-    virtual Model& setTexSpecular(std::string _path) = 0;
+    Model& setScale(glm::vec3 _scale);
+    Model& setRotation(float _angle, glm::vec3 _axis);
+    Model& setPosition(glm::vec3 _translate);
+    Model& setShader(Shader _shader);
+    Model& setTex(std::string _diffusePath, std::string _specularPath);
 
     virtual void load() = 0;
     
@@ -61,13 +60,27 @@ public:
     Cube(float _edgeSize);
     void load() override;
     void render(std::vector<Light>& _lights,Camera& _cam) override;
+};
 
-    Cube& setScale(glm::vec3 _scale) override;
-    Cube& setRotation(float _angle, glm::vec3 _axis) override;
-    Cube& setPosition(glm::vec3 _translate) override;
-    Cube& setShader(Shader _shader) override;
-    Cube& setTexDiffuse(std::string _path) override;
-    Cube& setTexSpecular(std::string _path) override;
+class FileModel : public Model{
+private:
+    std::vector<int> diffuseMap = {-1};
+    std::vector<int> specularMap = {-1};
+
+    std::vector<std::string> diffuseMapPath = {""};
+    std::vector<std::string> specularMapPath = {""};
+
+
+    //la géométrie
+    std::vector<std::vector<GLfloat>> vertices, normals, textureCoord;
+    std::vector<std::vector<GLuint>>  indexes;
+
+public:
+    FileModel(){};
+    FileModel(std::string _path);
+    void load() override;
+    void processMesh(aiMesh *mesh, const aiScene *scene);
+    void render(std::vector<Light>& _lights,Camera& _cam) override;
 };
 
 class Sphere : public Model{

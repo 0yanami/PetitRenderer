@@ -15,6 +15,9 @@
 
 
 class Shader {
+private:
+	char* loadShader(std::string path);
+
 public:
 	unsigned int ID;
 	Shader(){};
