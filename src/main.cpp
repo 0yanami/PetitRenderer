@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     Camera cam{glm::vec3{0,0,6}, 50.0f, windowWidth, windowHeight};
     //Create a light
     Light light1{glm::vec3{0,0,4},glm::vec3{2.0f}};
-    Light light2{glm::vec3{2,3,0},glm::vec3{0,3,3}};
+    Light light2{glm::vec3{0,2.5,-4},glm::vec3{3.5f}};
     // create a scene
     Scene baseScene{};
 

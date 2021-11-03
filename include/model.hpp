@@ -99,6 +99,7 @@ public:
     FileModel& setScale(glm::vec3 _scale);
     FileModel& setRotation(float _angle, glm::vec3 _axis);
     FileModel& setPosition(glm::vec3 _translate);
+    FileModel& subDivide(int _ite);
 };
 
 
