@@ -30,6 +30,9 @@ int main(int argc, char* argv[]) {
     Cube cube2(1.0f);
     Cube cubelight1(0.2f);
     Cube cubelight2(0.2f);
+
+    FileModel teapot{"teapot.obj"};
+    FileModel gtx{"GTX_1070TI.obj"};
     //Cube lightpos(0.3f);
 
     //lightpos.setPosition(glm::vec3{0,2,0});
@@ -42,8 +45,12 @@ int main(int argc, char* argv[]) {
 
     cubelight2.setPosition(light2.getPos());
 
+    teapot.setScale(glm::vec3{0.2}).setPosition(glm::vec3{-3,0,0});
+
+    gtx.setScale(glm::vec3{4.0});
+
     baseScene.addModel(cube1).addModel(cube2).addModel(cubelight1).addModel(cubelight2)
-            .addLight(light1).addLight(light2);
+            .addLight(light1).addLight(light2).addModel(teapot).addModel(gtx);
 
     // start render loop, open GLFW window
     MainLoop renderLoop{baseScene,interface,cam};

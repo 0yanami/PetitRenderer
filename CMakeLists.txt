@@ -4,7 +4,6 @@ project(PetitRenderer)
 
 set(ZLIB_LIBRARIES zlibstatic)
 set(ENABLE_BOOST_WORKAROUND ON)
-#set(BUILD_STATIC_LIB ON)
 set(ASSIMP_BUILD_SAMPLES OFF)
 set(BUILD_ASSIMP_TOOLS  OFF)
 set(ASSIMP_BUILD_DOCS OFF)
@@ -19,7 +18,7 @@ add_subdirectory(third_party/glfw)
 add_subdirectory(third_party/assimp)
 
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /DGLFW_INCLUDE_NONE /std:c++17 /wd4100 /wd4505")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /DGLFW_INCLUDE_NONE /std:c++17 /MP8 /wd4100 /wd4505")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -std=c++17")
 endif()
@@ -70,3 +69,8 @@ add_custom_command(
     TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/shaders $<TARGET_FILE_DIR:${PROJECT_NAME}>
     DEPENDS ${PROJECT_SHADERS})
+
+    message("### Moving models next to binary dir ####")
+add_custom_command(
+    TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/models $<TARGET_FILE_DIR:${PROJECT_NAME}>)
