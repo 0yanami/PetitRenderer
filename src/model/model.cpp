@@ -18,13 +18,22 @@ Model& Model::setPosition(glm::vec3 _pos){
     return *this;
 }
 
-Model& Model::setShader(Shader _shader){
-    shader = _shader;
+Model& Model::setShaderType(SHADER_TYPE _shader){
+    shaderType = _shader;
     return *this;
 }
 
-Model& Model::setTex(std::string _diffusePath, std::string _specularPath){
+Model& Model::setTextures(std::string _diffusePath, std::string _specularPath, std::string _heightPath){
 	diffuseMapPath = _diffusePath;
     specularMapPath = _specularPath;
+    heightMapPath = _heightPath;
+    shaderTessellation = true;
+	return *this;
+}
+
+Model& Model::setTextures(std::string _diffusePath, std::string _specularPath){
+	diffuseMapPath = _diffusePath;
+    specularMapPath = _specularPath;
+    shaderTessellation = false;
 	return *this;
 }

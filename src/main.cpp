@@ -28,29 +28,33 @@ int main(int argc, char* argv[]) {
     // add object to scene
     Cube cube1(1.0f);
     Cube cube2(1.0f);
-    Cube cubelight1(0.2f);
-    Cube cubelight2(0.2f);
+    Cube cube3(1.0f);
+    //Cube cubelight1(0.2f);
+    //Cube cubelight2(0.2f);
 
-    FileModel teapot{"teapot.obj"};
-    FileModel gtx{"GTX_1070TI.obj"};
+    //FileModel teapot{"teapot.obj"};
+    //FileModel gtx{"gtx/GTX_1070TI.obj"};
     //Cube lightpos(0.3f);
 
     //lightpos.setPosition(glm::vec3{0,2,0});
-    cube1.setTex("containerDiffuse.png","containerSpecular.png");
 
+    cube1.setTextures("textures/tilesDiffuse.jpg","textures/tilesSpecular.jpg");
+    
     cube2.setScale(glm::vec3{1.2}).setRotation(40.0,glm::vec3{0,0.5,0})
         .setPosition(glm::vec3{2.5,0,0});
 
-    cubelight1.setPosition(light1.getPos());
+    cube3.setPosition(glm::vec3{-2.5,0,0}).setTextures("textures/tilesDiffuse.jpg","textures/tilesSpecular.jpg","textures/tilesHeight.png");
+//
+    //cubelight1.setPosition(light1.getPos());
+//
+    //cubelight2.setPosition(light2.getPos());
+//
+    //teapot.setScale(glm::vec3{0.2}).setPosition(glm::vec3{-3,0,0});
+//
+    //gtx.setScale(glm::vec3{4.0}).setPosition(glm::vec3{0,-4,1.3});
 
-    cubelight2.setPosition(light2.getPos());
-
-    teapot.setScale(glm::vec3{0.2}).setPosition(glm::vec3{-3,0,0});
-
-    gtx.setScale(glm::vec3{4.0});
-
-    baseScene.addModel(cube1).addModel(cube2).addModel(cubelight1).addModel(cubelight2)
-            .addLight(light1).addLight(light2).addModel(teapot).addModel(gtx);
+    baseScene.addModel(cube1).addModel(cube2).addLight(light1).addModel(cube3);//.addModel(cube2).addModel(cubelight1).addModel(cubelight2)
+            //.addLight(light1).addLight(light2).addModel(teapot).addModel(gtx);
 
     // start render loop, open GLFW window
     MainLoop renderLoop{baseScene,interface,cam};

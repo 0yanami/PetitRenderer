@@ -134,6 +134,27 @@ Cube::Cube(float _edgeSize){
 		0.0f,  0.0f,
 		0.0f,  1.0f
     };
+
+	indices = {
+		0,1,2,
+		3,4,5,
+		
+		6,7,8,
+		9,10,11,
+
+		12,13,14,
+		15,16,17,
+
+		18,19,20,
+		21,22,23,
+
+		24,25,26,
+		27,28,29,
+
+		30,31,32,
+		33,34,35
+	};
+
 	translate = glm::mat4{1.0};
 	scale     = glm::scale(glm::mat4{1.0},glm::vec3(_edgeSize));
 	rotation  = glm::mat4{1.0};
@@ -146,6 +167,7 @@ void Cube::load(){
     glGenBuffers(1, &vbo);
     glGenBuffers(1, &nbo);
     glGenBuffers(1, &tbo);
+	glGenBuffers(1, &ebo);
     glGenVertexArrays(1, &vao);
 
 	// Bind the vao
@@ -173,6 +195,11 @@ void Cube::load(){
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *)0);
     glEnableVertexAttribArray(2);
 
+	//copy indices to ebo
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLfloat), indices.data(), GL_STATIC_DRAW);
+
+
     // Unbind the VAO
     glBindVertexArray(0);
 
@@ -183,20 +210,31 @@ void Cube::load(){
 	if (specularMapPath != ""){
 		specularMap = loadTexture(specularMapPath.c_str());
 	}
-
-	// load right shader
-	if ((diffuseMapPath != "") || (specularMapPath != "")){
-		shader = {"cubeTex.vert", "cubeTex.frag"};
-	} else {
-		shader = {"cube.vert", "cube.frag"};
+	if (heightMapPath != ""){
+		heightMap = loadTexture(heightMapPath.c_str());
 	}
 
+	// load right shader
+	if ((diffuseMapPath != "") && (specularMapPath != "")){
+		if(shaderTessellation){
+			std::cout << "init shader texture + tess"<< std::endl;
+			shader = {"phongTexTess.vert", "phongTexTess.frag","phongTexTess.tesc","phongTexTess.tese"};
+		} else {
+			std::cout << "init shader texture"<< std::endl;
+			shader = {"phongTex.vert", "phongTex.frag"};
+		}
+	} else {
+		std::cout << "init shader basic"<< std::endl;
+		shader = {"phong.vert", "phong.frag"};
+	}
 }
 
 
 void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
 	
     shader.use();
+	glm::vec3 axis{0,1,0};
+	rotation = glm::rotate(rotation,glm::radians(0.01f),axis);
     
     glm::mat4 model = translate*rotation*scale;
 
@@ -210,19 +248,30 @@ void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
 	
 	shader.setFloat("material.specularStrength", 1.0f);
 
-	//if textures are defined
-	if(specularMap != -1){
-		shader.setInt("material.specular", 1);
-	} else {
-		shader.setVec3("material.diffuse", glm::vec3{1,0.1,0.1});
-	}
+	//if textures are defined set uniform values
 	if(diffuseMap != -1){
 		shader.setInt("material.diffuse", 0);
 	} else {
+		shader.setVec3("material.diffuse", glm::vec3{1,0.2,0.2});
+	}
+
+	if(specularMap != -1){
+		shader.setInt("material.specular", 1);
+	} else {
 		shader.setVec3("material.specular", glm::vec3{1,1,1});
 	}
-	
+
+	if(heightMap != -1){
+		shader.setInt("dispMap", 2);
+		shader.setInt("tes_lod0", 64);
+		shader.setInt("tes_lod1", 32);
+		shader.setInt("tes_lod2", 16);
+		shader.setFloat("dispStrength", 0.01);
+
+	}
+
 	shader.setFloat("material.shininess", 128.0f);
+	
 
 
     for(uint32_t i = 0; i<_lights.size(); i++){
@@ -243,13 +292,15 @@ void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
 		}
 	}
 
-    // mat4 scale, rotation, position, view
+    // bind diffuse texture
 	glActiveTexture(GL_TEXTURE0);
 	if (diffuseMap  != -1){
 		glBindTexture(GL_TEXTURE_2D, diffuseMap);
 	} else {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+
+	// bind specular texture
 	glActiveTexture(GL_TEXTURE1);
 	if(specularMap  != -1){
 		glBindTexture(GL_TEXTURE_2D, specularMap);
@@ -257,7 +308,21 @@ void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
+	// bind height map texture
+	glActiveTexture(GL_TEXTURE2);
+	if(heightMap  != -1){
+		glBindTexture(GL_TEXTURE_2D, heightMap);
+	} else {
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
     glBindVertexArray(vao);
-    glDrawArrays(GL_TRIANGLES, 0, vertices.size()/3);
+
+    
+	if(heightMap  != -1){
+		glDrawElements(GL_PATCHES , indices.size(), GL_UNSIGNED_INT, nullptr);
+	} else {
+		glDrawElements(GL_TRIANGLES , indices.size(), GL_UNSIGNED_INT, nullptr);
+	}
 
 }

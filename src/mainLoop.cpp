@@ -11,7 +11,7 @@ MainLoop::MainLoop(Scene& _scene, Ui& _ui, Camera& _camera)
     glfwInit();
     // opengl 4.0
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
@@ -49,6 +49,9 @@ MainLoop::MainLoop(Scene& _scene, Ui& _ui, Camera& _camera)
 
     deltaTime = 0.0;
     lastFrame = 0.0;
+
+   glPatchParameteri(GL_PATCH_VERTICES, 3);
+
 }
 
 void MainLoop::run() {

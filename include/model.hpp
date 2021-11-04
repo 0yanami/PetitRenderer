@@ -10,6 +10,10 @@
 #include <vector>
 #include <string>
 
+enum SHADER_TYPE{
+    PHONG
+};
+
 class Model{
 protected:
     // vbo = vertices
@@ -19,19 +23,27 @@ protected:
 
     unsigned int vbo, nbo, ebo, tbo, vao;
     
-    // le shader
+    // shading
     Shader shader;
-    // les textures
+    SHADER_TYPE shaderType = PHONG;
+    // tesselation enabled or disabled
+    bool shaderTessellation = false;
+
+    std::string shaderVertPath = "";
+    std::string shaderFragPath = "";
+    std::string shaderTescPath = "";
+    std::string shaderTesePath = "";
+
     int diffuseMap = -1;
     int specularMap = -1;
+    int heightMap = -1;
     std::string diffuseMapPath = "";
     std::string specularMapPath = "";
+    std::string heightMapPath = "";
     
-    //la géométrie
     std::vector<GLfloat> vertices, normals, textureCoord;
     std::vector<GLuint>  indices;
 
-    // Model transformation
     glm::mat4 scale, rotation, translate;
 
 public:
@@ -43,8 +55,9 @@ public:
     virtual Model& setScale(glm::vec3 _scale);
     virtual Model& setRotation(float _angle, glm::vec3 _axis);
     virtual Model& setPosition(glm::vec3 _translate);
-    Model& setShader(Shader _shader);
-    Model& setTex(std::string _diffusePath, std::string _specularPath);
+    Model& setShaderType(SHADER_TYPE _shader);
+    Model& setTextures(std::string _diffusePath, std::string _specularPath, std::string _heightPath);
+    Model& setTextures(std::string _diffusePath, std::string _specularPath);
     
     //void subdivide();
     //void tesselation(bool activate);
@@ -66,26 +79,26 @@ public:
 //! A model loaded from file, can contain multiple models inside it.
 class FileModel : public Model{
 private:
-
     struct subModel{
         unsigned int vbo, nbo, ebo, tbo, vao;
-    
-        // le shader
+
         Shader shader;
-        // les textures
+        SHADER_TYPE shaderType = PHONG;
+        std::string shaderVertPath = "";
+        std::string shaderFragPath = "";
+        std::string shaderTescPath = "";
+        std::string shaderTesePath = "";
+        
         int diffuseMap = -1;
         int specularMap = -1;
         std::string diffuseMapPath = "";
         std::string specularMapPath = "";
 
-        //la géométrie
         std::vector<GLfloat> vertices, normals, textureCoord;
         std::vector<GLuint>  indices;
 
-        // Model transformation
         glm::mat4 scale, rotation, translate;
     };
-
     std::vector<subModel> subModels;
 
 public:

@@ -18,7 +18,7 @@ add_subdirectory(third_party/glfw)
 add_subdirectory(third_party/assimp)
 
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /DGLFW_INCLUDE_NONE /std:c++17 /MP8 /wd4100 /wd4505")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /DGLFW_INCLUDE_NONE /std:c++17 /MP8 /wd4100 /wd4505 /wd4201")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -std=c++17")
 endif()
@@ -58,11 +58,12 @@ add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS}
                                ${PROJECT_SHADERS} ${PROJECT_CONFIGS}
                                ${VENDORS_SOURCES}  "src/main.cpp")
 
-target_link_libraries(${PROJECT_NAME} glfw assimp 
+target_link_libraries(${PROJECT_NAME} glfw assimp
                       ${GLFW_LIBRARIES} ${GLAD_LIBRARIES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
+
 
 message("### Moving shaders next to binary dir ####")
 add_custom_command(

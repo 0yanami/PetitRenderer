@@ -23,6 +23,3 @@
 [submodule "build/PetitRenderer/Debug/third_party/openmesh"]
 	path = build/PetitRenderer/Debug/third_party/openmesh
 	url = https://github.com/Lawrencemm/openmesh.git
-[submodule "third_party/openmesh"]
-	path = third_party/openmesh
-	url = https://github.com/Lawrencemm/openmesh.git

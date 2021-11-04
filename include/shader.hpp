@@ -16,12 +16,17 @@
 
 class Shader {
 private:
-	char* loadShader(std::string path);
+	const char* loadShader(std::string path);
 
 public:
 	unsigned int ID;
 	Shader(){};
-	Shader(const GLchar* vertexPath, const GLchar* fragmentPath);
+	// with tesselation shader
+	Shader(std::string vertexPath, std::string fragmentPath,
+		std::string tessControlPath, std::string tessEvalPath);
+	// without tesselation
+	Shader(std::string vertexPath, std::string fragmentPath);
+
 	void use();
 
 	void setBool(const std::string &name, bool value) const;
