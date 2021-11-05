@@ -6,8 +6,8 @@ out vec4 FragColor;
 
 struct Material {
     bool hasTexture;
-    float  diffuse;
-    float  specular;
+    vec3  diffuse;
+    vec3  specular;
     sampler2D  diffuseTex;
     sampler2D  specularTex;
     float shininess;

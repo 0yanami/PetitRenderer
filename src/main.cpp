@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     Camera cam{glm::vec3{0,0,6}, 50.0f, windowWidth, windowHeight};
     //Create a light
     Light light1{glm::vec3{0,0,4},glm::vec3{2.0f}};
-    Light light2{glm::vec3{0,2.5,-4},glm::vec3{3.5f}};
+    Light light2{glm::vec3{0,3,-5},glm::vec3{3.5f}};
     // create a scene
     Scene baseScene{};
 
@@ -30,25 +30,27 @@ int main(int argc, char* argv[]) {
     Cube cube2(1.0f);
     Cube cube3(1.0f);
 
-    FileModel teapot{"models/teapot.obj"};
-    //FileModel gtx{"models/gtx/GTX_1070TI.obj"};
+    FileModel teapot{"models/teapot.obj",SMOOTH_NORMAL_ENABLE};
+    FileModel gtx{"models/gtx/GTX_1070TI.obj",SMOOTH_NORMAL_DISABLE};
+    FileModel suzanne{"models/suzanne.obj",SMOOTH_NORMAL_ENABLE};
 
-    // textured phong //TODO: OK
     cube1.setTextures("textures/containerDiffuse.png","textures/containerSpecular.png");
-    // untextured phong //TODO: OK
+
     cube2.setPosition(glm::vec3{2.5,0,0});
-    // textured + displacement phong //TODO: OK
+
     cube3.setPosition(glm::vec3{-2.5,0,0})
     .setTextures("textures/tilesDiffuse.jpg","textures/tilesSpecular.jpg","textures/tilesHeight.png");
 
-    teapot.setScale(glm::vec3{0.3}).setPosition(glm::vec3{0,1.1,0});
+    teapot.setScale(glm::vec3{0.3}).setPosition(glm::vec3{0,1.1,0}).enableTesselation();
 
-    //gtx.setScale(glm::vec3{4.0}).setPosition(glm::vec3{0,-4,1.3});
+    gtx.setScale(glm::vec3{4.0}).setPosition(glm::vec3{0,-4,1.3});
 
-    baseScene.addModel(cube1).addModel(cube2).addModel(cube3).addModel(teapot);//.addModel(cube2).addModel(cubelight1).addModel(cubelight2)
-            //.addLight(light1).addLight(light2).addModel(teapot).addModel(gtx);
+    suzanne.setScale(glm::vec3{1.0}).setPosition(glm::vec3{0,-2.5,-2}).enableTesselation();
 
-    baseScene.addLight(light1);//.addLight(light2);
+    baseScene.addModel(cube1).addModel(cube2).addModel(cube3)
+            .addModel(teapot).addModel(gtx).addModel(suzanne);
+
+    baseScene.addLight(light1).addLight(light2);
 
     // start render loop, open GLFW window
     MainLoop renderLoop{baseScene,interface,cam};

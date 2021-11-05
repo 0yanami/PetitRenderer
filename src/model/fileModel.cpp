@@ -5,14 +5,20 @@
 
 
 
-FileModel::FileModel(std::string _path){
+FileModel::FileModel(std::string _path, SMOOTH_NORMAL _smoothNormals){
 
 	Assimp::Importer importer;
-	const aiScene *scene = importer.ReadFile(_path, 
+	
+	const aiScene *scene = _smoothNormals?
+		importer.ReadFile(_path, 
 			  aiProcess_Triangulate 
 			| aiProcess_FlipUVs
-			| aiProcess_GenNormals
-			| aiProcess_JoinIdenticalVertices);
+			| aiProcess_GenSmoothNormals):
+		importer.ReadFile(_path, 
+			  aiProcess_Triangulate 
+			| aiProcess_FlipUVs
+			| aiProcess_GenNormals);
+
 
 	if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 
     {
@@ -143,6 +149,9 @@ void FileModel::render(std::vector<Light>& _lights,Camera& _cam)  {
 
 		auto& sh = subModel.shader;
     	sh.use();
+
+		glm::vec3 axis{0,1,0};
+		subModel.rotation = glm::rotate(subModel.rotation,glm::radians(0.03f),axis);
 	
     	glm::mat4 model = subModel.translate*subModel.rotation*subModel.scale;
 
@@ -159,33 +168,37 @@ void FileModel::render(std::vector<Light>& _lights,Camera& _cam)  {
 		//if textures are defined
 		if(subModel.diffuseMap != -1){
 			sh.setInt("material.diffuseTex", 0);
-			sh.setBool("material.hasTexture",1);
+			sh.setBool("material.hasTexture",true);
 		} else {
-			sh.setVec3("material.diffuse", glm::vec3{1,1,1});
-			sh.setBool("material.hasTexture",0);
+			sh.setVec3("material.diffuse", glm::vec3{0.9,0.9,0.9});
+			sh.setBool("material.hasTexture",false);
 		}
 
 		if(subModel.specularMap != -1){
 			sh.setInt("material.specularTex", 1);
 		} else {
-			sh.setVec3("material.specular", glm::vec3{0.9});
+			sh.setVec3("material.specular", glm::vec3{1.0});
 		}
-
-		if(subModel.heightMap != -1){
-			sh.setInt("material.specular", 1);
-		} else {
-			sh.setVec3("material.specular", glm::vec3{0.9});
-		}
+//
+		//if(subModel.heightMap != -1){
+		//	sh.setInt("material.specular", 1);
+		//} else {
+		//	sh.setVec3("material.specular", glm::vec3{0.9});
+		//}
 		sh.setFloat("material.shininess", 128.0f);
 
+		if(tessellation){
+			sh.setInt("tes_lod0", 32);
+			sh.setInt("tes_lod1", 16);
+			sh.setInt("tes_lod2", 4);
+			// height map based tess
+			if(m.heightMap != -1){
+				sh.setInt("dispMap", 2);
 
-		if(m.heightMap != -1){
-			m.shader.setInt("dispMap", 2);
-			m.shader.setInt("tes_lod0", 64);
-			m.shader.setInt("tes_lod1", 32);
-			m.shader.setInt("tes_lod2", 16);
-			m.shader.setFloat("dispStrength", 0.01);
+				sh.setFloat("dispStrength", 0.01);
+			}
 		}
+
 		// lights properties
 
     	for(uint32_t i = 0; i<_lights.size(); i++){
@@ -226,8 +239,8 @@ void FileModel::render(std::vector<Light>& _lights,Camera& _cam)  {
 		
     	glBindVertexArray(subModel.vao);
 		//glDrawArrays(GL_TRIANGLES, 0, subModel.vertices.size()/3);
-		if(!tessellation){
-			glDrawElements( GL_TRIANGLES, subModel.indices.size(), GL_UNSIGNED_INT, nullptr);
+		if(tessellation){
+			glDrawElements( GL_PATCHES, subModel.indices.size(), GL_UNSIGNED_INT, nullptr);
 		} else {
 			glDrawElements( GL_TRIANGLES, subModel.indices.size(), GL_UNSIGNED_INT, nullptr);
 		}

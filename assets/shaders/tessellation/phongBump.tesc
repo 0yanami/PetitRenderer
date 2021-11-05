@@ -28,14 +28,15 @@ void main(){
     WorldPos_ctl_out[gl_InvocationID] = WorldPos_vert_out[gl_InvocationID];
     TexCoords_ctl_out[gl_InvocationID] =  TexCoords_vert_out[gl_InvocationID];
     Normal_ctl_out[gl_InvocationID] = Normal_vert_out[gl_InvocationID];
+    
     // get dist camera-vertex
-    float diste0 = distance(viewPos,WorldPos_ctl_out[0]);
-    float diste1 = distance(viewPos,WorldPos_ctl_out[1]);
-    float diste2 = distance(viewPos,WorldPos_ctl_out[2]);
+    float dist1 = distance(viewPos,WorldPos_ctl_out[0]);
+    float dist2 = distance(viewPos,WorldPos_ctl_out[1]);
+    float dist3 = distance(viewPos,WorldPos_ctl_out[2]);
     // set lod for each edge
-    gl_TessLevelOuter[0] = getLod(diste1,diste2);
-    gl_TessLevelOuter[1] = getLod(diste2,diste0);
-    gl_TessLevelOuter[2] = getLod(diste0,diste1);
+    gl_TessLevelOuter[0] = getLod(dist2,dist3);
+    gl_TessLevelOuter[1] = getLod(dist3,dist1);
+    gl_TessLevelOuter[2] = getLod(dist1,dist2);
     gl_TessLevelInner[0] = gl_TessLevelOuter[2];
 }
 

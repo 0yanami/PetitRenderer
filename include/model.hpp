@@ -14,6 +14,11 @@ enum SHADER_TYPE{
     PHONG
 };
 
+typedef enum {
+    SMOOTH_NORMAL_ENABLE = true,
+    SMOOTH_NORMAL_DISABLE = false
+} SMOOTH_NORMAL;
+
 class Model{
 protected:
     //! une structure qui encapsule la description d'un modèle
@@ -96,7 +101,7 @@ private:
 
 public:
     FileModel(){};
-    FileModel(std::string _path);
+    FileModel(std::string _path, SMOOTH_NORMAL _smoothNormals);
 
     void load();
     void processMesh(aiMesh *_mesh, const aiScene *_scene, size_t _meshIdx);

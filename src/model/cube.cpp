@@ -258,7 +258,7 @@ void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
 		m.shader.setInt("dispMap", 2);
 		m.shader.setInt("tes_lod0", 64);
 		m.shader.setInt("tes_lod1", 32);
-		m.shader.setInt("tes_lod2", 16);
+		m.shader.setInt("tes_lod2", 4);
 		m.shader.setFloat("dispStrength", 0.01f);
 	}
 

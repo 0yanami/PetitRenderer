@@ -30,14 +30,14 @@ void main(){
     // interpolate and send to frag shader
     TexCoord_eval_out = interp2D(CtlTri.TexCoord[0], CtlTri.TexCoord[1], CtlTri.TexCoord[2]);
     Normal_eval_out = interp3D(CtlTri.Normal[0], CtlTri.Normal[1], CtlTri.Normal[2]);
-
+    Normal_eval_out = normalize(Normal_eval_out);
     float u = gl_TessCoord.x;
     float v = gl_TessCoord.y;
     float w = gl_TessCoord.z;
 
-    vec3 bezier = CtlTri.p_300 * pow(u, 3) +
-                  CtlTri.p_030 * pow(v, 3) +
-                  CtlTri.p_003 * pow(w, 3) +
+    vec3 bezier = CtlTri.p_300 * pow(w, 3) +
+                  CtlTri.p_030 * pow(u, 3) +
+                  CtlTri.p_003 * pow(v, 3) +
                   CtlTri.p_210 * 3.0 * pow(w, 2) * u +
                   CtlTri.p_120 * 3.0 * w * pow(u, 2) +
                   CtlTri.p_201 * 3.0 * pow(w, 2) * v +
