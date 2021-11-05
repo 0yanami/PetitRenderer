@@ -1,39 +1,48 @@
 #include "model.hpp"
 
 Model& Model::setScale(glm::vec3 _scale){
-    scale = glm::mat4(1.0);
-    scale = glm::scale(scale,_scale);
+    m.scale = glm::mat4(1.0);
+    m.scale = glm::scale(m.scale,_scale);
     return *this;
 }
 
 Model& Model::setRotation(float _angle, glm::vec3 _axis){
-    rotation = glm::mat4(1.0);
-    rotation = glm::rotate(rotation, glm::radians(_angle), _axis);
+    m.rotation = glm::mat4(1.0);
+    m.rotation = glm::rotate(m.rotation, glm::radians(_angle), _axis);
     return *this;
 }
 
 Model& Model::setPosition(glm::vec3 _pos){
-    translate = glm::mat4{1.0};
-    translate = glm::translate(translate, _pos);
+    m.translate = glm::mat4{1.0};
+    m.translate = glm::translate(m.translate, _pos);
     return *this;
 }
 
 Model& Model::setShaderType(SHADER_TYPE _shader){
-    shaderType = _shader;
+    m.shaderType = _shader;
     return *this;
 }
 
 Model& Model::setTextures(std::string _diffusePath, std::string _specularPath, std::string _heightPath){
-	diffuseMapPath = _diffusePath;
-    specularMapPath = _specularPath;
-    heightMapPath = _heightPath;
-    shaderTessellation = true;
+	m.diffuseMapPath = _diffusePath;
+    m.specularMapPath = _specularPath;
+    m.heightMapPath = _heightPath;
+    // heightmap given so enable tessellation
+    tessellation = true;
 	return *this;
 }
 
 Model& Model::setTextures(std::string _diffusePath, std::string _specularPath){
-	diffuseMapPath = _diffusePath;
-    specularMapPath = _specularPath;
-    shaderTessellation = false;
+	m.diffuseMapPath = _diffusePath;
+    m.specularMapPath = _specularPath;
 	return *this;
+}
+
+Model& Model::enableTesselation(){
+    tessellation = true;
+    return *this;
+}
+Model& Model::disableTesselation(){
+    tessellation = false;
+    return *this;
 }

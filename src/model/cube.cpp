@@ -3,7 +3,7 @@
 #include "glm/gtx/string_cast.hpp"
 
 Cube::Cube(float _edgeSize){
-    vertices = {
+    m.vertices = {
         -0.5f, -0.5f, -0.5f,
          0.5f, -0.5f, -0.5f,
          0.5f,  0.5f, -0.5f,
@@ -47,7 +47,7 @@ Cube::Cube(float _edgeSize){
 		-0.5f,  0.5f, -0.5f
     };
 
-    normals = {
+    m.normals = {
         0.0f,  0.0f, -1.0f,
 		0.0f,  0.0f, -1.0f,
 		0.0f,  0.0f, -1.0f,
@@ -91,7 +91,7 @@ Cube::Cube(float _edgeSize){
 		0.0f,  1.0f,  0.0f
     };
     
-    textureCoord = {
+    m.textureCoord = {
         0.0f,  0.0f,
         1.0f,  0.0f,
         1.0f,  1.0f,
@@ -135,7 +135,7 @@ Cube::Cube(float _edgeSize){
 		0.0f,  1.0f
     };
 
-	indices = {
+	m.indices = {
 		0,1,2,
 		3,4,5,
 		
@@ -155,174 +155,186 @@ Cube::Cube(float _edgeSize){
 		33,34,35
 	};
 
-	translate = glm::mat4{1.0};
-	scale     = glm::scale(glm::mat4{1.0},glm::vec3(_edgeSize));
-	rotation  = glm::mat4{1.0};
+	m.translate = glm::mat4{1.0};
+	m.scale     = glm::scale(glm::mat4{1.0},glm::vec3(_edgeSize));
+	m.rotation  = glm::mat4{1.0};
 }
 
 //! Load vertex buffers and shader of cube
 void Cube::load(){
 
     // gen geometry buffers
-    glGenBuffers(1, &vbo);
-    glGenBuffers(1, &nbo);
-    glGenBuffers(1, &tbo);
-	glGenBuffers(1, &ebo);
-    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &m.vbo);
+    glGenBuffers(1, &m.nbo);
+    glGenBuffers(1, &m.tbo);
+	glGenBuffers(1, &m.ebo);
+    glGenVertexArrays(1, &m.vao);
 
 	// Bind the vao
-    glBindVertexArray(vao);
+    glBindVertexArray(m.vao);
 
     // create and fill vertex data buffer
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, m.vbo);
+    glBufferData(GL_ARRAY_BUFFER, m.vertices.size() * sizeof(GLfloat), m.vertices.data(), GL_STATIC_DRAW);
 	// set vertex attribute pointer
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)0);
     glEnableVertexAttribArray(0);
 
 
     // copy normals to nbo
-    glBindBuffer(GL_ARRAY_BUFFER, nbo);
-    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(GLfloat), normals.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, m.nbo);
+    glBufferData(GL_ARRAY_BUFFER, m.normals.size() * sizeof(GLfloat), m.normals.data(), GL_STATIC_DRAW);
     // define array for normals
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)0);
     glEnableVertexAttribArray(1);
 
     // Copy texture array in element buffer
-    glBindBuffer(GL_ARRAY_BUFFER, tbo);
-    glBufferData(GL_ARRAY_BUFFER, textureCoord.size() * sizeof(GLfloat), textureCoord.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, m.tbo);
+    glBufferData(GL_ARRAY_BUFFER, m.textureCoord.size() * sizeof(GLfloat), m.textureCoord.data(), GL_STATIC_DRAW);
 	// define array for texture
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *)0);
     glEnableVertexAttribArray(2);
 
 	//copy indices to ebo
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLfloat), indices.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,m.ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m.indices.size() * sizeof(GLfloat), m.indices.data(), GL_STATIC_DRAW);
 
 
     // Unbind the VAO
     glBindVertexArray(0);
 
 	// load textures if defined
-	if (diffuseMapPath != ""){
-		diffuseMap = loadTexture(diffuseMapPath.c_str());
+	if (m.diffuseMapPath != ""){
+		m.diffuseMap = loadTexture(m.diffuseMapPath.c_str());
 	}
-	if (specularMapPath != ""){
-		specularMap = loadTexture(specularMapPath.c_str());
+	if (m.specularMapPath != ""){
+		m.specularMap = loadTexture(m.specularMapPath.c_str());
 	}
-	if (heightMapPath != ""){
-		heightMap = loadTexture(heightMapPath.c_str());
+	if (m.heightMapPath != ""){
+		m.heightMap = loadTexture(m.heightMapPath.c_str());
 	}
 
-	// load right shader
-	if ((diffuseMapPath != "") && (specularMapPath != "")){
-		if(shaderTessellation){
-			std::cout << "init shader texture + tess"<< std::endl;
-			shader = {"phongTexTess.vert", "phongTexTess.frag","phongTexTess.tesc","phongTexTess.tese"};
-		} else {
-			std::cout << "init shader texture"<< std::endl;
-			shader = {"phongTex.vert", "phongTex.frag"};
-		}
-	} else {
-		std::cout << "init shader basic"<< std::endl;
-		shader = {"phong.vert", "phong.frag"};
-	}
+	loadShaders();
 }
 
 
 void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
 	
-    shader.use();
+    m.shader.use();
 	glm::vec3 axis{0,1,0};
-	rotation = glm::rotate(rotation,glm::radians(0.01f),axis);
+	m.rotation = glm::rotate(m.rotation,glm::radians(0.01f),axis);
     
-    glm::mat4 model = translate*rotation*scale;
+    glm::mat4 mdl = m.translate*m.rotation*m.scale;
 
-	shader.setMat4("model", model);
-    shader.setMat4("view",_cam.getView());
-    shader.setMat4("projection", _cam.getProj());
+	m.shader.setMat4("model", mdl);
+    m.shader.setMat4("view",_cam.getView());
+    m.shader.setMat4("projection", _cam.getProj());
 
 
     // for specular highlight
-    shader.setVec3("viewPos", _cam.getPos());
+    m.shader.setVec3("viewPos", _cam.getPos());
 	
-	shader.setFloat("material.specularStrength", 1.0f);
+	m.shader.setFloat("material.specularStrength", 1.0f);
+
 
 	//if textures are defined set uniform values
-	if(diffuseMap != -1){
-		shader.setInt("material.diffuse", 0);
+	if(m.diffuseMap != -1){
+		m.shader.setInt("material.diffuseTex", 0);
+		m.shader.setBool("material.hasTexture",true);
 	} else {
-		shader.setVec3("material.diffuse", glm::vec3{1,0.2,0.2});
+		m.shader.setVec3("material.diffuse", glm::vec3{1,0.3,0.3});
+		m.shader.setBool("material.hasTexture",false);
 	}
 
-	if(specularMap != -1){
-		shader.setInt("material.specular", 1);
+	if(m.specularMap != -1){
+		m.shader.setInt("material.specularTex", 1);
 	} else {
-		shader.setVec3("material.specular", glm::vec3{1,1,1});
+		m.shader.setVec3("material.specular", glm::vec3{1});
 	}
+	m.shader.setFloat("material.shininess", 128.0f);
 
-	if(heightMap != -1){
-		shader.setInt("dispMap", 2);
-		shader.setInt("tes_lod0", 64);
-		shader.setInt("tes_lod1", 32);
-		shader.setInt("tes_lod2", 16);
-		shader.setFloat("dispStrength", 0.01);
 
+	if(m.heightMap != -1){
+		m.shader.setInt("dispMap", 2);
+		m.shader.setInt("tes_lod0", 64);
+		m.shader.setInt("tes_lod1", 32);
+		m.shader.setInt("tes_lod2", 16);
+		m.shader.setFloat("dispStrength", 0.01f);
 	}
-
-	shader.setFloat("material.shininess", 128.0f);
-	
 
 
     for(uint32_t i = 0; i<_lights.size(); i++){
-		shader.setBool("pointLights["+   std::to_string(i) + "].enabled",1);
-        shader.setVec3("pointLights["+   std::to_string(i) + "].position",  _lights[i].getPos());
+		m.shader.setBool("pointLights["+   std::to_string(i) + "].enabled",1);
+        m.shader.setVec3("pointLights["+   std::to_string(i) + "].position",  _lights[i].getPos());
 		
-        shader.setVec3("pointLights[" +  std::to_string(i) + "].ambient",   _lights[i].getAmbiant());
-	    shader.setVec3("pointLights[" +  std::to_string(i) + "].diffuse",   _lights[i].getDiffuse());
-	    shader.setVec3("pointLights[" +  std::to_string(i) + "].specular",  _lights[i].getSpecular());
+        m.shader.setVec3("pointLights[" +  std::to_string(i) + "].ambient",   _lights[i].getAmbiant());
+	    m.shader.setVec3("pointLights[" +  std::to_string(i) + "].diffuse",   _lights[i].getDiffuse());
+	    m.shader.setVec3("pointLights[" +  std::to_string(i) + "].specular",  _lights[i].getSpecular());
 
-	    shader.setFloat("pointLights[" + std::to_string(i) + "].constant",  _lights[i].getConstant());
-	    shader.setFloat("pointLights[" + std::to_string(i) + "].linear",    _lights[i].getLinear());
-	    shader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", _lights[i].getQuadratic());
+	    m.shader.setFloat("pointLights[" + std::to_string(i) + "].constant",  _lights[i].getConstant());
+	    m.shader.setFloat("pointLights[" + std::to_string(i) + "].linear",    _lights[i].getLinear());
+	    m.shader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", _lights[i].getQuadratic());
     }
 	if (_lights.size()<64){
 		for (size_t i = _lights.size(); i<64; i++){
-			shader.setBool("pointLights["+   std::to_string(i) + "].enabled",0);
+			m.shader.setBool("pointLights["+   std::to_string(i) + "].enabled",0);
 		}
 	}
 
     // bind diffuse texture
 	glActiveTexture(GL_TEXTURE0);
-	if (diffuseMap  != -1){
-		glBindTexture(GL_TEXTURE_2D, diffuseMap);
+	if (m.diffuseMap  != -1){
+		glBindTexture(GL_TEXTURE_2D, m.diffuseMap);
 	} else {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	// bind specular texture
 	glActiveTexture(GL_TEXTURE1);
-	if(specularMap  != -1){
-		glBindTexture(GL_TEXTURE_2D, specularMap);
+	if(m.specularMap  != -1){
+		glBindTexture(GL_TEXTURE_2D, m.specularMap);
 	} else {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	// bind height map texture
 	glActiveTexture(GL_TEXTURE2);
-	if(heightMap  != -1){
-		glBindTexture(GL_TEXTURE_2D, heightMap);
+	if(m.heightMap  != -1){
+		glBindTexture(GL_TEXTURE_2D, m.heightMap);
 	} else {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-    glBindVertexArray(vao);
+    glBindVertexArray(m.vao);
 
     
-	if(heightMap  != -1){
-		glDrawElements(GL_PATCHES , indices.size(), GL_UNSIGNED_INT, nullptr);
+	if(tessellation){
+		glDrawElements(GL_PATCHES , m.indices.size(), GL_UNSIGNED_INT, nullptr);
 	} else {
-		glDrawElements(GL_TRIANGLES , indices.size(), GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES , m.indices.size(), GL_UNSIGNED_INT, nullptr);
 	}
+	glBindVertexArray(0);
 
+}
+
+void Cube::loadShaders(){
+	// load right shader
+	if(tessellation){
+		std::cout << "init shader tesselation cube"<< std::endl;
+		if (m.heightMapPath != ""){
+			m.shader = {"shaders/tessellation/phongBump.vert",
+				 "shaders/tessellation/phongBump.frag",
+				 "shaders/tessellation/phongBump.tesc",
+				 "shaders/tessellation/phongBump.tese"};
+		} else {
+			m.shader = {"shaders/tessellation/phongPN.vert",
+				 "shaders/tessellation/phongPN.frag",
+				 "shaders/tessellation/phongPN.tesc",
+				 "shaders/tessellation/phongPN.tese"};
+		}
+		
+	} else {
+		std::cout << "init shader phong cube"<< std::endl;
+		m.shader = {"shaders/phong.vert", "shaders/phong.frag"};
+	}
 }

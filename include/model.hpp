@@ -16,35 +16,40 @@ enum SHADER_TYPE{
 
 class Model{
 protected:
-    // vbo = vertices
-    // nbo = normals
-    // ebo = indices
-    // tbo = texture coord
+    //! une structure qui encapsule la description d'un modèle
+    struct modelDescription{
+            // vbo = vertices
+        // nbo = normals
+        // ebo = indices
+        // tbo = texture coord
+        unsigned int vbo, nbo, ebo, tbo, vao;
 
-    unsigned int vbo, nbo, ebo, tbo, vao;
-    
-    // shading
-    Shader shader;
-    SHADER_TYPE shaderType = PHONG;
-    // tesselation enabled or disabled
-    bool shaderTessellation = false;
+        // shading
+        Shader shader;
+        SHADER_TYPE shaderType = PHONG;
 
-    std::string shaderVertPath = "";
-    std::string shaderFragPath = "";
-    std::string shaderTescPath = "";
-    std::string shaderTesePath = "";
+        std::string shaderVertPath = "";
+        std::string shaderFragPath = "";
+        std::string shaderTescPath = "";
+        std::string shaderTesePath = "";
 
-    int diffuseMap = -1;
-    int specularMap = -1;
-    int heightMap = -1;
-    std::string diffuseMapPath = "";
-    std::string specularMapPath = "";
-    std::string heightMapPath = "";
-    
-    std::vector<GLfloat> vertices, normals, textureCoord;
-    std::vector<GLuint>  indices;
+        int diffuseMap = -1;
+        int specularMap = -1;
+        int heightMap = -1;
+        std::string diffuseMapPath = "";
+        std::string specularMapPath = "";
+        std::string heightMapPath = "";
 
-    glm::mat4 scale, rotation, translate;
+        std::vector<GLfloat> vertices, normals, textureCoord;
+        std::vector<GLuint>  indices;
+
+        glm::mat4 scale, rotation, translate;
+    };
+
+    modelDescription m;
+    //! tessellation enabled or disabled (disabled by default)
+    bool tessellation = false;
+
 
 public:
     Model(){};
@@ -58,6 +63,8 @@ public:
     Model& setShaderType(SHADER_TYPE _shader);
     Model& setTextures(std::string _diffusePath, std::string _specularPath, std::string _heightPath);
     Model& setTextures(std::string _diffusePath, std::string _specularPath);
+    Model& enableTesselation();
+    Model& disableTesselation();
     
     //void subdivide();
     //void tesselation(bool activate);
@@ -67,6 +74,8 @@ public:
 
 
 class Cube : public Model{
+private:
+    void loadShaders();
 public:
     Cube(){};
     Cube(float _edgeSize);
@@ -76,30 +85,14 @@ public:
 };
 
 
-//! A model loaded from file, can contain multiple models inside it.
+
+//! A model loaded from file, can contain multiple subModels inside it.
 class FileModel : public Model{
 private:
-    struct subModel{
-        unsigned int vbo, nbo, ebo, tbo, vao;
+    
+    std::vector<modelDescription> subModels;
 
-        Shader shader;
-        SHADER_TYPE shaderType = PHONG;
-        std::string shaderVertPath = "";
-        std::string shaderFragPath = "";
-        std::string shaderTescPath = "";
-        std::string shaderTesePath = "";
-        
-        int diffuseMap = -1;
-        int specularMap = -1;
-        std::string diffuseMapPath = "";
-        std::string specularMapPath = "";
-
-        std::vector<GLfloat> vertices, normals, textureCoord;
-        std::vector<GLuint>  indices;
-
-        glm::mat4 scale, rotation, translate;
-    };
-    std::vector<subModel> subModels;
+    void loadShaders(modelDescription& model);
 
 public:
     FileModel(){};

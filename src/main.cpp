@@ -29,32 +29,26 @@ int main(int argc, char* argv[]) {
     Cube cube1(1.0f);
     Cube cube2(1.0f);
     Cube cube3(1.0f);
-    //Cube cubelight1(0.2f);
-    //Cube cubelight2(0.2f);
 
-    //FileModel teapot{"teapot.obj"};
-    //FileModel gtx{"gtx/GTX_1070TI.obj"};
-    //Cube lightpos(0.3f);
+    FileModel teapot{"models/teapot.obj"};
+    //FileModel gtx{"models/gtx/GTX_1070TI.obj"};
 
-    //lightpos.setPosition(glm::vec3{0,2,0});
+    // textured phong //TODO: OK
+    cube1.setTextures("textures/containerDiffuse.png","textures/containerSpecular.png");
+    // untextured phong //TODO: OK
+    cube2.setPosition(glm::vec3{2.5,0,0});
+    // textured + displacement phong //TODO: OK
+    cube3.setPosition(glm::vec3{-2.5,0,0})
+    .setTextures("textures/tilesDiffuse.jpg","textures/tilesSpecular.jpg","textures/tilesHeight.png");
 
-    cube1.setTextures("textures/tilesDiffuse.jpg","textures/tilesSpecular.jpg");
-    
-    cube2.setScale(glm::vec3{1.2}).setRotation(40.0,glm::vec3{0,0.5,0})
-        .setPosition(glm::vec3{2.5,0,0});
+    teapot.setScale(glm::vec3{0.3}).setPosition(glm::vec3{0,1.1,0});
 
-    cube3.setPosition(glm::vec3{-2.5,0,0}).setTextures("textures/tilesDiffuse.jpg","textures/tilesSpecular.jpg","textures/tilesHeight.png");
-//
-    //cubelight1.setPosition(light1.getPos());
-//
-    //cubelight2.setPosition(light2.getPos());
-//
-    //teapot.setScale(glm::vec3{0.2}).setPosition(glm::vec3{-3,0,0});
-//
     //gtx.setScale(glm::vec3{4.0}).setPosition(glm::vec3{0,-4,1.3});
 
-    baseScene.addModel(cube1).addModel(cube2).addLight(light1).addModel(cube3);//.addModel(cube2).addModel(cubelight1).addModel(cubelight2)
+    baseScene.addModel(cube1).addModel(cube2).addModel(cube3).addModel(teapot);//.addModel(cube2).addModel(cubelight1).addModel(cubelight2)
             //.addLight(light1).addLight(light2).addModel(teapot).addModel(gtx);
+
+    baseScene.addLight(light1);//.addLight(light2);
 
     // start render loop, open GLFW window
     MainLoop renderLoop{baseScene,interface,cam};
