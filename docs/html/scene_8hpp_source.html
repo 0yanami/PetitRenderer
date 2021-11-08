@@ -74,19 +74,48 @@ $(function() {
 <div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="preprocessor">#ifndef SCENE_H</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define SCENE_H</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
-<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;headers.hpp&quot;</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;model.hpp&quot;</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno"><a class="line" href="class_scene.html">    7</a></span><span class="keyword">class </span><a class="code hl_class" href="class_scene.html">Scene</a>{</div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>    <span class="keywordtype">int</span> caca();</div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
+<div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &lt;stdexcept&gt;</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span> </div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &quot;headers.hpp&quot;</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &quot;model.hpp&quot;</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;camera.hpp&quot;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;light.hpp&quot;</span></div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>    <a class="code hl_class" href="class_scene.html">Scene</a> addobject(<a class="code hl_class" href="class_model.html">Model</a> model);</div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>};</div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="aclass_model_html"><div class="ttname"><a href="class_model.html">Model</a></div><div class="ttdef"><b>Definition:</b> model.hpp:5</div></div>
-<div class="ttc" id="aclass_scene_html"><div class="ttname"><a href="class_scene.html">Scene</a></div><div class="ttdef"><b>Definition:</b> scene.hpp:7</div></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno"><a class="line" href="class_scene.html">   12</a></span><span class="keyword">class </span><a class="code hl_class" href="class_scene.html">Scene</a>{</div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>    </div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>    std::vector&lt;Model*&gt; models;</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    std::vector&lt;Light&gt; lights;</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    <a class="code hl_class" href="class_scene.html">Scene</a>();</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_scene.html#ae1b864ad69216f68b5c588477c87ec20">load</a>();</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_scene.html#aef9025ecfb2bd98c3e6342e49654283f">render</a>(<a class="code hl_class" href="class_camera.html">Camera</a>&amp; _cam);</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    <a class="code hl_class" href="class_scene.html">Scene</a>&amp; <a class="code hl_function" href="class_scene.html#a63ff34b8a774b4aa6303090dda2ec0a9">addModel</a>(<a class="code hl_class" href="class_model.html">Model</a>&amp; _model);</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <a class="code hl_class" href="class_scene.html">Scene</a>&amp; <a class="code hl_function" href="class_scene.html#ab1e19c988b94d32317b23ffed53449cb">addLight</a>(<a class="code hl_class" href="class_light.html">Light</a>&amp; _light);</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    </div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <a class="code hl_class" href="class_model.html">Model</a>&amp; <a class="code hl_function" href="class_scene.html#abe074157e8036c4b2ec28dc58947f0d8">getModel</a>(<span class="keywordtype">int</span> _index);</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    std::vector&lt;Model*&gt;&amp; <a class="code hl_function" href="class_scene.html#a2986faa391ff45dc4c3a4e15ee74ee72">getAllModels</a>();</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    <a class="code hl_class" href="class_light.html">Light</a>&amp; <a class="code hl_function" href="class_scene.html#a86a70aefacd30f9e7061536ad1cefa42">getLight</a>(<span class="keywordtype">int</span> _index);</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>};</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="aclass_camera_html"><div class="ttname"><a href="class_camera.html">Camera</a></div><div class="ttdoc">A perspective camera with parameters that can be updated, outputs a view matrix.</div><div class="ttdef"><b>Definition:</b> camera.hpp:11</div></div>
+<div class="ttc" id="aclass_light_html"><div class="ttname"><a href="class_light.html">Light</a></div><div class="ttdef"><b>Definition:</b> light.hpp:6</div></div>
+<div class="ttc" id="aclass_model_html"><div class="ttname"><a href="class_model.html">Model</a></div><div class="ttdef"><b>Definition:</b> model.hpp:22</div></div>
+<div class="ttc" id="aclass_scene_html"><div class="ttname"><a href="class_scene.html">Scene</a></div><div class="ttdef"><b>Definition:</b> scene.hpp:12</div></div>
+<div class="ttc" id="aclass_scene_html_a2986faa391ff45dc4c3a4e15ee74ee72"><div class="ttname"><a href="class_scene.html#a2986faa391ff45dc4c3a4e15ee74ee72">Scene::getAllModels</a></div><div class="ttdeci">std::vector&lt; Model * &gt; &amp; getAllModels()</div><div class="ttdoc">Get all objects of scene.</div><div class="ttdef"><b>Definition:</b> scene.cpp:39</div></div>
+<div class="ttc" id="aclass_scene_html_a63ff34b8a774b4aa6303090dda2ec0a9"><div class="ttname"><a href="class_scene.html#a63ff34b8a774b4aa6303090dda2ec0a9">Scene::addModel</a></div><div class="ttdeci">Scene &amp; addModel(Model &amp;_model)</div><div class="ttdoc">Add and object to scene.</div><div class="ttdef"><b>Definition:</b> scene.cpp:24</div></div>
+<div class="ttc" id="aclass_scene_html_a86a70aefacd30f9e7061536ad1cefa42"><div class="ttname"><a href="class_scene.html#a86a70aefacd30f9e7061536ad1cefa42">Scene::getLight</a></div><div class="ttdeci">Light &amp; getLight(int _index)</div><div class="ttdoc">Get a specific light of scene.</div><div class="ttdef"><b>Definition:</b> scene.cpp:50</div></div>
+<div class="ttc" id="aclass_scene_html_ab1e19c988b94d32317b23ffed53449cb"><div class="ttname"><a href="class_scene.html#ab1e19c988b94d32317b23ffed53449cb">Scene::addLight</a></div><div class="ttdeci">Scene &amp; addLight(Light &amp;_light)</div><div class="ttdoc">Add a light to the scene.</div><div class="ttdef"><b>Definition:</b> scene.cpp:44</div></div>
+<div class="ttc" id="aclass_scene_html_abe074157e8036c4b2ec28dc58947f0d8"><div class="ttname"><a href="class_scene.html#abe074157e8036c4b2ec28dc58947f0d8">Scene::getModel</a></div><div class="ttdeci">Model &amp; getModel(int _index)</div><div class="ttdoc">Get a specific object of scene.</div><div class="ttdef"><b>Definition:</b> scene.cpp:30</div></div>
+<div class="ttc" id="aclass_scene_html_ae1b864ad69216f68b5c588477c87ec20"><div class="ttname"><a href="class_scene.html#ae1b864ad69216f68b5c588477c87ec20">Scene::load</a></div><div class="ttdeci">void load()</div><div class="ttdoc">Load the scene models on GPU before rendering.</div><div class="ttdef"><b>Definition:</b> scene.cpp:10</div></div>
+<div class="ttc" id="aclass_scene_html_aef9025ecfb2bd98c3e6342e49654283f"><div class="ttname"><a href="class_scene.html#aef9025ecfb2bd98c3e6342e49654283f">Scene::render</a></div><div class="ttdeci">void render(Camera &amp;_cam)</div><div class="ttdoc">Render all objects of scene.</div><div class="ttdef"><b>Definition:</b> scene.cpp:17</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

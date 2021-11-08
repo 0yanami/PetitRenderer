@@ -1,5 +1,5 @@
-#ifndef RENDER_H
-#define RENDER_H
+#ifndef MAINLOOP_H
+#define MAINLOOP_H
 
 #include <chrono>
 

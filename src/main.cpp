@@ -30,8 +30,11 @@ int main(int argc, char* argv[]) {
     Cube cube2(1.0f);
     Cube cube3(1.0f);
 
+    //add a cubemap
+    CubeMap cubemap{"textures/cubemaps/1/","jpg"};
+
     FileModel teapot{"models/teapot.obj",SMOOTH_NORMAL_ENABLE};
-    FileModel gtx{"models/gtx/GTX_1070TI.obj",SMOOTH_NORMAL_DISABLE};
+    //FileModel gtx{"models/gtx/GTX_1070TI.obj",SMOOTH_NORMAL_DISABLE};
     FileModel suzanne{"models/suzanne.obj",SMOOTH_NORMAL_ENABLE};
 
     cube1.setTextures("textures/containerDiffuse.png","textures/containerSpecular.png");
@@ -41,16 +44,18 @@ int main(int argc, char* argv[]) {
     cube3.setPosition(glm::vec3{-2.5,0,0})
     .setTextures("textures/tilesDiffuse.jpg","textures/tilesSpecular.jpg","textures/tilesHeight.png");
 
-    teapot.setScale(glm::vec3{0.3}).setPosition(glm::vec3{0,1.1,0}).enableTesselation();
+    teapot.setScale(glm::vec3{0.3f}).setPosition(glm::vec3{0,1.1,0}).enableTesselation();
 
-    gtx.setScale(glm::vec3{4.0}).setPosition(glm::vec3{0,-4,1.3});
+    //gtx.setScale(glm::vec3{4.0f}).setPosition(glm::vec3{0,-4,1.3});
 
-    suzanne.setScale(glm::vec3{1.0}).setPosition(glm::vec3{0,-2.5,-2}).enableTesselation();
+    suzanne.setScale(glm::vec3{0.5}).setPosition(glm::vec3{0,-2,-2}).enableTesselation();
 
     baseScene.addModel(cube1).addModel(cube2).addModel(cube3)
-            .addModel(teapot).addModel(gtx).addModel(suzanne);
+            .addModel(teapot).addModel(suzanne);
 
     baseScene.addLight(light1).addLight(light2);
+
+    baseScene.setCubeMap(cubemap);
 
     // start render loop, open GLFW window
     MainLoop renderLoop{baseScene,interface,cam};

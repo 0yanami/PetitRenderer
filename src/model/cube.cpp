@@ -2,8 +2,10 @@
 #include "glm/ext.hpp"
 #include "glm/gtx/string_cast.hpp"
 
+
 Cube::Cube(float _edgeSize){
-    m.vertices = {
+
+	m.vertices = {
         -0.5f, -0.5f, -0.5f,
          0.5f, -0.5f, -0.5f,
          0.5f,  0.5f, -0.5f,
@@ -154,13 +156,14 @@ Cube::Cube(float _edgeSize){
 		30,31,32,
 		33,34,35
 	};
+    
 
 	m.translate = glm::mat4{1.0};
 	m.scale     = glm::scale(glm::mat4{1.0},glm::vec3(_edgeSize));
 	m.rotation  = glm::mat4{1.0};
 }
 
-//! Load vertex buffers and shader of cube
+
 void Cube::load(){
 
     // gen geometry buffers
@@ -223,11 +226,11 @@ void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
     m.shader.use();
 	glm::vec3 axis{0,1,0};
 	m.rotation = glm::rotate(m.rotation,glm::radians(0.01f),axis);
-    
-    glm::mat4 mdl = m.translate*m.rotation*m.scale;
 
-	m.shader.setMat4("model", mdl);
-    m.shader.setMat4("view",_cam.getView());
+    glm::mat4 model = m.translate*m.rotation*m.scale;
+
+	m.shader.setMat4("model", model);
+    m.shader.setMat4("view", _cam.getView());
     m.shader.setMat4("projection", _cam.getProj());
 
 
@@ -320,7 +323,6 @@ void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
 void Cube::loadShaders(){
 	// load right shader
 	if(tessellation){
-		std::cout << "init shader tesselation cube"<< std::endl;
 		if (m.heightMapPath != ""){
 			m.shader = {"shaders/tessellation/phongBump.vert",
 				 "shaders/tessellation/phongBump.frag",
@@ -334,7 +336,6 @@ void Cube::loadShaders(){
 		}
 		
 	} else {
-		std::cout << "init shader phong cube"<< std::endl;
 		m.shader = {"shaders/phong.vert", "shaders/phong.frag"};
 	}
 }

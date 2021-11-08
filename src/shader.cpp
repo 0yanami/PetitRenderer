@@ -9,9 +9,7 @@ const char* Shader::loadShader(std::string path) {
 
 	char* cstr = new char[fSize + 1];
 
-	if(fSize>0){
-		std::cout << "loaded shader of size "<<fSize<<" with path : " <<path<<std::endl;
-	}else{
+	if(fSize==0){
 		std::cout << "failed to load shader with path : " <<path<<std::endl;
 	}
 	strcpy(cstr, str.c_str());

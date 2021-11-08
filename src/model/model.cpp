@@ -18,11 +18,6 @@ Model& Model::setPosition(glm::vec3 _pos){
     return *this;
 }
 
-Model& Model::setShaderType(SHADER_TYPE _shader){
-    m.shaderType = _shader;
-    return *this;
-}
-
 Model& Model::setTextures(std::string _diffusePath, std::string _specularPath, std::string _heightPath){
 	m.diffuseMapPath = _diffusePath;
     m.specularMapPath = _specularPath;

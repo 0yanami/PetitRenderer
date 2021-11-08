@@ -96,7 +96,7 @@ float getLod(float d1, float d2,vec3 edge)
     // get average dist of edge from camera
     float avg = (d1 + d2) / 2.0;
 
-    // low distance, high lod
+    // low distance, high lod 
     if (avg <= 2.0) {
         return tes_lod0*length(edge);
     }

@@ -67,7 +67,6 @@ void MainLoop::run() {
 
             glfwSetWindowSize(window, windowWidth, windowHeight);
             glViewport(0, 0, windowWidth, windowHeight);
-            //glfwSetCursorPos(window,windowWidth/2, windowHeight/2);
         }
 
 
@@ -75,13 +74,11 @@ void MainLoop::run() {
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-        //processInput(window);
         glClearColor(0.2f, 0.2f, 0.2f, 0.2f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         updateFpsCounter(500);
         
-
         // render objects of scene;
         scene.render(cam);
 

@@ -1,5 +1,5 @@
-#ifndef CAMERAH
-#define CAMERAH
+#ifndef CAMERA_H
+#define CAMERA_H
 
 #ifndef GLM_H
 #define GLM_H

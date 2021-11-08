@@ -14,6 +14,7 @@ class Scene{
 private:
     std::vector<Model*> models;
     std::vector<Light> lights;
+    CubeMap* cubeMap = nullptr;
 
 public:
     Scene();
@@ -23,12 +24,8 @@ public:
 
     Scene& addModel(Model& _model);
     Scene& addLight(Light& _light);
+    Scene& setCubeMap(CubeMap& _cubeMap);
     
-
-    Model& getModel(int _index);
-    std::vector<Model*>& getAllModels();
-
-    Light& getLight(int _index);
 };
 
 #endif

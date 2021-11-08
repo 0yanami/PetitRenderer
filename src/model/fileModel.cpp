@@ -179,27 +179,22 @@ void FileModel::render(std::vector<Light>& _lights,Camera& _cam)  {
 		} else {
 			sh.setVec3("material.specular", glm::vec3{1.0});
 		}
-//
-		//if(subModel.heightMap != -1){
-		//	sh.setInt("material.specular", 1);
-		//} else {
-		//	sh.setVec3("material.specular", glm::vec3{0.9});
-		//}
+
 		sh.setFloat("material.shininess", 128.0f);
 
 		if(tessellation){
-			sh.setInt("tes_lod0", 32);
-			sh.setInt("tes_lod1", 16);
-			sh.setInt("tes_lod2", 4);
+			//level of detail based on distance , adapts to any triangle size
+			sh.setInt("tes_lod0", 64); //under 2 unit distance
+			sh.setInt("tes_lod1", 16); //2 to 5 distance
+			sh.setInt("tes_lod2", 4);  // farther than 5
 			// height map based tess
 			if(m.heightMap != -1){
 				sh.setInt("dispMap", 2);
-
 				sh.setFloat("dispStrength", 0.01);
 			}
 		}
 
-		// lights properties
+		// point lights properties
 
     	for(uint32_t i = 0; i<_lights.size(); i++){
 			sh.setBool("pointLights["+   std::to_string(i) + "].enabled",1);
@@ -221,7 +216,6 @@ void FileModel::render(std::vector<Light>& _lights,Camera& _cam)  {
 		
 
     	// texture loading 
-
 
 		glActiveTexture(GL_TEXTURE0);
 		if (subModel.diffuseMap  != -1){
@@ -276,14 +270,12 @@ FileModel& FileModel::setPosition(glm::vec3 _pos){
 void FileModel::loadShaders(modelDescription& model){
 	// load right shader
 	if(tessellation){
-		std::cout << "init shader tessellation filemodel"<< std::endl;
 		model.shader = {"shaders/tessellation/phongPN.vert",
 				 	"shaders/tessellation/phongPN.frag",
 				 	"shaders/tessellation/phongPN.tesc",
 				 	"shaders/tessellation/phongPN.tese"};
 		
 	} else {
-		std::cout << "init shader phong filemodel"<< std::endl;
 		model.shader = {"shaders/phong.vert", "shaders/phong.frag"};
 	}
 	

@@ -65,8 +65,11 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="class_model-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">Model Class Reference</div></div>
+  <div class="headertitle"><div class="title">Model Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div></div>
 </div><!--header-->
 <div class="contents">
 <div class="dynheader">
@@ -75,11 +78,234 @@ Inheritance diagram for Model:</div>
  <div class="center">
   <img src="class_model.png" usemap="#Model_map" alt=""/>
   <map id="Model_map" name="Model_map">
-<area href="class_cube.html" alt="Cube" shape="rect" coords="0,56,53,80"/>
-<area href="class_plane.html" alt="Plane" shape="rect" coords="63,56,116,80"/>
-<area href="class_sphere.html" alt="Sphere" shape="rect" coords="126,56,179,80"/>
+<area href="class_cube.html" title="a simple cube to test shader on" alt="Cube" shape="rect" coords="0,56,68,80"/>
+<area href="class_cube_map.html" alt="CubeMap" shape="rect" coords="78,56,146,80"/>
+<area href="class_file_model.html" title="A model loaded from a file, it can contain multiple subModels inside it." alt="FileModel" shape="rect" coords="156,56,224,80"/>
+<area href="class_plane.html" alt="Plane" shape="rect" coords="234,56,302,80"/>
+<area href="class_sphere.html" alt="Sphere" shape="rect" coords="312,56,380,80"/>
   </map>
 </div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="struct_model_1_1model_description.html">modelDescription</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">une structure qui encapsule la description d'un modèle  <a href="struct_model_1_1model_description.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a26a65fe3ece1274a62338d9857012b2b"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_model.html#a26a65fe3ece1274a62338d9857012b2b">load</a> ()=0</td></tr>
+<tr class="memdesc:a26a65fe3ece1274a62338d9857012b2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load the object on the gpu. This action is performed after opengl/glfw initialization.  <a href="class_model.html#a26a65fe3ece1274a62338d9857012b2b">More...</a><br /></td></tr>
+<tr class="separator:a26a65fe3ece1274a62338d9857012b2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af1d90d02cf63230cf6dec3ef44503c41"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_model.html#af1d90d02cf63230cf6dec3ef44503c41">render</a> (std::vector&lt; <a class="el" href="class_light.html">Light</a> &gt; &amp;_lights, <a class="el" href="class_camera.html">Camera</a> &amp;_cam)=0</td></tr>
+<tr class="memdesc:af1d90d02cf63230cf6dec3ef44503c41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Render the object on screen.  <a href="class_model.html#af1d90d02cf63230cf6dec3ef44503c41">More...</a><br /></td></tr>
+<tr class="separator:af1d90d02cf63230cf6dec3ef44503c41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a995fb473666379986987383e11b100cf"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_model.html">Model</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_model.html#a995fb473666379986987383e11b100cf">setScale</a> (glm::vec3 _scale)</td></tr>
+<tr class="memdesc:a995fb473666379986987383e11b100cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the scale the object in x,y,z axis.  <a href="class_model.html#a995fb473666379986987383e11b100cf">More...</a><br /></td></tr>
+<tr class="separator:a995fb473666379986987383e11b100cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae9428a2ab48172742a368f775dadf17c"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_model.html">Model</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_model.html#ae9428a2ab48172742a368f775dadf17c">setRotation</a> (float _angle, glm::vec3 _axis)</td></tr>
+<tr class="memdesc:ae9428a2ab48172742a368f775dadf17c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rotate the object around the given axis, angle is in degrees.  <a href="class_model.html#ae9428a2ab48172742a368f775dadf17c">More...</a><br /></td></tr>
+<tr class="separator:ae9428a2ab48172742a368f775dadf17c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c453c4be1df78511d0b87fca7bdb197"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="class_model.html">Model</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_model.html#a6c453c4be1df78511d0b87fca7bdb197">setPosition</a> (glm::vec3 _translate)</td></tr>
+<tr class="memdesc:a6c453c4be1df78511d0b87fca7bdb197"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the position of the object in world space.  <a href="class_model.html#a6c453c4be1df78511d0b87fca7bdb197">More...</a><br /></td></tr>
+<tr class="separator:a6c453c4be1df78511d0b87fca7bdb197"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a286068a9578c1a96b9ea11053e72f9f6"><td class="memItemLeft" align="right" valign="top"><a id="a286068a9578c1a96b9ea11053e72f9f6" name="a286068a9578c1a96b9ea11053e72f9f6"></a>
+<a class="el" href="class_model.html">Model</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>setTextures</b> (std::string _diffusePath, std::string _specularPath, std::string _heightPath)</td></tr>
+<tr class="memdesc:a286068a9578c1a96b9ea11053e72f9f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set textures for this model. Bump map is given so tesselation is enabled automatically. <br /></td></tr>
+<tr class="separator:a286068a9578c1a96b9ea11053e72f9f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ca62e8fed3038875006fc4f0b7273f0"><td class="memItemLeft" align="right" valign="top"><a id="a3ca62e8fed3038875006fc4f0b7273f0" name="a3ca62e8fed3038875006fc4f0b7273f0"></a>
+<a class="el" href="class_model.html">Model</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>setTextures</b> (std::string _diffusePath, std::string _specularPath)</td></tr>
+<tr class="memdesc:a3ca62e8fed3038875006fc4f0b7273f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set textures for this model. No bump map is given so tesselation is not enabled. <br /></td></tr>
+<tr class="separator:a3ca62e8fed3038875006fc4f0b7273f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6e3eff5ba53b98f8b16c04700ca3a35"><td class="memItemLeft" align="right" valign="top"><a id="af6e3eff5ba53b98f8b16c04700ca3a35" name="af6e3eff5ba53b98f8b16c04700ca3a35"></a>
+<a class="el" href="class_model.html">Model</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>enableTesselation</b> ()</td></tr>
+<tr class="memdesc:af6e3eff5ba53b98f8b16c04700ca3a35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enable tessellation for this model. <br /></td></tr>
+<tr class="separator:af6e3eff5ba53b98f8b16c04700ca3a35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2edb136323adadf505870cf1dba3faa5"><td class="memItemLeft" align="right" valign="top"><a id="a2edb136323adadf505870cf1dba3faa5" name="a2edb136323adadf505870cf1dba3faa5"></a>
+<a class="el" href="class_model.html">Model</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>disableTesselation</b> ()</td></tr>
+<tr class="memdesc:a2edb136323adadf505870cf1dba3faa5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disable tessellation for this model. <br /></td></tr>
+<tr class="separator:a2edb136323adadf505870cf1dba3faa5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:a3904dede4594ba9049d696891b99b3b7"><td class="memItemLeft" align="right" valign="top"><a id="a3904dede4594ba9049d696891b99b3b7" name="a3904dede4594ba9049d696891b99b3b7"></a>
+<a class="el" href="struct_model_1_1model_description.html">modelDescription</a>&#160;</td><td class="memItemRight" valign="bottom"><b>m</b></td></tr>
+<tr class="separator:a3904dede4594ba9049d696891b99b3b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28193e638e71f8824bf11879afd52399"><td class="memItemLeft" align="right" valign="top"><a id="a28193e638e71f8824bf11879afd52399" name="a28193e638e71f8824bf11879afd52399"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>tessellation</b> = false</td></tr>
+<tr class="memdesc:a28193e638e71f8824bf11879afd52399"><td class="mdescLeft">&#160;</td><td class="mdescRight">tessellation enabled or disabled (disabled by default) <br /></td></tr>
+<tr class="separator:a28193e638e71f8824bf11879afd52399"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a26a65fe3ece1274a62338d9857012b2b" name="a26a65fe3ece1274a62338d9857012b2b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a26a65fe3ece1274a62338d9857012b2b">&#9670;&nbsp;</a></span>load()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void Model::load </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Load the object on the gpu. This action is performed after opengl/glfw initialization. </p>
+
+<p>Implemented in <a class="el" href="class_cube.html#aa1326a13ad32a031f8c8f9bcf8f63b2a">Cube</a>, <a class="el" href="class_file_model.html#a18edd25ec6fa26cef65937c1a598acae">FileModel</a>, and <a class="el" href="class_cube_map.html#a803194da11912e4f58d512f1e4d65542">CubeMap</a>.</p>
+
+</div>
+</div>
+<a id="af1d90d02cf63230cf6dec3ef44503c41" name="af1d90d02cf63230cf6dec3ef44503c41"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af1d90d02cf63230cf6dec3ef44503c41">&#9670;&nbsp;</a></span>render()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void Model::render </td>
+          <td>(</td>
+          <td class="paramtype">std::vector&lt; <a class="el" href="class_light.html">Light</a> &gt; &amp;&#160;</td>
+          <td class="paramname"><em>_lights</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="class_camera.html">Camera</a> &amp;&#160;</td>
+          <td class="paramname"><em>_cam</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Render the object on screen. </p>
+
+<p>Implemented in <a class="el" href="class_cube.html#ac9cfb010dcc8615a8a762917782b07cd">Cube</a>, <a class="el" href="class_file_model.html#ab77264c3622bc6276126437c6731eaf2">FileModel</a>, and <a class="el" href="class_cube_map.html#a44c62320165e8bb2dd4df4f92c9c078d">CubeMap</a>.</p>
+
+</div>
+</div>
+<a id="a6c453c4be1df78511d0b87fca7bdb197" name="a6c453c4be1df78511d0b87fca7bdb197"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c453c4be1df78511d0b87fca7bdb197">&#9670;&nbsp;</a></span>setPosition()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="class_model.html">Model</a> &amp; Model::setPosition </td>
+          <td>(</td>
+          <td class="paramtype">glm::vec3&#160;</td>
+          <td class="paramname"><em>_translate</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Set the position of the object in world space. </p>
+
+<p>Reimplemented in <a class="el" href="class_file_model.html#ad11c6ef537b14137dba294ea7cdba142">FileModel</a>.</p>
+
+</div>
+</div>
+<a id="ae9428a2ab48172742a368f775dadf17c" name="ae9428a2ab48172742a368f775dadf17c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae9428a2ab48172742a368f775dadf17c">&#9670;&nbsp;</a></span>setRotation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="class_model.html">Model</a> &amp; Model::setRotation </td>
+          <td>(</td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>_angle</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">glm::vec3&#160;</td>
+          <td class="paramname"><em>_axis</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Rotate the object around the given axis, angle is in degrees. </p>
+
+<p>Reimplemented in <a class="el" href="class_file_model.html#ae452a2569f263aab2e261d89aba912bd">FileModel</a>.</p>
+
+</div>
+</div>
+<a id="a995fb473666379986987383e11b100cf" name="a995fb473666379986987383e11b100cf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a995fb473666379986987383e11b100cf">&#9670;&nbsp;</a></span>setScale()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="class_model.html">Model</a> &amp; Model::setScale </td>
+          <td>(</td>
+          <td class="paramtype">glm::vec3&#160;</td>
+          <td class="paramname"><em>_scale</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Set the scale the object in x,y,z axis. </p>
+
+<p>Reimplemented in <a class="el" href="class_file_model.html#a7acba2838d8bf9ba3eb82f2c45d1bb1f">FileModel</a>.</p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li>include/<a class="el" href="model_8hpp_source.html">model.hpp</a></li>
 </ul>

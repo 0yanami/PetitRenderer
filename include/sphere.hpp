@@ -1,5 +1,5 @@
-#ifndef SPHEREH
-#define SPHEREH
+#ifndef SPHERE_H
+#define SPHERE_H
 
 #include <memory>
 #include <functional>
