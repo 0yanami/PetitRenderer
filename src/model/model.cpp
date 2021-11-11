@@ -41,3 +41,8 @@ Model& Model::disableTesselation(){
     tessellation = false;
     return *this;
 }
+
+Model& Model::setDiffuse(glm::vec3 _color){
+	m.diffuseColor = _color;
+	return *this;
+}

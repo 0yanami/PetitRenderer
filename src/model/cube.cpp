@@ -245,7 +245,7 @@ void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
 		m.shader.setInt("material.diffuseTex", 0);
 		m.shader.setBool("material.hasTexture",true);
 	} else {
-		m.shader.setVec3("material.diffuse", glm::vec3{1,0.3,0.3});
+		m.shader.setVec3("material.diffuse", m.diffuseColor);
 		m.shader.setBool("material.hasTexture",false);
 	}
 
@@ -307,6 +307,7 @@ void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
 	} else {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+	// bind lightdepth textures
 
     glBindVertexArray(m.vao);
 
@@ -339,3 +340,4 @@ void Cube::loadShaders(){
 		m.shader = {"shaders/phong.vert", "shaders/phong.frag"};
 	}
 }
+

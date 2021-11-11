@@ -43,8 +43,6 @@ FileModel::FileModel(std::string _path, SMOOTH_NORMAL _smoothNormals){
 		subModels[i].scale     = glm::mat4{1.0};
 		subModels[i].rotation  = glm::mat4{1.0};
         processMesh(mesh, scene,i);
-
-		//processMaterial(mesh, scene);
     }	
 }
 
@@ -153,7 +151,7 @@ void FileModel::render(std::vector<Light>& _lights,Camera& _cam)  {
 		glm::vec3 axis{0,1,0};
 		subModel.rotation = glm::rotate(subModel.rotation,glm::radians(0.03f),axis);
 	
-    	glm::mat4 model = subModel.translate*subModel.rotation*subModel.scale;
+    	glm::mat4 model = subModel.scale*subModel.rotation*subModel.translate;
 
 		sh.setMat4("model", model);
     	sh.setMat4("view",_cam.getView());
@@ -170,7 +168,7 @@ void FileModel::render(std::vector<Light>& _lights,Camera& _cam)  {
 			sh.setInt("material.diffuseTex", 0);
 			sh.setBool("material.hasTexture",true);
 		} else {
-			sh.setVec3("material.diffuse", glm::vec3{0.9,0.9,0.9});
+			sh.setVec3("material.diffuse", subModel.diffuseColor);
 			sh.setBool("material.hasTexture",false);
 		}
 
@@ -279,4 +277,11 @@ void FileModel::loadShaders(modelDescription& model){
 		model.shader = {"shaders/phong.vert", "shaders/phong.frag"};
 	}
 	
+}
+
+FileModel& FileModel::setDiffuse(glm::vec3 _color){
+	for(auto& subModel : subModels){
+    subModel.diffuseColor = _color;
+	}
+	return *this;
 }

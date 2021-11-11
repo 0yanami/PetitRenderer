@@ -1,6 +1,6 @@
 #include "model.hpp"
 
-CubeMap::CubeMap(std::string _directory, std::string _ext){
+CubeMap::CubeMap(std::string _directory){
     m.vertices = {
         -1.0f,  1.0f, -1.0f,
         -1.0f, -1.0f, -1.0f,
@@ -45,7 +45,6 @@ CubeMap::CubeMap(std::string _directory, std::string _ext){
          1.0f, -1.0f,  1.0f 
     };
     cubeMapDir = _directory;
-    cubeMapExt = _ext;
 }
 
 void CubeMap::load(){
@@ -61,7 +60,7 @@ void CubeMap::load(){
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid *)0);
     glEnableVertexAttribArray(0);
 
-    cubeMap = loadCubeMapTexture(cubeMapDir,cubeMapExt);
+    cubeMap = loadCubeMapTexture(cubeMapDir);
 
     loadShaders();
     

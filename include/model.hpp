@@ -45,6 +45,8 @@ protected:
         std::string specularMapPath = "";
         std::string heightMapPath = "";
 
+        glm::vec3 diffuseColor = glm::vec3{0.9};
+
         std::vector<GLfloat> vertices, normals, textureCoord;
         std::vector<GLuint>  indices;
 
@@ -85,6 +87,8 @@ public:
 
     //! Disable tessellation for this model.
     Model& disableTesselation();
+    //! Set diffuse color of object (unused if textures are defined)
+    Model& setDiffuse(glm::vec3 _color);
 };
 
 
@@ -93,11 +97,13 @@ class Cube : public Model{
 private:
     //! Load the right shader for the cube (phong,tessellation...)
     void loadShaders();
+    glm::vec3 _cubeDiffuse = glm::vec3{0.9};
 
 public:
     Cube(){};
     //! Create a cube of size _edgeSize.
     Cube(float _edgeSize);
+    
     
     void load();
     void render(std::vector<Light>& _lights,Camera& _cam);
@@ -123,6 +129,7 @@ public:
     FileModel& setRotation(float _angle, glm::vec3 _axis);
     FileModel& setPosition(glm::vec3 _translate);
     FileModel& subDivide(int _ite);
+    FileModel& setDiffuse(glm::vec3 _color);
 };
 
 
@@ -131,13 +138,14 @@ class CubeMap : public Cube{
 private:
     int cubeMap;
     std::string cubeMapDir;
-    std::string cubeMapExt;
     void loadShaders();
     
 public:
     CubeMap(){};
     //! Directory of the images for the cubemap textures.
     /**
+    *  File extensions are found automatically (png,jpg,jpeg are supported).
+    * 
     * \param _directory The texture file names in the directory should be named :
     * - "right" (+x)
     * - "left" (-x)
@@ -145,11 +153,8 @@ public:
     * - "bottom" (-y)
     * - "back" (+z)
     * - "front" (-z)
-    * \param _ext File format i.e png,jpg...
     **/
-    CubeMap(std::string _directory, std::string _ext);
-
-    //loadCubemapTexture(std::string _directory, std::string _ext)
+    CubeMap(std::string _directory);
 
     void load();
     void render(Camera& _cam);
