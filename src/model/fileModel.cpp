@@ -182,13 +182,13 @@ void FileModel::render(std::vector<Light>& _lights,Camera& _cam)  {
 
 		if(tessellation){
 			//level of detail based on distance , adapts to any triangle size
-			sh.setInt("tes_lod0", 64); //under 2 unit distance
-			sh.setInt("tes_lod1", 16); //2 to 5 distance
-			sh.setInt("tes_lod2", 4);  // farther than 5
+			sh.setInt("tes_lod0", 32); //under 2 unit distance
+			sh.setInt("tes_lod1", 8); //2 to 5 distance
+			sh.setInt("tes_lod2", 2);  // farther than 5
 			// height map based tess
 			if(m.heightMap != -1){
 				sh.setInt("dispMap", 2);
-				sh.setFloat("dispStrength", 0.01);
+				sh.setFloat("dispStrength", 0.01f);
 			}
 		}
 
@@ -239,6 +239,20 @@ void FileModel::render(std::vector<Light>& _lights,Camera& _cam)  {
     	
 		glBindVertexArray(0);
 	}
+}
+
+void FileModel::renderForDepth(Shader& _shader){
+	for(auto& subModel : subModels){
+	_shader.use();
+	glm::mat4 model = subModel.translate*subModel.rotation*subModel.scale;
+
+	_shader.setMat4("model", model);
+
+	glBindVertexArray(subModel.vao);
+	
+	glDrawElements(GL_TRIANGLES , subModel.indices.size(), GL_UNSIGNED_INT, nullptr);
+	}
+	glBindVertexArray(0);
 }
 
 FileModel& FileModel::setScale(glm::vec3 _scale){

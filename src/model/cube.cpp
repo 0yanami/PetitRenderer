@@ -321,6 +321,20 @@ void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
 
 }
 
+void Cube::renderForDepth(Shader& _shader){
+
+	_shader.use();
+	glm::mat4 model = m.translate*m.rotation*m.scale;
+
+	_shader.setMat4("model", model);
+
+	glBindVertexArray(m.vao);
+	
+	glDrawElements(GL_TRIANGLES , m.indices.size(), GL_UNSIGNED_INT, nullptr);
+
+	glBindVertexArray(0);
+}
+
 void Cube::loadShaders(){
 	// load right shader
 	if(tessellation){

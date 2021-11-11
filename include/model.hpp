@@ -66,6 +66,12 @@ public:
 
     //! Render the object on screen.
     virtual void render(std::vector<Light>& _lights,Camera& _cam) = 0;
+    
+    //! render objects faster for shadow map
+    /**
+     * \param _shader the depth map shader.
+     **/
+    virtual void renderForDepth(Shader& _shader) = 0;
 
     //! Set the scale the object in x,y,z axis.
     virtual Model& setScale(glm::vec3 _scale);
@@ -89,6 +95,8 @@ public:
     Model& disableTesselation();
     //! Set diffuse color of object (unused if textures are defined)
     Model& setDiffuse(glm::vec3 _color);
+
+
 };
 
 
@@ -107,6 +115,7 @@ public:
     
     void load();
     void render(std::vector<Light>& _lights,Camera& _cam);
+    void renderForDepth(Shader& _shader);
 };
 
 
@@ -124,6 +133,7 @@ public:
 
     void load();
     void render(std::vector<Light>& _lights,Camera& _cam);
+    void renderForDepth(Shader& _shader);
 
     FileModel& setScale(glm::vec3 _scale);
     FileModel& setRotation(float _angle, glm::vec3 _axis);

@@ -78,9 +78,21 @@ void MainLoop::run() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         updateFpsCounter(500);
-        
-        // render objects of scene;
-        scene.render(cam);
+
+        // TODO: algo:
+
+        // 2 .
+        // before rendering of scene, render depth of scene for each light.
+        // 3. 
+        // In render() of object, get all depthMap textures of scene
+
+        // render all pass for current frame
+        // cubemap is rendered first
+        scene.renderCubeMap(cam);
+        // step for shadow maps
+        scene.renderDepthMaps(cam);
+        // final rendering of scene
+        scene.renderModels(cam);
 
         // imgui part
         ImGui_ImplOpenGL3_NewFrame();

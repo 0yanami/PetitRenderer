@@ -3,8 +3,8 @@
 
 #include <stdexcept>
 
-#include "headers.hpp"
 #include "model.hpp"
+#include "headers.hpp"
 #include "camera.hpp"
 #include "light.hpp"
 
@@ -20,7 +20,11 @@ public:
     Scene();
 
     void load();
-    void render(Camera& _cam);
+    void renderCubeMap(Camera& _cam);
+    void renderDepthMaps(Camera& _cam);
+    void renderModels(Camera& _cam);
+    //! render pass for depth map
+    void renderModelsForDepth(Shader& _shader);
 
     Scene& addModel(Model& _model);
     Scene& addLight(Light& _light);
