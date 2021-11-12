@@ -10,6 +10,7 @@ uniform float dispStrength;
 
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 lightSpaceMatrix;
 
 in vec3 WorldPos_ctl_out[];
 in vec2 TexCoords_ctl_out[];
@@ -18,6 +19,7 @@ in vec3 Normal_ctl_out[];
 out vec3 FragPos_eval_out;
 out vec2 TexCoord_eval_out; 
 out vec3 Normal_eval_out;
+out vec4 Fragpos_lightSpace_eval_out;
 
 // get interpolation between 3 vectors
 vec2 interp2D(vec2 v0, vec2 v1, vec2 v2);
@@ -32,6 +34,9 @@ void main(){
     //do displacement
     float disp = texture(dispMap, TexCoord_eval_out).x;
     FragPos_eval_out += Normal_eval_out * disp * dispStrength;
+
+    Fragpos_lightSpace_eval_out = lightSpaceMatrix * vec4(FragPos_eval_out, 1.0);
+
     gl_Position = projection * view * vec4(FragPos_eval_out,1.0);
 }
 

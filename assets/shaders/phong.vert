@@ -8,10 +8,13 @@ layout (location = 2) in vec2 aTexCoords;
 out vec3 Normal_frag;
 out vec3 FragPos_frag;
 out vec2 TexCoords_frag;
+out vec4 FragPos_lightSpace_frag;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+
+uniform mat4 lightSpaceMatrix;
 
 
 void main(){
@@ -20,6 +23,8 @@ void main(){
     Normal_frag = mat3(transpose(inverse(model))) * aNormal;
     Normal_frag = normalize(Normal_frag);
     TexCoords_frag = aTexCoords;
+
+    FragPos_lightSpace_frag = lightSpaceMatrix * vec4(FragPos_frag, 1.0);
 
     gl_Position = projection * view * vec4(FragPos_frag, 1.0);
 }

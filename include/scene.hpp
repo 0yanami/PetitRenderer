@@ -13,7 +13,7 @@ class Scene{
     
 private:
     std::vector<Model*> models;
-    std::vector<Light> lights;
+    std::vector<Light*> lights;
     CubeMap* cubeMap = nullptr;
 
 public:

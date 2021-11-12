@@ -54,7 +54,7 @@ void FileModel::processMesh(aiMesh *_mesh, const aiScene *_scene, size_t _meshId
 	auto& vert = subModels[_meshIdx].vertices;
 	auto& ind = subModels[_meshIdx].indices;
 	auto& norm = subModels[_meshIdx].normals;
-	auto& tex = subModels[_meshIdx].textureCoord;
+	//auto& tex = subModels[_meshIdx].textureCoord;
 
 	// add vertices
 	for(size_t i = 0; i < _mesh->mNumVertices; i++){
@@ -142,7 +142,7 @@ void FileModel::load(){
 }
 
 
-void FileModel::render(std::vector<Light>& _lights,Camera& _cam)  {
+void FileModel::render(std::vector<Light*>& _lights,Camera& _cam)  {
 	for(auto& subModel : subModels){
 
 		auto& sh = subModel.shader;
@@ -151,7 +151,7 @@ void FileModel::render(std::vector<Light>& _lights,Camera& _cam)  {
 		glm::vec3 axis{0,1,0};
 		subModel.rotation = glm::rotate(subModel.rotation,glm::radians(0.03f),axis);
 	
-    	glm::mat4 model = subModel.scale*subModel.rotation*subModel.translate;
+    	glm::mat4 model = subModel.translate*subModel.rotation*subModel.scale;
 
 		sh.setMat4("model", model);
     	sh.setMat4("view",_cam.getView());
@@ -175,7 +175,7 @@ void FileModel::render(std::vector<Light>& _lights,Camera& _cam)  {
 		if(subModel.specularMap != -1){
 			sh.setInt("material.specularTex", 1);
 		} else {
-			sh.setVec3("material.specular", glm::vec3{1.0});
+			sh.setVec3("material.specular", subModel.specularColor);
 		}
 
 		sh.setFloat("material.shininess", 128.0f);
@@ -193,22 +193,25 @@ void FileModel::render(std::vector<Light>& _lights,Camera& _cam)  {
 		}
 
 		// point lights properties
+		size_t maxLights = 16;
+    	for(uint32_t i = 0; i<std::min(_lights.size(),maxLights); i++){
 
-    	for(uint32_t i = 0; i<_lights.size(); i++){
-			sh.setBool("pointLights["+   std::to_string(i) + "].enabled",1);
-    	    sh.setVec3("pointLights["+   std::to_string(i) + "].position",  _lights[i].getPos());
+			sh.setBool("lights["+   std::to_string(i) + "].enabled",1);
+			sh.setBool("lights["+   std::to_string(i) + "].hasShadowMap", _lights[i]->hasShadowMap());
 
-    	    sh.setVec3("pointLights[" +  std::to_string(i) + "].ambient",   _lights[i].getAmbiant());
-		    sh.setVec3("pointLights[" +  std::to_string(i) + "].diffuse",   _lights[i].getDiffuse());
-		    sh.setVec3("pointLights[" +  std::to_string(i) + "].specular",  _lights[i].getSpecular());
+    	    sh.setVec3("lights["+   std::to_string(i) + "].position",  _lights[i]->getPos());
 
-		    sh.setFloat("pointLights[" + std::to_string(i) + "].constant",  _lights[i].getConstant());
-		    sh.setFloat("pointLights[" + std::to_string(i) + "].linear",    _lights[i].getLinear());
-		    sh.setFloat("pointLights[" + std::to_string(i) + "].quadratic", _lights[i].getQuadratic());
+    	    sh.setVec3("lights[" +  std::to_string(i) + "].ambient",   _lights[i]->getAmbiant());
+		    sh.setVec3("lights[" +  std::to_string(i) + "].diffuse",   _lights[i]->getDiffuse());
+		    sh.setVec3("lights[" +  std::to_string(i) + "].specular",  _lights[i]->getSpecular());
+
+		    sh.setFloat("lights[" + std::to_string(i) + "].constant",  _lights[i]->getConstant());
+		    sh.setFloat("lights[" + std::to_string(i) + "].linear",    _lights[i]->getLinear());
+		    sh.setFloat("lights[" + std::to_string(i) + "].quadratic", _lights[i]->getQuadratic());
     	}
-		if (_lights.size()<64){
-			for (size_t i = _lights.size(); i<64; i++){
-				sh.setBool("pointLights["+   std::to_string(i) + "].enabled",0);
+		if (_lights.size()<maxLights){
+			for (size_t i = _lights.size(); i<maxLights; i++){
+				sh.setBool("lights["+   std::to_string(i) + "].enabled",0);
 			}
 		}
 		
@@ -227,6 +230,20 @@ void FileModel::render(std::vector<Light>& _lights,Camera& _cam)  {
 			glBindTexture(GL_TEXTURE_2D, subModel.specularMap);
 		} else {
 			glBindTexture(GL_TEXTURE_2D, 0);
+		}
+
+		// bind shadow maps textures
+		int j = 0;
+		for(int i = 0; i<_lights.size();i++){
+			if(_lights[i]->hasShadowMap()){
+				glActiveTexture(GL_TEXTURE3+j);
+				DistantLight* li = dynamic_cast<DistantLight*>(_lights[i]);
+				glBindTexture(GL_TEXTURE_2D, li->getDepthTexture());
+
+				sh.setMat4("lightSpaceMatrix", li->getLightSpacematrix());
+				sh.setInt("shadowMap", 3+j);
+				j++;
+			}
 		}
 		
     	glBindVertexArray(subModel.vao);

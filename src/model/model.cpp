@@ -46,3 +46,8 @@ Model& Model::setDiffuse(glm::vec3 _color){
 	m.diffuseColor = _color;
 	return *this;
 }
+
+Model& Model::setSpecular(glm::vec3 _color){
+	m.specularColor = _color;
+	return *this;
+}

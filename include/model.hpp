@@ -46,6 +46,7 @@ protected:
         std::string heightMapPath = "";
 
         glm::vec3 diffuseColor = glm::vec3{0.9};
+        glm::vec3 specularColor = glm::vec3{1.0};
 
         std::vector<GLfloat> vertices, normals, textureCoord;
         std::vector<GLuint>  indices;
@@ -65,7 +66,7 @@ public:
     virtual void load() = 0;
 
     //! Render the object on screen.
-    virtual void render(std::vector<Light>& _lights,Camera& _cam) = 0;
+    virtual void render(std::vector<Light*>& _lights,Camera& _cam) = 0;
     
     //! render objects faster for shadow map
     /**
@@ -96,6 +97,9 @@ public:
     //! Set diffuse color of object (unused if textures are defined)
     Model& setDiffuse(glm::vec3 _color);
 
+    //! Set specular color of object
+    Model& setSpecular(glm::vec3 _color);
+
 
 };
 
@@ -114,7 +118,7 @@ public:
     
     
     void load();
-    void render(std::vector<Light>& _lights,Camera& _cam);
+    void render(std::vector<Light*>& _lights,Camera& _cam);
     void renderForDepth(Shader& _shader);
 };
 
@@ -132,7 +136,7 @@ public:
     FileModel(std::string _path, SMOOTH_NORMAL _smoothNormals);
 
     void load();
-    void render(std::vector<Light>& _lights,Camera& _cam);
+    void render(std::vector<Light*>& _lights,Camera& _cam);
     void renderForDepth(Shader& _shader);
 
     FileModel& setScale(glm::vec3 _scale);

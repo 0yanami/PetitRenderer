@@ -5,6 +5,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_STATIC
 #include <stb_image.h>
+#include <stb_image_write.h>
 #endif
 #include <glad/glad.h>
 
@@ -54,30 +55,25 @@ static unsigned int loadCubeMapTexture(std::string _directory) {
     glGenTextures(1, &textureID);
     glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
-    std::string texnames[6]{"right",  "left",  "top",
-                            "bottom", "front", "back"};
-    
-    std:: string exts[3] {".png",".jpg",".jpeg"};
+    std::string texnames[6]{"right", "left", "top", "bottom", "front", "back"};
+
+    std::string exts[3]{".png", ".jpg", ".jpeg"};
     std::string fname;
     unsigned char* data;
 
     int width, height, nrComponents;
     for (int i = 0; i < 6; i++) {
-
-        for(int j = 0 ; j<3; j++){ //check extension
-            fname = _directory+texnames[i]+exts[j];
-            std::cout << fname << std::endl;
+        for (int j = 0; j < 3; j++) {  // check extension
+            fname = _directory + texnames[i] + exts[j];
             data = stbi_load(fname.c_str(), &width, &height, &nrComponents, 0);
-            if(data){break;}
+            if (data) {
+                break;
+            }
         }
-
-        std::cout << fname << std::endl;
-        std::cout << width << "x" << height << "x" << nrComponents << std::endl;
-
         if (data) {
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB,
-                         width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-            
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width,
+                         height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
             stbi_image_free(data);
             std::cout << "Texture loaded at path: " << fname << std::endl;
 

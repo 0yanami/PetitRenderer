@@ -79,18 +79,13 @@ void MainLoop::run() {
 
         updateFpsCounter(500);
 
-        // TODO: algo:
-
-        // 2 .
-        // before rendering of scene, render depth of scene for each light.
-        // 3. 
-        // In render() of object, get all depthMap textures of scene
-
         // render all pass for current frame
         // cubemap is rendered first
-        scene.renderCubeMap(cam);
+        
         // step for shadow maps
         scene.renderDepthMaps(cam);
+
+        scene.renderCubeMap(cam);
         // final rendering of scene
         scene.renderModels(cam);
 

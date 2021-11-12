@@ -1,6 +1,7 @@
 #include "model.hpp"
 #include "glm/ext.hpp"
 #include "glm/gtx/string_cast.hpp"
+#include <algorithm>
 
 
 Cube::Cube(float _edgeSize){
@@ -221,7 +222,7 @@ void Cube::load(){
 }
 
 
-void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
+void Cube::render(std::vector<Light*>& _lights,Camera& _cam)  {
 	
     m.shader.use();
 	glm::vec3 axis{0,1,0};
@@ -239,7 +240,6 @@ void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
 	
 	m.shader.setFloat("material.specularStrength", 1.0f);
 
-
 	//if textures are defined set uniform values
 	if(m.diffuseMap != -1){
 		m.shader.setInt("material.diffuseTex", 0);
@@ -252,10 +252,9 @@ void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
 	if(m.specularMap != -1){
 		m.shader.setInt("material.specularTex", 1);
 	} else {
-		m.shader.setVec3("material.specular", glm::vec3{1});
+		m.shader.setVec3("material.specular", m.specularColor);
 	}
 	m.shader.setFloat("material.shininess", 128.0f);
-
 
 	if(m.heightMap != -1){
 		m.shader.setInt("dispMap", 2);
@@ -265,22 +264,25 @@ void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
 		m.shader.setFloat("dispStrength", 0.01f);
 	}
 
+	size_t maxLights = 16;
+    for(uint32_t i = 0; i<std::min(_lights.size(),maxLights); i++){
 
-    for(uint32_t i = 0; i<_lights.size(); i++){
-		m.shader.setBool("pointLights["+   std::to_string(i) + "].enabled",1);
-        m.shader.setVec3("pointLights["+   std::to_string(i) + "].position",  _lights[i].getPos());
-		
-        m.shader.setVec3("pointLights[" +  std::to_string(i) + "].ambient",   _lights[i].getAmbiant());
-	    m.shader.setVec3("pointLights[" +  std::to_string(i) + "].diffuse",   _lights[i].getDiffuse());
-	    m.shader.setVec3("pointLights[" +  std::to_string(i) + "].specular",  _lights[i].getSpecular());
+		m.shader.setBool("lights["+   std::to_string(i) + "].enabled",1);
+		m.shader.setBool("lights["+   std::to_string(i) + "].hasShadowMap", _lights[i]->hasShadowMap());
 
-	    m.shader.setFloat("pointLights[" + std::to_string(i) + "].constant",  _lights[i].getConstant());
-	    m.shader.setFloat("pointLights[" + std::to_string(i) + "].linear",    _lights[i].getLinear());
-	    m.shader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", _lights[i].getQuadratic());
+        m.shader.setVec3("lights["+   std::to_string(i) + "].position",  _lights[i]->getPos());
+
+        m.shader.setVec3("lights[" +  std::to_string(i) + "].ambient",   _lights[i]->getAmbiant());
+	    m.shader.setVec3("lights[" +  std::to_string(i) + "].diffuse",   _lights[i]->getDiffuse());
+	    m.shader.setVec3("lights[" +  std::to_string(i) + "].specular",  _lights[i]->getSpecular());
+
+	    m.shader.setFloat("lights[" + std::to_string(i) + "].constant",  _lights[i]->getConstant());
+	    m.shader.setFloat("lights[" + std::to_string(i) + "].linear",    _lights[i]->getLinear());
+	    m.shader.setFloat("lights[" + std::to_string(i) + "].quadratic", _lights[i]->getQuadratic());
     }
-	if (_lights.size()<64){
-		for (size_t i = _lights.size(); i<64; i++){
-			m.shader.setBool("pointLights["+   std::to_string(i) + "].enabled",0);
+	if (_lights.size()<maxLights){
+		for (size_t i = _lights.size(); i<maxLights; i++){
+			m.shader.setBool("lights["+   std::to_string(i) + "].enabled",0);
 		}
 	}
 
@@ -307,7 +309,20 @@ void Cube::render(std::vector<Light>& _lights,Camera& _cam)  {
 	} else {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-	// bind lightdepth textures
+
+	// bind shadow maps textures
+	int j = 0;
+	for(int i = 0; i<_lights.size();i++){
+		if(_lights[i]->hasShadowMap()){
+			glActiveTexture(GL_TEXTURE3+j);
+			DistantLight* li = dynamic_cast<DistantLight*>(_lights[i]);
+			glBindTexture(GL_TEXTURE_2D, li->getDepthTexture());
+
+			m.shader.setMat4("lightSpaceMatrix", li->getLightSpacematrix());
+			m.shader.setInt("shadowMap", 3+j);
+			j++;
+		}
+	}
 
     glBindVertexArray(m.vao);
 
