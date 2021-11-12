@@ -40,7 +40,7 @@ uniform vec3 viewPos;
 uniform Material material;
 uniform sampler2D shadowMap;
 
-#define NR_LIGHTS 16
+#define NR_LIGHTS 10
 uniform Light lights[NR_LIGHTS];
 
 float ComputeShadow(vec3 lightDir);

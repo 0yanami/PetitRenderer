@@ -36,28 +36,29 @@ int main(int argc, char* argv[]) {
     CubeMap cubemap{"textures/cubemaps/tantolunden5/"};
 
     FileModel teapot{"models/teapot.obj",SMOOTH_NORMAL_ENABLE};
-    //FileModel gtx{"models/gtx/GTX_1070TI.obj",SMOOTH_NORMAL_DISABLE};
-    //FileModel suzanne{"models/suzanne.obj",SMOOTH_NORMAL_ENABLE};
+    FileModel acCobra{"models/AC_Cobra/Shelby.obj",SMOOTH_NORMAL_ENABLE};
+    FileModel suzanne{"models/suzanne.obj",SMOOTH_NORMAL_ENABLE};
 
-    cube1.setTextures("textures/containerDiffuse.png","textures/containerSpecular.png").setPosition(glm::vec3{2.5,1.8,0});
+    cube1.setTextures("textures/containerDiffuse.png","textures/containerSpecular.png").setPosition(2.5f,1.8f,0.0f);
 
-    cube2.setPosition(glm::vec3{0,1.5,0}).setDiffuse(glm::vec3 {1,0.6,0.4});
+    cube2.setPosition(0.0f,1.5f,0.0f).setDiffuse(1.0f,0.6f,0.4f);
 
-    cube3.setPosition(glm::vec3{-2.5,1.5,0})
+    cube3.setPosition(-2.5f,1.5f,0.0f)
     .setTextures("textures/tilesDiffuse.jpg","textures/tilesSpecular.jpg","textures/tilesHeight.png");
 
-    ground.setScale(glm::vec3{50,0.5,50}).setPosition(glm::vec3{0,0,0}).setSpecular(glm::vec3{0.0f});
+    ground.setScale(50.0f,0.5f,50.0f).setSpecular(0.0f);
 
-    teapot.setScale(glm::vec3{0.35f}).setPosition(glm::vec3{0,0.5,-1.5})
-        .setDiffuse(glm::vec3{0.9,0.2,0.2}).enableTesselation().setSpecular(glm::vec3{0.5});
-//
-    ////gtx.setScale(glm::vec3{4.0f}).setPosition(glm::vec3{0,-4,1.3});
-//
-    //suzanne.setScale(glm::vec3{0.5}).setPosition(glm::vec3{0,-2,-2}).enableTesselation();
+    teapot.setScale(0.35f).setPosition(0.0f,2.0f,-1.8f)
+        .setDiffuse(0.9f,0.2f,0.2f).enableTesselation(MEDIUM).setSpecular(0.5f);
 
-    baseScene.addModel(cube1).addModel(cube2).addModel(cube3).addModel(ground).addModel(teapot);
+    acCobra.setScale(1.0f).setPosition(0.0f,3.0f,5.0f).enableTesselation(LOW);
 
-    light3.enableShadowMap(4096,15);
+    suzanne.setScale(0.5f).setPosition(-2.5f,2.0f,-2.0f).enableTesselation(HIGH).setDiffuse(0.1f,0.1f,0.9f);
+
+    baseScene.addModel(cube1).addModel(cube2).addModel(cube3)
+             .addModel(ground).addModel(teapot).addModel(suzanne).addModel(acCobra);
+
+    light3.enableShadowMap(4096,10.0f);
 
     baseScene.addLight(light3);
 

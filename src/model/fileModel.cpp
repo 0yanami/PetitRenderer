@@ -32,8 +32,8 @@ FileModel::FileModel(std::string _path, SMOOTH_NORMAL _smoothNormals){
 	subModels.resize(scene->mNumMeshes);
 	//process each mesh of the model
 
-		std::cout << "processing "<< subModels.size()<< " submeshes from " 
-		<<_path<< " ..." << std::endl;
+	std::cout << "processing "<< subModels.size()<< " submeshes from " 
+	<<_path<< " ..." << std::endl;
 
 	// configure each mesh
     for(size_t i = 0; i < scene->mNumMeshes; i++)
@@ -43,7 +43,33 @@ FileModel::FileModel(std::string _path, SMOOTH_NORMAL _smoothNormals){
 		subModels[i].scale     = glm::mat4{1.0};
 		subModels[i].rotation  = glm::mat4{1.0};
         processMesh(mesh, scene,i);
-    }	
+	}
+
+	//center objects vertices
+	double meanX = 0, meanY = 0, meanZ = 0;
+	size_t count = 0;
+	for(auto& subModel :subModels){
+		for(size_t i = 0; i< subModel.vertices.size();i+=3){
+			count++;
+			meanX+=subModel.vertices[i];
+			meanY+=subModel.vertices[i+1];
+			meanZ+=subModel.vertices[i+2];
+		}
+	}
+	meanX /= count;
+	meanY /= count;
+	meanZ /= count;
+	for(auto& subModel :subModels){
+		for(size_t i = 0; i<subModel.vertices.size();i+=3){
+			count++;
+			subModel.vertices[i] -= meanX;
+			subModel.vertices[i+1] -= meanY;
+			subModel.vertices[i+2] -= meanZ;
+		}
+	}
+
+	//subtract min
+
 }
 
 //void FileModel::processMaterial(){
@@ -182,9 +208,20 @@ void FileModel::render(std::vector<Light*>& _lights,Camera& _cam)  {
 
 		if(tessellation){
 			//level of detail based on distance , adapts to any triangle size
-			sh.setInt("tes_lod0", 32); //under 2 unit distance
-			sh.setInt("tes_lod1", 8); //2 to 5 distance
-			sh.setInt("tes_lod2", 2);  // farther than 5
+			if(tqual == LOW){
+				sh.setInt("tes_lod0", 16); //under 2 unit distance
+				sh.setInt("tes_lod1", 4); //2 to 5 distance
+				sh.setInt("tes_lod2", 2);  // farther than 5
+			} else if (tqual == MEDIUM){
+				sh.setInt("tes_lod0", 32); //under 2 unit distance
+				sh.setInt("tes_lod1", 8); //2 to 5 distance
+				sh.setInt("tes_lod2", 2);  // farther than 5
+			} else if(tqual == HIGH){
+				sh.setInt("tes_lod0", 64); //under 2 unit distance
+				sh.setInt("tes_lod1", 16); //2 to 5 distance
+				sh.setInt("tes_lod2", 4);  // farther than 5
+			}
+			
 			// height map based tess
 			if(m.heightMap != -1){
 				sh.setInt("dispMap", 2);
@@ -193,7 +230,7 @@ void FileModel::render(std::vector<Light*>& _lights,Camera& _cam)  {
 		}
 
 		// point lights properties
-		size_t maxLights = 16;
+		size_t maxLights = 10;
     	for(uint32_t i = 0; i<std::min(_lights.size(),maxLights); i++){
 
 			sh.setBool("lights["+   std::to_string(i) + "].enabled",1);
@@ -272,26 +309,35 @@ void FileModel::renderForDepth(Shader& _shader){
 	glBindVertexArray(0);
 }
 
-FileModel& FileModel::setScale(glm::vec3 _scale){
+FileModel& FileModel::setScale(float _scaleX, float _scaleY, float _scaleZ){
 	for(auto& subModel : subModels){
     subModel.scale = glm::mat4(1.0);
-    subModel.scale = glm::scale(subModel.scale,_scale);
+    subModel.scale = glm::scale(subModel.scale,glm::vec3{_scaleX,_scaleY,_scaleZ});
 	}
     return *this;
 }
 
-FileModel& FileModel::setRotation(float _angle, glm::vec3 _axis){
+FileModel& FileModel::setScale(float _scale){
+	for(auto& subModel : subModels){
+    subModel.scale = glm::mat4(1.0);
+    subModel.scale = glm::scale(subModel.scale,glm::vec3{_scale});
+	}
+    return *this;
+}
+
+FileModel& FileModel::setRotation(float _angle, float _axisX, float _axisY, float _axisZ){
 	for(auto& subModel : subModels){
     subModel.rotation = glm::mat4(1.0);
-    subModel.rotation = glm::rotate(subModel.rotation, glm::radians(_angle), _axis);
+    subModel.rotation = glm::rotate(subModel.rotation, glm::radians(_angle), 
+							glm::vec3{_axisX,_axisY,_axisZ});
 	}
     return *this;
 }
 
-FileModel& FileModel::setPosition(glm::vec3 _pos){
+FileModel& FileModel::setPosition(float _posX, float _posY, float _posZ){
 	for(auto& subModel : subModels){
     subModel.translate = glm::mat4{1.0};
-    subModel.translate = glm::translate(subModel.translate, _pos);
+    subModel.translate = glm::translate(subModel.translate, glm::vec3{_posX,_posY,_posZ});
 	}
     return *this;
 }
@@ -310,9 +356,51 @@ void FileModel::loadShaders(modelDescription& model){
 	
 }
 
-FileModel& FileModel::setDiffuse(glm::vec3 _color){
+FileModel& FileModel::setDiffuse(float _R,float _G,float _B){
 	for(auto& subModel : subModels){
-    subModel.diffuseColor = _color;
+    subModel.diffuseColor = glm::vec3{_R,_G,_B};
 	}
 	return *this;
+}
+
+FileModel& FileModel::setSpecular(float _R,float _G,float _B){
+	for(auto& subModel : subModels){
+    subModel.specularColor = glm::vec3{_R,_G,_B};
+	}
+	return *this;
+}
+
+
+FileModel& FileModel::setDiffuse(float _C){
+	for(auto& subModel : subModels){
+    subModel.diffuseColor = glm::vec3{_C};
+	}
+	return *this;
+}
+
+FileModel& FileModel::setSpecular(float _C){
+	for(auto& subModel : subModels){
+    subModel.specularColor = glm::vec3{_C};
+	}
+	return *this;
+}
+
+FileModel& FileModel::enableTesselation(){
+    tessellation = true;
+    return *this;
+}
+FileModel& FileModel::disableTesselation(){
+    tessellation = false;
+    return *this;
+}
+
+FileModel& FileModel::enableTesselation(TESS_QUALITY _quality){
+    tessellation = true;
+	tqual = _quality;
+    return *this;
+}
+FileModel& FileModel::disableTesselation(TESS_QUALITY _quality){
+    tessellation = false;
+	tqual = _quality;
+    return *this;
 }

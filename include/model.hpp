@@ -14,6 +14,12 @@ enum SHADER_TYPE{
     PHONG
 };
 
+enum TESS_QUALITY{
+    LOW,
+    MEDIUM,
+    HIGH
+};
+
 typedef enum {
     SMOOTH_NORMAL_ENABLE = true,
     SMOOTH_NORMAL_DISABLE = false
@@ -75,13 +81,14 @@ public:
     virtual void renderForDepth(Shader& _shader) = 0;
 
     //! Set the scale the object in x,y,z axis.
-    virtual Model& setScale(glm::vec3 _scale);
+    virtual Model& setScale(float _scaleX, float _scaleY, float _scaleZ);
+    virtual Model& setScale(float _scale);
 
     //! Rotate the object around the given axis, angle is in degrees.
-    virtual Model& setRotation(float _angle, glm::vec3 _axis);
+    virtual Model& setRotation(float _angle, float _axisX, float _axisY, float _axisZ);
 
     //! Set the position of the object in world space.
-    virtual Model& setPosition(glm::vec3 _translate);
+    virtual Model& setPosition(float _posX, float _posY, float _posZ);
 
     //! Set textures for this model. Bump map is given so tesselation is enabled automatically.
     Model& setTextures(std::string _diffusePath, std::string _specularPath, std::string _heightPath);
@@ -95,10 +102,12 @@ public:
     //! Disable tessellation for this model.
     Model& disableTesselation();
     //! Set diffuse color of object (unused if textures are defined)
-    Model& setDiffuse(glm::vec3 _color);
+    Model& setDiffuse(float _R,float _G,float _B);
+    Model& setDiffuse(float _C);
 
     //! Set specular color of object
-    Model& setSpecular(glm::vec3 _color);
+    Model& setSpecular(float _R,float _G,float _B);
+    Model& setSpecular(float _C);
 
 
 };
@@ -129,6 +138,8 @@ class FileModel : public Model{
 private:
     
     std::vector<modelDescription> subModels;
+    TESS_QUALITY tqual = MEDIUM;
+    
 
     void loadShaders(modelDescription& model);
     void processMesh(aiMesh *_mesh, const aiScene *_scene, size_t _meshIdx);
@@ -139,11 +150,18 @@ public:
     void render(std::vector<Light*>& _lights,Camera& _cam);
     void renderForDepth(Shader& _shader);
 
-    FileModel& setScale(glm::vec3 _scale);
-    FileModel& setRotation(float _angle, glm::vec3 _axis);
-    FileModel& setPosition(glm::vec3 _translate);
-    FileModel& subDivide(int _ite);
-    FileModel& setDiffuse(glm::vec3 _color);
+    FileModel& setScale(float _scaleX, float _scaleY, float _scaleZ);
+    FileModel& setScale(float _scale);
+    FileModel& setRotation(float _angle, float _axisX, float _axisY, float _axisZ);
+    FileModel& setPosition(float _posX, float _posY, float _posZ);
+    FileModel& setDiffuse(float _R,float _G,float _B);
+    FileModel& setDiffuse(float _C);
+    FileModel& setSpecular(float _R,float _G,float _B);
+    FileModel& setSpecular(float _C);
+    FileModel& enableTesselation();
+    FileModel& disableTesselation();
+    FileModel& enableTesselation(TESS_QUALITY _quality);
+    FileModel& disableTesselation(TESS_QUALITY _quality);
 };
 
 

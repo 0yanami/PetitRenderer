@@ -37,7 +37,7 @@ uniform Material material;
 
 uniform sampler2D shadowMap;
 
-#define NR_LIGHTS 16
+#define NR_LIGHTS 10
 uniform Light lights[NR_LIGHTS];
 
 vec3 Calclight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir);

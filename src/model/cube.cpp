@@ -264,7 +264,7 @@ void Cube::render(std::vector<Light*>& _lights,Camera& _cam)  {
 		m.shader.setFloat("dispStrength", 0.01f);
 	}
 
-	size_t maxLights = 16;
+	size_t maxLights = 10;
     for(uint32_t i = 0; i<std::min(_lights.size(),maxLights); i++){
 
 		m.shader.setBool("lights["+   std::to_string(i) + "].enabled",1);
