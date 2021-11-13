@@ -83,11 +83,19 @@ void MainLoop::run() {
         // cubemap is rendered first
         
         // step for shadow maps
-        scene.renderDepthMaps(cam);
+        scene.depthMaps_pass(cam);
 
         scene.renderCubeMap(cam);
         // final rendering of scene
         scene.renderModels(cam);
+
+
+        // creer le kernel
+        // stocker le kernel dans une texture
+
+        //creer le framebuffer pour SSAO
+
+        //scene.SSAO_Pass();
 
         // imgui part
         ImGui_ImplOpenGL3_NewFrame();

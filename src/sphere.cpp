@@ -154,7 +154,7 @@ void inline Sphere::getVertexMiddle(float vert1[3], float vert2[3], float ret[3]
     ret[0] = vert1[0] + vert2[0];
     ret[1] = vert1[1] + vert2[1];
     ret[2] = vert1[2] + vert2[2];
-    float div = sqrtf(std::pow(ret[0], 2) + std::pow(ret[1], 2) + std::pow(ret[2], 2));
+    float div = sqrtf(std::powf(ret[0], 2) + std::powf(ret[1], 2) + std::powf(ret[2], 2));
     ret[0] /= div;
     ret[1] /= div;
     ret[2] /= div;

@@ -225,9 +225,7 @@ void Cube::load(){
 void Cube::render(std::vector<Light*>& _lights,Camera& _cam)  {
 	
     m.shader.use();
-	glm::vec3 axis{0,1,0};
-	m.rotation = glm::rotate(m.rotation,glm::radians(0.01f),axis);
-
+	
     glm::mat4 model = m.translate*m.rotation*m.scale;
 
 	m.shader.setMat4("model", model);
@@ -264,29 +262,7 @@ void Cube::render(std::vector<Light*>& _lights,Camera& _cam)  {
 		m.shader.setFloat("dispStrength", 0.01f);
 	}
 
-	size_t maxLights = 10;
-    for(uint32_t i = 0; i<std::min(_lights.size(),maxLights); i++){
-
-		m.shader.setBool("lights["+   std::to_string(i) + "].enabled",1);
-		m.shader.setBool("lights["+   std::to_string(i) + "].hasShadowMap", _lights[i]->hasShadowMap());
-
-        m.shader.setVec3("lights["+   std::to_string(i) + "].position",  _lights[i]->getPos());
-
-        m.shader.setVec3("lights[" +  std::to_string(i) + "].ambient",   _lights[i]->getAmbiant());
-	    m.shader.setVec3("lights[" +  std::to_string(i) + "].diffuse",   _lights[i]->getDiffuse());
-	    m.shader.setVec3("lights[" +  std::to_string(i) + "].specular",  _lights[i]->getSpecular());
-
-	    m.shader.setFloat("lights[" + std::to_string(i) + "].constant",  _lights[i]->getConstant());
-	    m.shader.setFloat("lights[" + std::to_string(i) + "].linear",    _lights[i]->getLinear());
-	    m.shader.setFloat("lights[" + std::to_string(i) + "].quadratic", _lights[i]->getQuadratic());
-    }
-	if (_lights.size()<maxLights){
-		for (size_t i = _lights.size(); i<maxLights; i++){
-			m.shader.setBool("lights["+   std::to_string(i) + "].enabled",0);
-		}
-	}
-
-    // bind diffuse texture
+	// bind diffuse texture
 	glActiveTexture(GL_TEXTURE0);
 	if (m.diffuseMap  != -1){
 		glBindTexture(GL_TEXTURE_2D, m.diffuseMap);
@@ -310,17 +286,39 @@ void Cube::render(std::vector<Light*>& _lights,Camera& _cam)  {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	// bind shadow maps textures
+
 	int j = 0;
-	for(int i = 0; i<_lights.size();i++){
+	size_t maxLights = 10;
+    for(uint32_t i = 0; i<std::min(_lights.size(),maxLights); i++){
 		if(_lights[i]->hasShadowMap()){
 			glActiveTexture(GL_TEXTURE3+j);
 			DistantLight* li = dynamic_cast<DistantLight*>(_lights[i]);
 			glBindTexture(GL_TEXTURE_2D, li->getDepthTexture());
 
-			m.shader.setMat4("lightSpaceMatrix", li->getLightSpacematrix());
-			m.shader.setInt("shadowMap", 3+j);
+			m.shader.setMat4("lightSpaceMatrix["+std::to_string(j)+"]", li->getLightSpacematrix());
+			m.shader.setInt("shadowMap["+std::to_string(j)+"]", 3+j);
+			m.shader.setInt("lights["+   std::to_string(i) + "].shadowMapId", j);
 			j++;
+		} else {
+			m.shader.setInt("lights["+   std::to_string(i) + "].shadowMapId", -1);
+		}
+
+		m.shader.setBool("lights["+   std::to_string(i) + "].enabled",1);
+		
+
+        m.shader.setVec3("lights["+   std::to_string(i) + "].position",  _lights[i]->getPos());
+
+        m.shader.setVec3("lights[" +  std::to_string(i) + "].ambient",   _lights[i]->getAmbiant());
+	    m.shader.setVec3("lights[" +  std::to_string(i) + "].diffuse",   _lights[i]->getDiffuse());
+	    m.shader.setVec3("lights[" +  std::to_string(i) + "].specular",  _lights[i]->getSpecular());
+
+	    m.shader.setFloat("lights[" + std::to_string(i) + "].constant",  _lights[i]->getConstant());
+	    m.shader.setFloat("lights[" + std::to_string(i) + "].linear",    _lights[i]->getLinear());
+	    m.shader.setFloat("lights[" + std::to_string(i) + "].quadratic", _lights[i]->getQuadratic());
+    }
+	if (_lights.size()<maxLights){
+		for (size_t i = _lights.size(); i<maxLights; i++){
+			m.shader.setBool("lights["+   std::to_string(i) + "].enabled",0);
 		}
 	}
 

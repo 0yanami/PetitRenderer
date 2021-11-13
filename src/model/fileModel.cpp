@@ -56,15 +56,16 @@ FileModel::FileModel(std::string _path, SMOOTH_NORMAL _smoothNormals){
 			meanZ+=subModel.vertices[i+2];
 		}
 	}
+	
 	meanX /= count;
 	meanY /= count;
 	meanZ /= count;
 	for(auto& subModel :subModels){
 		for(size_t i = 0; i<subModel.vertices.size();i+=3){
 			count++;
-			subModel.vertices[i] -= meanX;
-			subModel.vertices[i+1] -= meanY;
-			subModel.vertices[i+2] -= meanZ;
+			subModel.vertices[i] -= (GLfloat)meanX;
+			subModel.vertices[i+1] -= (GLfloat)meanY;
+			subModel.vertices[i+2] -= (GLfloat)meanZ;
 		}
 	}
 

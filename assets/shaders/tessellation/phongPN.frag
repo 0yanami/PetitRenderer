@@ -108,11 +108,35 @@ float ComputeShadow(vec3 lightDir){
     vec3 projCoords = Fragpos_lightSpace_eval_out.xyz / Fragpos_lightSpace_eval_out.w;
     projCoords = projCoords * 0.5 + 0.5;
 
-    float lightDepth = texture(shadowMap, projCoords.xy).x;
+    //depth bias against acne
+    float bias = max(0.05 * (1.0 - dot(Normal_eval_out, lightDir)), 0.001);
 
-    float fragDepth = projCoords.z;
+    //samples around unit circle
+    vec2 circle[8] = vec2[](
+        vec2( 0.7, 0.7 ),
+        vec2( -0.7, 0.7 ),
+        vec2( 0.7, -0.7 ),
+        vec2( -0.7, -0.7 ),
+        vec2( 1, 0 ),
+        vec2( 0, 1 ),
+        vec2( -1, 0 ),
+        vec2( 0, -1 )
+    );
 
-    float bias = max(0.05 * (1.0 - dot(Normal_eval_out, lightDir)), 0.002);  
+    //get half of tex res for sampling
+    float offset = textureSize(shadowMap,0).x*0.8;
+    
+    float lightDepth;
+    float shadow = 0;
+    // test for each sample point
+    for(int i = 0; i<8; i++){
 
-    return fragDepth > lightDepth + bias  ? 1.0 : 0.0;  
+        lightDepth = texture(shadowMap, projCoords.xy + circle[i]/offset ).x;
+        if(projCoords.z > lightDepth  + bias){
+            //add up shadow if point is in shadow
+            shadow += 0.125;
+        }
+    }
+
+    return shadow;  
 }

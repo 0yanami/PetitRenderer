@@ -14,7 +14,7 @@ struct Material {
 
 struct Light {  
     bool enabled;
-    bool hasShadowMap;
+    int shadowMapId;
     vec3 position; 
 
     vec3 ambient;
@@ -30,18 +30,18 @@ struct Light {
 in vec3 FragPos_frag;  
 in vec3 Normal_frag;  
 in vec2 TexCoords_frag;
-in vec4 FragPos_lightSpace_frag;
+in vec4 FragPos_lightSpace_frag[5];
   
 uniform vec3 viewPos;
 uniform Material material;
 
-uniform sampler2D shadowMap;
+uniform sampler2D shadowMap[5];
 
 #define NR_LIGHTS 10
 uniform Light lights[NR_LIGHTS];
 
 vec3 Calclight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir);
-float ComputeShadow(vec3 lightDir);
+float ComputeShadow(vec3 lightDir, int sMapId);
 
 
 void main()
@@ -54,7 +54,6 @@ void main()
             result += Calclight(lights[i], Normal_frag, FragPos_frag, viewDir);    
 
     FragColor = vec4(result, 1.0);
-    //FragColor = vec4(texture(shadowMap,TexCoords_frag).x);
 }
 
 // Calculate values for point lights
@@ -94,22 +93,51 @@ vec3 Calclight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
     }
 
     float shadow = 0;
-    if(light.hasShadowMap){
-        shadow = ComputeShadow(lightDir);
+    // if light has shadow map
+    if(light.shadowMapId>=0){
+        shadow = ComputeShadow(lightDir,light.shadowMapId);
     }
 
     return (ambient + (1.0-shadow)*(diffuse + specular));
 }
 
-float ComputeShadow(vec3 lightDir){
-    vec3 projCoords = FragPos_lightSpace_frag.xyz / FragPos_lightSpace_frag.w;
+float rand(vec2 co){
+  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float ComputeShadow(vec3 lightDir, int sMapId){
+    vec3 projCoords = FragPos_lightSpace_frag[sMapId].xyz / FragPos_lightSpace_frag[sMapId].w;
     projCoords = projCoords * 0.5 + 0.5;
 
-    float lightDepth = texture(shadowMap, projCoords.xy).x;
+    //depth bias against acne
+    float bias = max(0.05 * (1.0 - dot(Normal_frag, lightDir)), 0.001);
 
-    float fragDepth = projCoords.z;
+    //samples around unit circle
+    vec2 circle[8] = vec2[](
+        vec2( 0.7, 0.7 ),
+        vec2( -0.7, 0.7 ),
+        vec2( 0.7, -0.7 ),
+        vec2( -0.7, -0.7 ),
+        vec2( 1, 0 ),
+        vec2( 0, 1 ),
+        vec2( -1, 0 ),
+        vec2( 0, -1 )
+    );
 
-    float bias = max(0.05 * (1.0 - dot(Normal_frag, lightDir)), 0.001);  
+    //get half of tex res for sampling
+    float offset = textureSize(shadowMap[sMapId],0).x*0.8;
+    
+    float lightDepth;
+    float shadow = 0;
+    // test for each sample point
+    for(int i = 0; i<8; i++){
 
-    return fragDepth > lightDepth + bias  ? 1.0 : 0.0;  
+        lightDepth = texture(shadowMap[sMapId], projCoords.xy + circle[i]/offset ).x;
+        if(projCoords.z > lightDepth  + bias){
+            //add up shadow if point is in shadow
+            shadow += 0.125;
+        }
+    }
+
+    return shadow;  
 }

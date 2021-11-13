@@ -27,13 +27,11 @@ void Scene::renderCubeMap(Camera& _cam) {
 }
 
 //! render depth map for each shadow map enabled light in scene
-void Scene::renderDepthMaps(Camera& _cam) {
+void Scene::depthMaps_pass(Camera& _cam) {
     for (uint32_t i = 0; i < lights.size(); i++) {
         if (lights[i]->hasShadowMap()) {
             DistantLight* li = dynamic_cast<DistantLight*>(lights[i]);
-            Shader& sh = li->getShader();
-            
-
+            Shader sh = {"shaders/depthMap.vert", "shaders/depthMap.frag"};
             
             sh.use();
             sh.setMat4("vp", li->getLightSpacematrix());
@@ -44,16 +42,28 @@ void Scene::renderDepthMaps(Camera& _cam) {
             glClear(GL_DEPTH_BUFFER_BIT);
 
             renderModelsForDepth(sh);
-
-
+            
+            // reset
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        
-            // reset viewport
             glViewport(0, 0, _cam.getResWidth(), _cam.getResHeight());
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         }
     }
+}
+
+void Scene::SSAO_pass(){
+
+    //creer les 2 buffers de texture :
+    // ssao
+    // ssaoblur
+
+    //get la depth map
+    // generer la texture SSAO
+    // generer la texture SSAOBlur
+
+    Shader sh = {"shaders/depthMap.vert", "shaders/depthMap.frag"};
+
+    //renderModelsForDepth(sh);
 }
 
 //! Render all objects of scene

@@ -4,11 +4,11 @@ Camera::Camera(glm::vec3 _cameraPos, double _fov, int _resWidth, int _resHeight)
 fov(_fov),
 cameraPos(_cameraPos)
 {
-	yaw = -90.0;
+	yaw = 90.0;
 	pitch = -0.0;
 	lastX = _resHeight / 2.0;
 	lastY = _resWidth / 2.0;
-	cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+	cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
 	cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	resWidth = _resWidth;

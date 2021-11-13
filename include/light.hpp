@@ -67,8 +67,6 @@ class DistantLight : public Light {
 
     glm::mat4 lightSpaceMatrix;
 
-    Shader depthShader;
-
    public:
     DistantLight(glm::vec3 _position, glm::vec3 _color) {
         position = _position;
@@ -116,16 +114,12 @@ class DistantLight : public Light {
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        depthShader = {"shaders/depthMap.vert", "shaders/depthMap.frag"};
     }
 
     uint32_t getDepthTexture() { return depthTexture; }
 
     bool hasShadowMap() { return shadowMapEnabled; }
-
-    Shader& getShader() { return depthShader; }
-
+    
     uint32_t getShadowMapRes() { return textureRes; }
 
     uint32_t getFbo(){return fbo;}

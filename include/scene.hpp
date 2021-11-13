@@ -21,9 +21,11 @@ public:
 
     void load();
     void renderCubeMap(Camera& _cam);
-    void renderDepthMaps(Camera& _cam);
+    void SSAO_pass();
+    void depthMaps_pass(Camera& _cam);
     void renderModels(Camera& _cam);
-    //! render pass for depth map
+
+    //! render pass for depth map only
     void renderModelsForDepth(Shader& _shader);
 
     Scene& addModel(Model& _model);
