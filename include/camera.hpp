@@ -32,6 +32,7 @@ public:
 	 * \param _resWidth The camera viewport width in pixels
 	 * \param _resHeight The camera viewport height in pixels
 	 **/
+	Camera(){};
 	Camera(glm::vec3 _cameraPos, double _fov, int _resWidth, int _resHeight);
 
 	//! Get current camera position 

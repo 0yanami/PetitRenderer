@@ -1,6 +1,6 @@
 #include "scene.hpp"
 
-Scene::Scene() {
+Scene::Scene(Camera& _cam) : cam(_cam) {
     models = {};
     lights = {};
 }
@@ -15,19 +15,23 @@ void Scene::load() {
             li->createDepthBuffer();
         }
     }
+    //load cubemap
     if (cubeMap != nullptr) cubeMap->load();
+    //load models
     for (uint32_t i = 0; i < models.size(); i++) {
         models[i]->load();
     }
+    //load ssao
+    if(ssaoEnabled) ssao = new SSAO{cam};
 }
 
 //! render cubeMap, this is the first object to render
-void Scene::renderCubeMap(Camera& _cam) {
-    if (cubeMap != nullptr) cubeMap->render(_cam);
+void Scene::renderCubeMap() {
+    if (cubeMap != nullptr) cubeMap->render(cam);
 }
 
 //! render depth map for each shadow map enabled light in scene
-void Scene::depthMaps_pass(Camera& _cam) {
+void Scene::depthMaps_pass() {
     for (uint32_t i = 0; i < lights.size(); i++) {
         if (lights[i]->hasShadowMap()) {
             DistantLight* li = dynamic_cast<DistantLight*>(lights[i]);
@@ -41,39 +45,33 @@ void Scene::depthMaps_pass(Camera& _cam) {
             glBindFramebuffer(GL_FRAMEBUFFER, li->getFbo());
             glClear(GL_DEPTH_BUFFER_BIT);
 
-            renderModelsForDepth(sh);
+            renderModelsWithShader(sh);
             
             // reset
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            glViewport(0, 0, _cam.getResWidth(), _cam.getResHeight());
+            glViewport(0, 0, cam.getResWidth(), cam.getResHeight());
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }
     }
 }
 
-void Scene::SSAO_pass(){
-
-    //creer les 2 buffers de texture :
-    // ssao
-    // ssaoblur
-
-    //get la depth map
-    // generer la texture SSAO
-    // generer la texture SSAOBlur
-
-    Shader sh = {"shaders/depthMap.vert", "shaders/depthMap.frag"};
-
-    //renderModelsForDepth(sh);
-}
-
-//! Render all objects of scene
-void Scene::renderModels(Camera& _cam) {
-    for (uint32_t i = 0; i < models.size(); i++) {
-        models[i]->render(lights, _cam);
+void Scene::SSAO_Pass(){
+    if(ssaoEnabled){
+        Shader& sh = ssao->setupGeometryPass(cam);
+        renderModelsWithShader(sh);
+        ssao->SSAOPass(cam);
+        ssao->blurPass();
     }
 }
 
-void Scene::renderModelsForDepth(Shader& _shader) {
+//! Render all objects of scene
+void Scene::renderModels() {
+    for (uint32_t i = 0; i < models.size(); i++) {
+        models[i]->render(lights, cam, ssao);
+    }
+}
+
+void Scene::renderModelsWithShader(Shader& _shader) {
     for (uint32_t i = 0; i < models.size(); i++) {
         models[i]->renderForDepth(_shader);
     }
@@ -95,3 +93,14 @@ Scene& Scene::setCubeMap(CubeMap& _cubeMap) {
     cubeMap = &_cubeMap;
     return *this;
 }
+
+Scene& Scene::enableSSAO(){
+    ssaoEnabled = true;
+    return *this;
+}
+
+Scene& Scene::setCamera(Camera& _cam){
+    cam = _cam;
+    return *this;
+}
+

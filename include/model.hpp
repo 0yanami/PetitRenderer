@@ -4,6 +4,7 @@
 #include "headers.hpp"
 #include "shader.hpp"
 #include "light.hpp"
+#include "ssao.hpp"
 #include "camera.hpp"
 #include "utils.hpp"
 
@@ -72,7 +73,7 @@ public:
     virtual void load() = 0;
 
     //! Render the object on screen.
-    virtual void render(std::vector<Light*>& _lights,Camera& _cam) = 0;
+    virtual void render(std::vector<Light*>& _lights,Camera& _cam, SSAO* _ssao) = 0;
     
     //! render objects faster for shadow map
     /**
@@ -81,14 +82,13 @@ public:
     virtual void renderForDepth(Shader& _shader) = 0;
 
     //! Set the scale the object in x,y,z axis.
-    virtual Model& setScale(float _scaleX, float _scaleY, float _scaleZ);
-    virtual Model& setScale(float _scale);
+    virtual Model& setScale(glm::vec3 _scale);
 
     //! Rotate the object around the given axis, angle is in degrees.
-    virtual Model& setRotation(float _angle, float _axisX, float _axisY, float _axisZ);
+    virtual Model& setRotation(float _angle, glm::vec3 _axis);
 
     //! Set the position of the object in world space.
-    virtual Model& setPosition(float _posX, float _posY, float _posZ);
+    virtual Model& setPosition(glm::vec3 _pos);
 
     //! Set textures for this model. Bump map is given so tesselation is enabled automatically.
     Model& setTextures(std::string _diffusePath, std::string _specularPath, std::string _heightPath);
@@ -102,14 +102,10 @@ public:
     //! Disable tessellation for this model.
     Model& disableTesselation();
     //! Set diffuse color of object (unused if textures are defined)
-    Model& setDiffuse(float _R,float _G,float _B);
-    Model& setDiffuse(float _C);
+    Model& setDiffuse(glm::vec3 _color);
 
     //! Set specular color of object
-    Model& setSpecular(float _R,float _G,float _B);
-    Model& setSpecular(float _C);
-
-
+    Model& setSpecular(glm::vec3 _color);
 };
 
 
@@ -127,7 +123,7 @@ public:
     
     
     void load();
-    void render(std::vector<Light*>& _lights,Camera& _cam);
+    void render(std::vector<Light*>& _lights,Camera& _cam, SSAO* _ssao);
     void renderForDepth(Shader& _shader);
 };
 
@@ -147,21 +143,17 @@ public:
     FileModel(std::string _path, SMOOTH_NORMAL _smoothNormals);
 
     void load();
-    void render(std::vector<Light*>& _lights,Camera& _cam);
+    void render(std::vector<Light*>& _lights,Camera& _cam, SSAO* _ssao);
     void renderForDepth(Shader& _shader);
 
-    FileModel& setScale(float _scaleX, float _scaleY, float _scaleZ);
-    FileModel& setScale(float _scale);
-    FileModel& setRotation(float _angle, float _axisX, float _axisY, float _axisZ);
-    FileModel& setPosition(float _posX, float _posY, float _posZ);
-    FileModel& setDiffuse(float _R,float _G,float _B);
-    FileModel& setDiffuse(float _C);
-    FileModel& setSpecular(float _R,float _G,float _B);
-    FileModel& setSpecular(float _C);
+    FileModel& setScale(glm::vec3 _scale);
+    FileModel& setRotation(float _angle, glm::vec3 _axis);
+    FileModel& setPosition(glm::vec3 _pos);
+    FileModel& setDiffuse(glm::vec3 _color);
+    FileModel& setSpecular(glm::vec3 _color);
     FileModel& enableTesselation();
     FileModel& disableTesselation();
     FileModel& enableTesselation(TESS_QUALITY _quality);
-    FileModel& disableTesselation(TESS_QUALITY _quality);
 };
 
 

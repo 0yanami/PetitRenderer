@@ -1,4 +1,5 @@
 #include "model.hpp"
+
 #include "glm/ext.hpp"
 #include "glm/gtx/string_cast.hpp"
 #include <algorithm>
@@ -139,8 +140,8 @@ Cube::Cube(float _edgeSize){
     };
 
 	m.indices = {
-		0,1,2,
-		3,4,5,
+		0,2,1,
+		3,5,4,
 		
 		6,7,8,
 		9,10,11,
@@ -148,14 +149,14 @@ Cube::Cube(float _edgeSize){
 		12,13,14,
 		15,16,17,
 
-		18,19,20,
-		21,22,23,
+		18,20,19,
+		21,23,22,
 
 		24,25,26,
 		27,28,29,
 
-		30,31,32,
-		33,34,35
+		30,32,31,
+		33,35,34
 	};
     
 
@@ -222,7 +223,7 @@ void Cube::load(){
 }
 
 
-void Cube::render(std::vector<Light*>& _lights,Camera& _cam)  {
+void Cube::render(std::vector<Light*>& _lights,Camera& _cam, SSAO* _ssao)  {
 	
     m.shader.use();
 	
@@ -286,17 +287,27 @@ void Cube::render(std::vector<Light*>& _lights,Camera& _cam)  {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
+	// bind SSAO texture if enabled
+	if (_ssao != nullptr){
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, _ssao->getSSAOBlurTexture());
+		m.shader.setInt("SSAOTexture", 3);
+		m.shader.setBool("SSAOenabled", true);
+	} else {
+		m.shader.setBool("SSAOenabled", false);
+	}
+
 
 	int j = 0;
 	size_t maxLights = 10;
     for(uint32_t i = 0; i<std::min(_lights.size(),maxLights); i++){
 		if(_lights[i]->hasShadowMap()){
-			glActiveTexture(GL_TEXTURE3+j);
+			glActiveTexture(GL_TEXTURE4+j);
 			DistantLight* li = dynamic_cast<DistantLight*>(_lights[i]);
 			glBindTexture(GL_TEXTURE_2D, li->getDepthTexture());
 
 			m.shader.setMat4("lightSpaceMatrix["+std::to_string(j)+"]", li->getLightSpacematrix());
-			m.shader.setInt("shadowMap["+std::to_string(j)+"]", 3+j);
+			m.shader.setInt("shadowMap["+std::to_string(j)+"]", 4+j);
 			m.shader.setInt("lights["+   std::to_string(i) + "].shadowMapId", j);
 			j++;
 		} else {

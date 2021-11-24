@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
     DistantLight light3{glm::vec3{-100,50,-80},glm::vec3{0.3f}};
     DistantLight light4{glm::vec3{-100,50,-20},glm::vec3{0.3f}};
     // create a scene
-    Scene baseScene{};
+    Scene baseScene{cam};
 
     // add object to scene
     Cube cube1(1.0f);
@@ -33,34 +33,36 @@ int main(int argc, char* argv[]) {
     Cube cube2(1.0f);
     Cube cube3(1.0f);
     Cube ground(1.0f);
+    Cube wall(1.0f);
 
     //add a cubemap
     CubeMap cubemap{"textures/cubemaps/tantolunden5/"};
 
     FileModel teapot{"models/teapot.obj",SMOOTH_NORMAL_ENABLE};
-    FileModel acCobra{"models/AC_Cobra/Shelby.obj",SMOOTH_NORMAL_ENABLE};
+    //FileModel acCobra{"models/AC_Cobra/Shelby.obj",SMOOTH_NORMAL_ENABLE};
     FileModel suzanne{"models/suzanne.obj",SMOOTH_NORMAL_ENABLE};
 
-    cube1.setTextures("textures/containerDiffuse.png","textures/containerSpecular.png").setPosition(2.5f,1.8f,0.0f);
+    cube1.setTextures("textures/containerDiffuse.png","textures/containerSpecular.png").setPosition({2.5f,1.8f,0.0f});
 
-    cube2.setPosition(0.0f,1.5f,0.0f).setDiffuse(1.0f,0.6f,0.4f);
+    cube2.setPosition({0.0f,1.5f,0.0f}).setDiffuse({1.0f,0.6f,0.4f});
 
-    cube3.setPosition(-2.5f,1.5f,0.0f)
+    cube3.setPosition({-2.5f,1.5f,0.0f})
     .setTextures("textures/tilesDiffuse.jpg","textures/tilesSpecular.jpg","textures/tilesHeight.png");
 
-    ground.setScale(20.0f,0.5f,20.0f).setSpecular(0.0f);
+    ground.setScale({20.0f,0.5f,20.0f}).setSpecular(glm::vec3{0.0f});
 
-    teapot.setScale(0.35f).setPosition(0.0f,2.0f,-1.8f)
-        .setDiffuse(0.9f,0.2f,0.2f).enableTesselation(MEDIUM).setSpecular(0.5f);
+    wall.setScale({5.0f,3.0f,0.2f}).setRotation(45,{0,1,0}).setPosition({-4,0,-2});
 
-    acCobra.setScale(1.0f).setPosition(0.0f,2.0f,5.0f);
+    teapot.setScale(glm::vec3{0.35f}).setPosition({0.0f,2.0f,-1.8f})
+        .setDiffuse({0.9f,0.2f,0.2f}).enableTesselation(MEDIUM).setSpecular(glm::vec3{0.5f});
 
-    suzanne.setScale(0.5f).setPosition(-2.5f,2.0f,-2.0f).enableTesselation(HIGH).setDiffuse(0.1f,0.1f,0.9f);
+    //acCobra.setScale(1.0f).setPosition(0.0f,2.0f,5.0f);
 
-    cubelight.setPosition(3,2,-4);
+    suzanne.setScale(glm::vec3{0.5f}).setPosition({-2.5f,2.0f,-2.0f}).enableTesselation(HIGH).setDiffuse({0.1f,0.1f,0.9f});
 
-    baseScene.addModel(cube1).addModel(cube2).addModel(cube3)
-             .addModel(ground).addModel(teapot).addModel(suzanne).addModel(acCobra).addModel(cubelight);
+    cubelight.setPosition({3,2,-4});
+
+    baseScene.addModel(cube1).addModel(cube2).addModel(cube3).addModel(wall).addModel(ground);
 
     light3.enableShadowMap(2048,10.0f);
 
@@ -72,6 +74,7 @@ int main(int argc, char* argv[]) {
 
     // start render loop, open GLFW window
     MainLoop renderLoop{baseScene,interface,cam};
+    //baseScene.enableSSAO();
     //load scene to GPU
     baseScene.load();
     //start render loop

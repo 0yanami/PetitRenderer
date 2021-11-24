@@ -110,7 +110,7 @@ float ComputeShadow(vec3 lightDir, int sMapId){
     projCoords = projCoords * 0.5 + 0.5;
 
     //depth bias against acne
-    float bias = max(0.05 * (1.0 - dot(Normal_frag, lightDir)), 0.001);
+    float bias = max(0.004 * (1.0 - dot(Normal_frag, lightDir)), 0.004);
 
     //samples around unit circle
     vec2 circle[8] = vec2[](

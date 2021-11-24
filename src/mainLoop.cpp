@@ -9,7 +9,7 @@ MainLoop::MainLoop(Scene& _scene, Ui& _ui, Camera& _camera)
 
     // GLFW
     glfwInit();
-    // opengl 4.0
+    // opengl 4.1
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -51,7 +51,6 @@ MainLoop::MainLoop(Scene& _scene, Ui& _ui, Camera& _camera)
     lastFrame = 0.0;
 
    glPatchParameteri(GL_PATCH_VERTICES, 3);
-
 }
 
 void MainLoop::run() {
@@ -82,12 +81,15 @@ void MainLoop::run() {
         // render all pass for current frame
         // cubemap is rendered first
         
+        scene.setCamera(cam);
         // step for shadow maps
-        scene.depthMaps_pass(cam);
+        scene.depthMaps_pass();
 
-        scene.renderCubeMap(cam);
+        scene.renderCubeMap();
+
+        scene.SSAO_Pass();
         // final rendering of scene
-        scene.renderModels(cam);
+        scene.renderModels();
 
 
         // creer le kernel

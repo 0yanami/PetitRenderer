@@ -169,7 +169,7 @@ void FileModel::load(){
 }
 
 
-void FileModel::render(std::vector<Light*>& _lights,Camera& _cam)  {
+void FileModel::render(std::vector<Light*>& _lights,Camera& _cam,SSAO* _ssao)  {
 	for(auto& subModel : subModels){
 
 		auto& sh = subModel.shader;
@@ -310,35 +310,26 @@ void FileModel::renderForDepth(Shader& _shader){
 	glBindVertexArray(0);
 }
 
-FileModel& FileModel::setScale(float _scaleX, float _scaleY, float _scaleZ){
+FileModel& FileModel::setScale(glm::vec3  _scale){
 	for(auto& subModel : subModels){
     subModel.scale = glm::mat4(1.0);
-    subModel.scale = glm::scale(subModel.scale,glm::vec3{_scaleX,_scaleY,_scaleZ});
+    subModel.scale = glm::scale(subModel.scale,_scale);
 	}
     return *this;
 }
 
-FileModel& FileModel::setScale(float _scale){
-	for(auto& subModel : subModels){
-    subModel.scale = glm::mat4(1.0);
-    subModel.scale = glm::scale(subModel.scale,glm::vec3{_scale});
-	}
-    return *this;
-}
-
-FileModel& FileModel::setRotation(float _angle, float _axisX, float _axisY, float _axisZ){
+FileModel& FileModel::setRotation(float _angle,glm::vec3 _axis){
 	for(auto& subModel : subModels){
     subModel.rotation = glm::mat4(1.0);
-    subModel.rotation = glm::rotate(subModel.rotation, glm::radians(_angle), 
-							glm::vec3{_axisX,_axisY,_axisZ});
+    subModel.rotation = glm::rotate(subModel.rotation, glm::radians(_angle),_axis);
 	}
     return *this;
 }
 
-FileModel& FileModel::setPosition(float _posX, float _posY, float _posZ){
+FileModel& FileModel::setPosition(glm::vec3 _pos){
 	for(auto& subModel : subModels){
     subModel.translate = glm::mat4{1.0};
-    subModel.translate = glm::translate(subModel.translate, glm::vec3{_posX,_posY,_posZ});
+    subModel.translate = glm::translate(subModel.translate, _pos);
 	}
     return *this;
 }
@@ -357,31 +348,16 @@ void FileModel::loadShaders(modelDescription& model){
 	
 }
 
-FileModel& FileModel::setDiffuse(float _R,float _G,float _B){
+FileModel& FileModel::setDiffuse(glm::vec3 _color){
 	for(auto& subModel : subModels){
-    subModel.diffuseColor = glm::vec3{_R,_G,_B};
+    subModel.diffuseColor =_color;
 	}
 	return *this;
 }
 
-FileModel& FileModel::setSpecular(float _R,float _G,float _B){
+FileModel& FileModel::setSpecular(glm::vec3 _color){
 	for(auto& subModel : subModels){
-    subModel.specularColor = glm::vec3{_R,_G,_B};
-	}
-	return *this;
-}
-
-
-FileModel& FileModel::setDiffuse(float _C){
-	for(auto& subModel : subModels){
-    subModel.diffuseColor = glm::vec3{_C};
-	}
-	return *this;
-}
-
-FileModel& FileModel::setSpecular(float _C){
-	for(auto& subModel : subModels){
-    subModel.specularColor = glm::vec3{_C};
+    subModel.specularColor = _color;
 	}
 	return *this;
 }
@@ -397,11 +373,6 @@ FileModel& FileModel::disableTesselation(){
 
 FileModel& FileModel::enableTesselation(TESS_QUALITY _quality){
     tessellation = true;
-	tqual = _quality;
-    return *this;
-}
-FileModel& FileModel::disableTesselation(TESS_QUALITY _quality){
-    tessellation = false;
 	tqual = _quality;
     return *this;
 }

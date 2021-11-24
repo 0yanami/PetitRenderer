@@ -12,7 +12,7 @@
 class MainLoop {
 
 private:
-    Scene scene;
+    Scene& scene;
     Ui ui;
     Camera& cam;
     Inputs inputs;
