@@ -13,6 +13,8 @@ private:
     // input textures
     uint32_t positionTexture;
     uint32_t normalTexture;
+    uint32_t depthTexture;
+    
     // texture of ssao pass
     uint32_t ssaoTexture;
     uint32_t noiseTexture;
@@ -21,7 +23,7 @@ private:
 
     uint32_t fboGeo;
     uint32_t fboSSAO;
-    uint32_t fboNoise;
+    uint32_t fboBlur;
 
     //quad data to render ssao textures
     uint32_t quadVAO; 
@@ -93,14 +95,14 @@ public:
         glGenFramebuffers(1, &fboGeo);
         glBindFramebuffer(GL_FRAMEBUFFER, fboGeo);
 
-        unsigned int attachmentGeo[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+        GLenum attachmentGeo[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
         glDrawBuffers(2, attachmentGeo);
 
         glGenFramebuffers(1, &fboSSAO);
         glBindFramebuffer(GL_FRAMEBUFFER, fboSSAO);
 
-        glGenFramebuffers(1, &fboNoise);
-        glBindFramebuffer(GL_FRAMEBUFFER, fboNoise);
+        glGenFramebuffers(1, &fboBlur);
+        glBindFramebuffer(GL_FRAMEBUFFER, fboBlur);
         
 
         // create input positions texture
@@ -118,6 +120,16 @@ public:
         glBindTexture(GL_TEXTURE_2D, normalTexture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _cam.getResWidth(),
                      _cam.getResHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        // create input normals texture
+        glGenTextures(1, &depthTexture);
+        glBindTexture(GL_TEXTURE_2D, depthTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, _cam.getResWidth(),
+                     _cam.getResHeight(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -154,20 +166,21 @@ public:
     }
 
     Shader& setupGeometryPass(Camera& _cam){
-        glClearColor(0.0, 0.0, 0.0, 1.0);
         glBindFramebuffer(GL_FRAMEBUFFER, fboGeo);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-         
+
+        //glEnable(GL_DEPTH_TEST);
+        //glDepthMask(GL_TRUE);
 
         shGeo.use();
         shGeo.setMat4("view", _cam.getView());
         shGeo.setMat4("projection",_cam.getProj());
 
         // bind it's output textures
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, positionTexture,
-                             0);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalTexture,
-                             0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, positionTexture,0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalTexture,0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture ,0);
+
         return shGeo;
     };
 
@@ -207,9 +220,9 @@ public:
 
     void blurPass(){
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, fboBlur);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
+
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, blurTexture, 0);
 
         shBlur.use();

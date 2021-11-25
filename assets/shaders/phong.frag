@@ -1,6 +1,6 @@
 #version 410 core
 
-out vec4 FragColor;
+#define NR_LIGHTS 10
 
 struct Material {
     bool hasTexture;
@@ -12,7 +12,7 @@ struct Material {
     float specularStrength;
 };
 
-struct Light {  
+struct Light {
     bool enabled;
     int shadowMapId;
     vec3 position; 
@@ -27,22 +27,25 @@ struct Light {
 }; 
 
 
-in vec3 FragPos_frag;  
+out vec4 FragColor;
+
+in vec3 FragPos_frag;
 in vec3 Normal_frag;  
 in vec2 TexCoords_frag;
 in vec4 FragPos_lightSpace_frag[5];
-  
-uniform vec3 viewPos;
-uniform Material material;
 
+uniform bool SSAOenabled;
+uniform vec3 viewPos;
+
+uniform sampler2D SSAOTexture;
 uniform sampler2D shadowMap[5];
 
-#define NR_LIGHTS 10
+uniform Material material;
 uniform Light lights[NR_LIGHTS];
+
 
 vec3 Calclight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir);
 float ComputeShadow(vec3 lightDir, int sMapId);
-
 
 void main()
 {
@@ -79,6 +82,10 @@ vec3 Calclight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
         ambient  = light.ambient  * material.diffuse;
         diffuse  = light.diffuse  * diff * material.diffuse;
         specular = light.specular * spec * material.specular * vec3(material.specularStrength);
+    }
+    if(SSAOenabled){
+        float AOfactor = texture(SSAOTexture,vec2(gl_FragCoord.x/800,gl_FragCoord.y/600)).r;
+        ambient *= vec3(AOfactor);
     }
 
     // calculate attenuation ( constant < 0 to bypass)

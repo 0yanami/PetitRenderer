@@ -92,13 +92,6 @@ void MainLoop::run() {
         scene.renderModels();
 
 
-        // creer le kernel
-        // stocker le kernel dans une texture
-
-        //creer le framebuffer pour SSAO
-
-        //scene.SSAO_Pass();
-
         // imgui part
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();

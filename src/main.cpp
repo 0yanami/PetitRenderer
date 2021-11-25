@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
 
     // start render loop, open GLFW window
     MainLoop renderLoop{baseScene,interface,cam};
-    //baseScene.enableSSAO();
+    baseScene.enableSSAO();
     //load scene to GPU
     baseScene.load();
     //start render loop

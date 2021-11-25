@@ -1,6 +1,6 @@
 #version 410 core
 
-out float FragColor;
+out vec3 FragColor;
 
 in vec2 TexCoords;
 
@@ -18,5 +18,5 @@ void main()
             result += texture(ssaoInput, TexCoords + offset).r;
         }
     }
-    FragColor = result / (4.0 * 4.0);
+    FragColor = vec3(result / (4.0 * 4.0));
 }  

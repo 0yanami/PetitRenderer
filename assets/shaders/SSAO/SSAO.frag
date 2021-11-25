@@ -2,7 +2,6 @@
 
 layout(location = 0) out vec3 FragColor;
 
-
 in vec2 TexCoords;
 
 uniform sampler2D gPosition;
@@ -12,17 +11,16 @@ uniform sampler2D texNoise;
 uniform vec3 samples[64];
 
 uniform vec2 screenSize;
-
 uniform mat4 projection;
 
+int kernelSize = 64;
+float radius = 0.3;
+float bias = 0.025;
+
+vec2 noiseScale = vec2(screenSize.x/4.0, screenSize.y/4.0);
 
 void main(){
     // ssao params
-    int kernelSize = 64;
-    float radius = 0.5;
-    float bias = 0.025;
-
-    vec2 noiseScale = vec2(screenSize.x/4.0, screenSize.y/4.0);
 
     vec3 fragPos = texture(gPosition, TexCoords).xyz;
     vec3 normal = normalize(texture(gNormal, TexCoords).rgb);
