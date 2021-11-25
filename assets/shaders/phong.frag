@@ -30,12 +30,13 @@ struct Light {
 out vec4 FragColor;
 
 in vec3 FragPos_frag;
-in vec3 Normal_frag;  
+in vec3 Normal_frag;
 in vec2 TexCoords_frag;
 in vec4 FragPos_lightSpace_frag[5];
 
 uniform bool SSAOenabled;
 uniform vec3 viewPos;
+uniform vec2 screenSize;
 
 uniform sampler2D SSAOTexture;
 uniform sampler2D shadowMap[5];
@@ -84,7 +85,7 @@ vec3 Calclight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
         specular = light.specular * spec * material.specular * vec3(material.specularStrength);
     }
     if(SSAOenabled){
-        float AOfactor = texture(SSAOTexture,vec2(gl_FragCoord.x/800,gl_FragCoord.y/600)).r;
+        float AOfactor = texture(SSAOTexture,vec2(gl_FragCoord.x/screenSize.x,gl_FragCoord.y/screenSize.y)).r;
         ambient *= vec3(AOfactor);
     }
 
@@ -109,40 +110,32 @@ vec3 Calclight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
 }
 
 float rand(vec2 co){
-  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+  return 1/exp(fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453));
 }
+
 
 float ComputeShadow(vec3 lightDir, int sMapId){
     vec3 projCoords = FragPos_lightSpace_frag[sMapId].xyz / FragPos_lightSpace_frag[sMapId].w;
     projCoords = projCoords * 0.5 + 0.5;
 
     //depth bias against acne
-    float bias = max(0.004 * (1.0 - dot(Normal_frag, lightDir)), 0.004);
+    float bias = max(0.006 * (1.0 - dot(Normal_frag, lightDir)), 0.006);
 
-    //samples around unit circle
-    vec2 circle[8] = vec2[](
-        vec2( 0.7, 0.7 ),
-        vec2( -0.7, 0.7 ),
-        vec2( 0.7, -0.7 ),
-        vec2( -0.7, -0.7 ),
-        vec2( 1, 0 ),
-        vec2( 0, 1 ),
-        vec2( -1, 0 ),
-        vec2( 0, -1 )
-    );
 
     //get half of tex res for sampling
-    float offset = textureSize(shadowMap[sMapId],0).x*0.8;
+    float offset = textureSize(shadowMap[sMapId],0).x*0.5;
     
     float lightDepth;
     float shadow = 0;
     // test for each sample point
-    for(int i = 0; i<8; i++){
+    int samples = 16;
+    for(int i = 0; i<samples; i++){
 
-        lightDepth = texture(shadowMap[sMapId], projCoords.xy + circle[i]/offset ).x;
+        vec2 rnd = vec2(rand(projCoords.xy*float(i)), rand(projCoords.yx*float(i+1)));
+
+        lightDepth = texture(shadowMap[sMapId], projCoords.xy+(rnd/offset) ).x;
         if(projCoords.z > lightDepth  + bias){
-            //add up shadow if point is in shadow
-            shadow += 0.125;
+            shadow += 1/float(samples);
         }
     }
 

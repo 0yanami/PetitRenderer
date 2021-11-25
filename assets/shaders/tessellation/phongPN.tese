@@ -6,7 +6,7 @@ layout(triangles, equal_spacing, ccw) in;
 
 uniform mat4 view;
 uniform mat4 projection;
-uniform mat4 lightSpaceMatrix;
+uniform mat4 lightSpaceMatrix[5];
 
 struct CtlTriangle{
     vec3 p_003, p_012,p_021,p_030,
@@ -22,7 +22,7 @@ patch in CtlTriangle CtlTri;
 out vec3 FragPos_eval_out;
 out vec2 TexCoord_eval_out; 
 out vec3 Normal_eval_out;
-out vec4 Fragpos_lightSpace_eval_out;
+out vec4 Fragpos_lightSpace_eval_out[5];
 
 // get interpolation between 3 vectors
 vec2 interp2D(vec2 v0, vec2 v1, vec2 v2);
@@ -48,7 +48,9 @@ void main(){
                   CtlTri.p_012 * 3.0 * u * pow(v, 2) +
                   CtlTri.p_111 * 6.0 * w * u * v;
     FragPos_eval_out = bezier;
-    Fragpos_lightSpace_eval_out = lightSpaceMatrix * vec4(FragPos_eval_out,1.0);
+    for (int i = 0; i<5;i++){
+        Fragpos_lightSpace_eval_out[i] = lightSpaceMatrix[i] * vec4(FragPos_eval_out, 1.0);
+    }
     gl_Position = projection * view * vec4(bezier,1.0);
 }
 

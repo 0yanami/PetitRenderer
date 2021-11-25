@@ -15,7 +15,7 @@ MainLoop::MainLoop(Scene& _scene, Ui& _ui, Camera& _camera)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-    glfwWindowHint(GLFW_SAMPLES, 2);
+    //glfwWindowHint(GLFW_SAMPLES, 8);
 
     window = glfwCreateWindow(windowWidth, windowHeight,
                               windowName.c_str(), nullptr, nullptr);

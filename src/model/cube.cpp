@@ -232,6 +232,7 @@ void Cube::render(std::vector<Light*>& _lights,Camera& _cam, SSAO* _ssao)  {
 	m.shader.setMat4("model", model);
     m.shader.setMat4("view", _cam.getView());
     m.shader.setMat4("projection", _cam.getProj());
+	m.shader.setVec2("screenSize", glm::vec2(_cam.getResWidth(),_cam.getResHeight()));
 
 
     // for specular highlight
@@ -298,8 +299,9 @@ void Cube::render(std::vector<Light*>& _lights,Camera& _cam, SSAO* _ssao)  {
 	}
 
 
-	int j = 0;
+	
 	size_t maxLights = 10;
+	int j = 0;
     for(uint32_t i = 0; i<std::min(_lights.size(),maxLights); i++){
 		if(_lights[i]->hasShadowMap()){
 			glActiveTexture(GL_TEXTURE4+j);
@@ -315,7 +317,6 @@ void Cube::render(std::vector<Light*>& _lights,Camera& _cam, SSAO* _ssao)  {
 		}
 
 		m.shader.setBool("lights["+   std::to_string(i) + "].enabled",1);
-		
 
         m.shader.setVec3("lights["+   std::to_string(i) + "].position",  _lights[i]->getPos());
 
@@ -333,8 +334,8 @@ void Cube::render(std::vector<Light*>& _lights,Camera& _cam, SSAO* _ssao)  {
 		}
 	}
 
-    glBindVertexArray(m.vao);
 
+    glBindVertexArray(m.vao);
     
 	if(tessellation){
 		glDrawElements(GL_PATCHES , m.indices.size(), GL_UNSIGNED_INT, nullptr);

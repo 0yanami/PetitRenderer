@@ -183,6 +183,7 @@ void FileModel::render(std::vector<Light*>& _lights,Camera& _cam,SSAO* _ssao)  {
 		sh.setMat4("model", model);
     	sh.setMat4("view",_cam.getView());
     	sh.setMat4("projection", _cam.getProj());
+		sh.setVec2("screenSize", glm::vec2(_cam.getResWidth(),_cam.getResHeight()));
 
 
     	// for specular highlight
@@ -230,31 +231,7 @@ void FileModel::render(std::vector<Light*>& _lights,Camera& _cam,SSAO* _ssao)  {
 			}
 		}
 
-		// point lights properties
-		size_t maxLights = 10;
-    	for(uint32_t i = 0; i<std::min(_lights.size(),maxLights); i++){
-
-			sh.setBool("lights["+   std::to_string(i) + "].enabled",1);
-			sh.setBool("lights["+   std::to_string(i) + "].hasShadowMap", _lights[i]->hasShadowMap());
-
-    	    sh.setVec3("lights["+   std::to_string(i) + "].position",  _lights[i]->getPos());
-
-    	    sh.setVec3("lights[" +  std::to_string(i) + "].ambient",   _lights[i]->getAmbiant());
-		    sh.setVec3("lights[" +  std::to_string(i) + "].diffuse",   _lights[i]->getDiffuse());
-		    sh.setVec3("lights[" +  std::to_string(i) + "].specular",  _lights[i]->getSpecular());
-
-		    sh.setFloat("lights[" + std::to_string(i) + "].constant",  _lights[i]->getConstant());
-		    sh.setFloat("lights[" + std::to_string(i) + "].linear",    _lights[i]->getLinear());
-		    sh.setFloat("lights[" + std::to_string(i) + "].quadratic", _lights[i]->getQuadratic());
-    	}
-		if (_lights.size()<maxLights){
-			for (size_t i = _lights.size(); i<maxLights; i++){
-				sh.setBool("lights["+   std::to_string(i) + "].enabled",0);
-			}
-		}
-		
-
-    	// texture loading 
+		// texture loading 
 
 		glActiveTexture(GL_TEXTURE0);
 		if (subModel.diffuseMap  != -1){
@@ -270,17 +247,48 @@ void FileModel::render(std::vector<Light*>& _lights,Camera& _cam,SSAO* _ssao)  {
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 
-		// bind shadow maps textures
+		// bind SSAO texture if enabled
+		if (_ssao != nullptr){
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, _ssao->getSSAOBlurTexture());
+			sh.setInt("SSAOTexture", 2);
+			sh.setBool("SSAOenabled", true);
+		} else {
+			sh.setBool("SSAOenabled", false);
+		}
+
+		// point lights properties
+		size_t maxLights = 10;
 		int j = 0;
-		for(int i = 0; i<_lights.size();i++){
+    	for(uint32_t i = 0; i<std::min(_lights.size(),maxLights); i++){
 			if(_lights[i]->hasShadowMap()){
 				glActiveTexture(GL_TEXTURE3+j);
 				DistantLight* li = dynamic_cast<DistantLight*>(_lights[i]);
 				glBindTexture(GL_TEXTURE_2D, li->getDepthTexture());
 
-				sh.setMat4("lightSpaceMatrix", li->getLightSpacematrix());
-				sh.setInt("shadowMap", 3+j);
+				sh.setMat4("lightSpaceMatrix["+std::to_string(j)+"]", li->getLightSpacematrix());
+				sh.setInt("shadowMap["+std::to_string(j)+"]", 3+j);
+				sh.setInt("lights["+   std::to_string(i) + "].shadowMapId", j);
 				j++;
+			} else {
+				sh.setInt("lights["+   std::to_string(i) + "].shadowMapId", -1);
+			}
+			
+			sh.setBool("lights["+   std::to_string(i) + "].enabled",1);
+
+    	    sh.setVec3("lights["+   std::to_string(i) + "].position",  _lights[i]->getPos());
+
+    	    sh.setVec3("lights[" +  std::to_string(i) + "].ambient",   _lights[i]->getAmbiant());
+		    sh.setVec3("lights[" +  std::to_string(i) + "].diffuse",   _lights[i]->getDiffuse());
+		    sh.setVec3("lights[" +  std::to_string(i) + "].specular",  _lights[i]->getSpecular());
+
+		    sh.setFloat("lights[" + std::to_string(i) + "].constant",  _lights[i]->getConstant());
+		    sh.setFloat("lights[" + std::to_string(i) + "].linear",    _lights[i]->getLinear());
+		    sh.setFloat("lights[" + std::to_string(i) + "].quadratic", _lights[i]->getQuadratic());
+    	}
+		if (_lights.size()<maxLights){
+			for (size_t i = _lights.size(); i<maxLights; i++){
+				sh.setBool("lights["+   std::to_string(i) + "].enabled",0);
 			}
 		}
 		

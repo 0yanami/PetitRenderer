@@ -14,7 +14,7 @@ private:
     uint32_t positionTexture;
     uint32_t normalTexture;
     uint32_t depthTexture;
-    
+
     // texture of ssao pass
     uint32_t ssaoTexture;
     uint32_t noiseTexture;
@@ -36,6 +36,8 @@ private:
     Shader shGeo;
     Shader shSSAO;
     Shader shBlur;
+
+    glm::vec2 lastRes;
 
 public:
     SSAO(){};
@@ -104,12 +106,21 @@ public:
         glGenFramebuffers(1, &fboBlur);
         glBindFramebuffer(GL_FRAMEBUFFER, fboBlur);
         
+        
+        lastRes = {_cam.getResWidth(),_cam.getResHeight()};
 
+        genTextures();
+
+    }
+
+    void genTextures(){
+        int width = lastRes[0];
+        int height = lastRes[1];
         // create input positions texture
         glGenTextures(1, &positionTexture);
         glBindTexture(GL_TEXTURE_2D, positionTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _cam.getResWidth(),
-                     _cam.getResHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width,
+                     height, 0, GL_RGBA, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -118,8 +129,8 @@ public:
         // create input normals texture
         glGenTextures(1, &normalTexture);
         glBindTexture(GL_TEXTURE_2D, normalTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, _cam.getResWidth(),
-                     _cam.getResHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width,
+                     height, 0, GL_RGBA, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -128,8 +139,8 @@ public:
         // create input normals texture
         glGenTextures(1, &depthTexture);
         glBindTexture(GL_TEXTURE_2D, depthTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, _cam.getResWidth(),
-                     _cam.getResHeight(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width,
+                     height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -138,8 +149,8 @@ public:
         // ssao pass texture
         glGenTextures(1, &ssaoTexture);
         glBindTexture(GL_TEXTURE_2D, ssaoTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, _cam.getResWidth(),
-                     _cam.getResHeight(), 0, GL_RED, GL_FLOAT, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, width,
+                     height, 0, GL_RED, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -157,8 +168,8 @@ public:
         // create ssao blur pass texture
         glGenTextures(1, &blurTexture);
         glBindTexture(GL_TEXTURE_2D, blurTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, _cam.getResWidth(),
-                     _cam.getResHeight(), 0, GL_RED, GL_FLOAT, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, width,
+                     height, 0, GL_RED, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -166,6 +177,14 @@ public:
     }
 
     Shader& setupGeometryPass(Camera& _cam){
+
+        // redefine textures if resolution changed
+        if(lastRes != glm::vec2{_cam.getResWidth(),_cam.getResHeight()}){
+            lastRes = {_cam.getResWidth(),_cam.getResHeight()};
+            genTextures();
+            std::cout << "regen textures";
+        }
+        
         glBindFramebuffer(GL_FRAMEBUFFER, fboGeo);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

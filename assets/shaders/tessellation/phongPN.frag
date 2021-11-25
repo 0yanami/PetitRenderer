@@ -18,7 +18,7 @@ struct Material {
 //light bulb light
 struct Light { 
     bool enabled;
-    bool hasShadowMap;   
+    int shadowMapId;   
     vec3 position; 
 
     vec3 ambient;
@@ -34,16 +34,22 @@ struct Light {
 in vec3 FragPos_eval_out;  
 in vec2 TexCoord_eval_out;  
 in vec3 Normal_eval_out;
-in vec4 Fragpos_lightSpace_eval_out;
+in vec4 Fragpos_lightSpace_eval_out[5];
   
 uniform vec3 viewPos;
 uniform Material material;
-uniform sampler2D shadowMap;
+uniform sampler2D shadowMap[5];
+
+uniform bool SSAOenabled;
+uniform sampler2D SSAOTexture;
+
+
+uniform vec2 screenSize;
 
 #define NR_LIGHTS 10
 uniform Light lights[NR_LIGHTS];
 
-float ComputeShadow(vec3 lightDir);
+float ComputeShadow(vec3 lightDir, int sMapId);
 vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir);  
 
 void main()
@@ -94,22 +100,27 @@ vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
         diffuse  *= attenuation;
         specular *= attenuation;
     }
+
+    if(SSAOenabled){
+        float AOfactor = texture(SSAOTexture,vec2(gl_FragCoord.x/screenSize.x,gl_FragCoord.y/screenSize.y)).r;
+        ambient *= vec3(AOfactor);
+    }
     
 
     float shadow = 0;
-    if(light.hasShadowMap){
-        shadow = ComputeShadow(lightDir);
+    if(light.shadowMapId>=0){
+        shadow = ComputeShadow(lightDir,light.shadowMapId);
     }
 
     return (ambient + (1.0-shadow)*(diffuse + specular));
 }
 
-float ComputeShadow(vec3 lightDir){
-    vec3 projCoords = Fragpos_lightSpace_eval_out.xyz / Fragpos_lightSpace_eval_out.w;
+float ComputeShadow(vec3 lightDir, int sMapId){
+    vec3 projCoords = Fragpos_lightSpace_eval_out[sMapId].xyz / Fragpos_lightSpace_eval_out[sMapId].w;
     projCoords = projCoords * 0.5 + 0.5;
 
     //depth bias against acne
-    float bias = max(0.05 * (1.0 - dot(Normal_eval_out, lightDir)), 0.001);
+    float bias = max(0.005 * (1.0 - dot(Normal_eval_out, lightDir)), 0.005);
 
     //samples around unit circle
     vec2 circle[8] = vec2[](
@@ -124,14 +135,14 @@ float ComputeShadow(vec3 lightDir){
     );
 
     //get half of tex res for sampling
-    float offset = textureSize(shadowMap,0).x*0.8;
+    float offset = textureSize(shadowMap[sMapId],0).x*0.8;
     
     float lightDepth;
     float shadow = 0;
     // test for each sample point
     for(int i = 0; i<8; i++){
 
-        lightDepth = texture(shadowMap, projCoords.xy + circle[i]/offset ).x;
+        lightDepth = texture(shadowMap[sMapId], projCoords.xy + circle[i]/offset ).x;
         if(projCoords.z > lightDepth  + bias){
             //add up shadow if point is in shadow
             shadow += 0.125;
