@@ -1,4 +1,5 @@
 #include "model.hpp"
+#include "scene.hpp"
 #include "glm/ext.hpp"
 #include "glm/gtx/string_cast.hpp"
 #include <fstream>
@@ -169,7 +170,10 @@ void FileModel::load(){
 }
 
 
-void FileModel::render(std::vector<Light*>& _lights,Camera& _cam,SSAO* _ssao)  {
+void FileModel::render(Scene* _scene)  {
+	Camera& cam = _scene->getCam();
+	SSAO* ssao =  _scene->getSSAO();
+	std::vector<Light*> lights =  _scene->getLights();
 	for(auto& subModel : subModels){
 
 		auto& sh = subModel.shader;
@@ -181,13 +185,11 @@ void FileModel::render(std::vector<Light*>& _lights,Camera& _cam,SSAO* _ssao)  {
     	glm::mat4 model = subModel.translate*subModel.rotation*subModel.scale;
 
 		sh.setMat4("model", model);
-    	sh.setMat4("view",_cam.getView());
-    	sh.setMat4("projection", _cam.getProj());
-		sh.setVec2("screenSize", glm::vec2(_cam.getResWidth(),_cam.getResHeight()));
-
-
-    	// for specular highlight
-    	sh.setVec3("viewPos", _cam.getPos());
+    	sh.setMat4("view",cam.getView());
+    	sh.setMat4("projection", cam.getProj());
+		sh.setVec2("screenSize", glm::vec2(cam.getResWidth(),cam.getResHeight()));
+    	sh.setVec3("viewPos", cam.getPos());
+		sh.setFloat("exposure",_scene->getExposure());
 
 		sh.setFloat("material.specularStrength", 1.0f);
 
@@ -206,7 +208,7 @@ void FileModel::render(std::vector<Light*>& _lights,Camera& _cam,SSAO* _ssao)  {
 			sh.setVec3("material.specular", subModel.specularColor);
 		}
 
-		sh.setFloat("material.shininess", 128.0f);
+		sh.setFloat("material.shininess", 64.0f);
 
 		if(tessellation){
 			//level of detail based on distance , adapts to any triangle size
@@ -248,9 +250,9 @@ void FileModel::render(std::vector<Light*>& _lights,Camera& _cam,SSAO* _ssao)  {
 		}
 
 		// bind SSAO texture if enabled
-		if (_ssao != nullptr){
+		if (ssao != nullptr){
 			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D, _ssao->getSSAOBlurTexture());
+			glBindTexture(GL_TEXTURE_2D, ssao->getSSAOBlurTexture());
 			sh.setInt("SSAOTexture", 2);
 			sh.setBool("SSAOenabled", true);
 		} else {
@@ -260,10 +262,10 @@ void FileModel::render(std::vector<Light*>& _lights,Camera& _cam,SSAO* _ssao)  {
 		// point lights properties
 		size_t maxLights = 10;
 		int j = 0;
-    	for(uint32_t i = 0; i<std::min(_lights.size(),maxLights); i++){
-			if(_lights[i]->hasShadowMap()){
+    	for(uint32_t i = 0; i<std::min(lights.size(),maxLights); i++){
+			if(lights[i]->hasShadowMap()){
 				glActiveTexture(GL_TEXTURE3+j);
-				DistantLight* li = dynamic_cast<DistantLight*>(_lights[i]);
+				DistantLight* li = dynamic_cast<DistantLight*>(lights[i]);
 				glBindTexture(GL_TEXTURE_2D, li->getDepthTexture());
 
 				sh.setMat4("lightSpaceMatrix["+std::to_string(j)+"]", li->getLightSpacematrix());
@@ -276,18 +278,18 @@ void FileModel::render(std::vector<Light*>& _lights,Camera& _cam,SSAO* _ssao)  {
 			
 			sh.setBool("lights["+   std::to_string(i) + "].enabled",1);
 
-    	    sh.setVec3("lights["+   std::to_string(i) + "].position",  _lights[i]->getPos());
+    	    sh.setVec3("lights["+   std::to_string(i) + "].position",  lights[i]->getPos());
 
-    	    sh.setVec3("lights[" +  std::to_string(i) + "].ambient",   _lights[i]->getAmbiant());
-		    sh.setVec3("lights[" +  std::to_string(i) + "].diffuse",   _lights[i]->getDiffuse());
-		    sh.setVec3("lights[" +  std::to_string(i) + "].specular",  _lights[i]->getSpecular());
+    	    sh.setVec3("lights[" +  std::to_string(i) + "].ambient",   lights[i]->getAmbiant());
+		    sh.setVec3("lights[" +  std::to_string(i) + "].diffuse",   lights[i]->getDiffuse());
+		    sh.setVec3("lights[" +  std::to_string(i) + "].specular",  lights[i]->getSpecular());
 
-		    sh.setFloat("lights[" + std::to_string(i) + "].constant",  _lights[i]->getConstant());
-		    sh.setFloat("lights[" + std::to_string(i) + "].linear",    _lights[i]->getLinear());
-		    sh.setFloat("lights[" + std::to_string(i) + "].quadratic", _lights[i]->getQuadratic());
+		    sh.setFloat("lights[" + std::to_string(i) + "].constant",  lights[i]->getConstant());
+		    sh.setFloat("lights[" + std::to_string(i) + "].linear",    lights[i]->getLinear());
+		    sh.setFloat("lights[" + std::to_string(i) + "].quadratic", lights[i]->getQuadratic());
     	}
-		if (_lights.size()<maxLights){
-			for (size_t i = _lights.size(); i<maxLights; i++){
+		if (lights.size()<maxLights){
+			for (size_t i = lights.size(); i<maxLights; i++){
 				sh.setBool("lights["+   std::to_string(i) + "].enabled",0);
 			}
 		}
@@ -345,8 +347,8 @@ FileModel& FileModel::setPosition(glm::vec3 _pos){
 void FileModel::loadShaders(modelDescription& model){
 	// load right shader
 	if(tessellation){
-		model.shader = {"shaders/tessellation/phongPN.vert",
-				 	"shaders/tessellation/phongPN.frag",
+		model.shader = {"shaders/tessellation/phong.vert",
+				 	"shaders/phong.frag",
 				 	"shaders/tessellation/phongPN.tesc",
 				 	"shaders/tessellation/phongPN.tese"};
 		
@@ -383,4 +385,11 @@ FileModel& FileModel::enableTesselation(TESS_QUALITY _quality){
     tessellation = true;
 	tqual = _quality;
     return *this;
+}
+
+FileModel& FileModel::displacementStrength(float _strength){
+	for(auto& subModel : subModels){
+    subModel.displacementStrength = _strength;
+	}
+	return *this;
 }

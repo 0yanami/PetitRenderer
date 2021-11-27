@@ -21,6 +21,8 @@ private:
     SSAO* ssao = nullptr;
     bool ssaoEnabled = false;
 
+    float exposure = 1.0;
+
     CubeMap* cubeMap = nullptr;
 
 public:
@@ -33,7 +35,7 @@ public:
     void renderModels();
 
     
-    Scene& enableSSAO();
+    
 
     //! Render all models of scene using the same shader
     /**
@@ -46,7 +48,13 @@ public:
     Scene& addLight(Light& _light);
     Scene& setCubeMap(CubeMap& _cubeMap);
     Scene& setCamera(Camera& _cam);
-    
+
+    Scene& setExposure(float _exposure){exposure = _exposure;return *this;}
+    Scene& setSSAO(bool _status){ssaoEnabled = _status;return *this;};
+    float getExposure(){return exposure;}
+    Camera& getCam(){return cam;}
+    SSAO* getSSAO(){return ssao;}
+    std::vector<Light*>& getLights(){return lights;}
 };
 
 #endif

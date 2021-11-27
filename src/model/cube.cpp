@@ -1,5 +1,5 @@
 #include "model.hpp"
-
+#include "scene.hpp"
 #include "glm/ext.hpp"
 #include "glm/gtx/string_cast.hpp"
 #include <algorithm>
@@ -223,22 +223,24 @@ void Cube::load(){
 }
 
 
-void Cube::render(std::vector<Light*>& _lights,Camera& _cam, SSAO* _ssao)  {
-	
+void Cube::render(Scene* _scene)  {
+	Camera& cam = _scene->getCam();
+	SSAO* ssao =  _scene->getSSAO();
+	std::vector<Light*>& lights =  _scene->getLights();
+
     m.shader.use();
 	
     glm::mat4 model = m.translate*m.rotation*m.scale;
 
 	m.shader.setMat4("model", model);
-    m.shader.setMat4("view", _cam.getView());
-    m.shader.setMat4("projection", _cam.getProj());
-	m.shader.setVec2("screenSize", glm::vec2(_cam.getResWidth(),_cam.getResHeight()));
-
-
-    // for specular highlight
-    m.shader.setVec3("viewPos", _cam.getPos());
+    m.shader.setMat4("view", cam.getView());
+    m.shader.setMat4("projection", cam.getProj());
+	m.shader.setVec2("screenSize", glm::vec2(cam.getResWidth(),cam.getResHeight()));
+    m.shader.setVec3("viewPos", cam.getPos());
+	m.shader.setFloat("exposure",_scene->getExposure());
 	
-	m.shader.setFloat("material.specularStrength", 1.0f);
+
+	m.shader.setFloat("material.specularStrength", 0.5f);
 
 	//if textures are defined set uniform values
 	if(m.diffuseMap != -1){
@@ -254,14 +256,14 @@ void Cube::render(std::vector<Light*>& _lights,Camera& _cam, SSAO* _ssao)  {
 	} else {
 		m.shader.setVec3("material.specular", m.specularColor);
 	}
-	m.shader.setFloat("material.shininess", 128.0f);
+	m.shader.setFloat("material.shininess", 64.0f);
 
 	if(m.heightMap != -1){
 		m.shader.setInt("dispMap", 2);
 		m.shader.setInt("tes_lod0", 64);
 		m.shader.setInt("tes_lod1", 32);
 		m.shader.setInt("tes_lod2", 4);
-		m.shader.setFloat("dispStrength", 0.01f);
+		m.shader.setFloat("dispStrength", m.displacementStrength);
 	}
 
 	// bind diffuse texture
@@ -289,9 +291,9 @@ void Cube::render(std::vector<Light*>& _lights,Camera& _cam, SSAO* _ssao)  {
 	}
 
 	// bind SSAO texture if enabled
-	if (_ssao != nullptr){
+	if (ssao != nullptr){
 		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, _ssao->getSSAOBlurTexture());
+		glBindTexture(GL_TEXTURE_2D, ssao->getSSAOBlurTexture());
 		m.shader.setInt("SSAOTexture", 3);
 		m.shader.setBool("SSAOenabled", true);
 	} else {
@@ -302,10 +304,10 @@ void Cube::render(std::vector<Light*>& _lights,Camera& _cam, SSAO* _ssao)  {
 	
 	size_t maxLights = 10;
 	int j = 0;
-    for(uint32_t i = 0; i<std::min(_lights.size(),maxLights); i++){
-		if(_lights[i]->hasShadowMap()){
+    for(uint32_t i = 0; i<std::min(lights.size(),maxLights); i++){
+		if(lights[i]->hasShadowMap()){
 			glActiveTexture(GL_TEXTURE4+j);
-			DistantLight* li = dynamic_cast<DistantLight*>(_lights[i]);
+			DistantLight* li = dynamic_cast<DistantLight*>(lights[i]);
 			glBindTexture(GL_TEXTURE_2D, li->getDepthTexture());
 
 			m.shader.setMat4("lightSpaceMatrix["+std::to_string(j)+"]", li->getLightSpacematrix());
@@ -318,18 +320,18 @@ void Cube::render(std::vector<Light*>& _lights,Camera& _cam, SSAO* _ssao)  {
 
 		m.shader.setBool("lights["+   std::to_string(i) + "].enabled",1);
 
-        m.shader.setVec3("lights["+   std::to_string(i) + "].position",  _lights[i]->getPos());
+        m.shader.setVec3("lights["+   std::to_string(i) + "].position",  lights[i]->getPos());
 
-        m.shader.setVec3("lights[" +  std::to_string(i) + "].ambient",   _lights[i]->getAmbiant());
-	    m.shader.setVec3("lights[" +  std::to_string(i) + "].diffuse",   _lights[i]->getDiffuse());
-	    m.shader.setVec3("lights[" +  std::to_string(i) + "].specular",  _lights[i]->getSpecular());
+        m.shader.setVec3("lights[" +  std::to_string(i) + "].ambient",   lights[i]->getAmbiant());
+	    m.shader.setVec3("lights[" +  std::to_string(i) + "].diffuse",   lights[i]->getDiffuse());
+	    m.shader.setVec3("lights[" +  std::to_string(i) + "].specular",  lights[i]->getSpecular());
 
-	    m.shader.setFloat("lights[" + std::to_string(i) + "].constant",  _lights[i]->getConstant());
-	    m.shader.setFloat("lights[" + std::to_string(i) + "].linear",    _lights[i]->getLinear());
-	    m.shader.setFloat("lights[" + std::to_string(i) + "].quadratic", _lights[i]->getQuadratic());
+	    m.shader.setFloat("lights[" + std::to_string(i) + "].constant",  lights[i]->getConstant());
+	    m.shader.setFloat("lights[" + std::to_string(i) + "].linear",    lights[i]->getLinear());
+	    m.shader.setFloat("lights[" + std::to_string(i) + "].quadratic", lights[i]->getQuadratic());
     }
-	if (_lights.size()<maxLights){
-		for (size_t i = _lights.size(); i<maxLights; i++){
+	if (lights.size()<maxLights){
+		for (size_t i = lights.size(); i<maxLights; i++){
 			m.shader.setBool("lights["+   std::to_string(i) + "].enabled",0);
 		}
 	}
@@ -364,13 +366,14 @@ void Cube::loadShaders(){
 	// load right shader
 	if(tessellation){
 		if (m.heightMapPath != ""){
-			m.shader = {"shaders/tessellation/phongBump.vert",
-				 "shaders/tessellation/phongBump.frag",
+			std::cout << "using phong bump shader\n";
+			m.shader = {"shaders/tessellation/phong.vert",
+				 "shaders/phong.frag",
 				 "shaders/tessellation/phongBump.tesc",
 				 "shaders/tessellation/phongBump.tese"};
 		} else {
-			m.shader = {"shaders/tessellation/phongPN.vert",
-				 "shaders/tessellation/phongPN.frag",
+			m.shader = {"shaders/tessellation/phong.vert",
+				 "shaders/phong.frag",
 				 "shaders/tessellation/phongPN.tesc",
 				 "shaders/tessellation/phongPN.tese"};
 		}

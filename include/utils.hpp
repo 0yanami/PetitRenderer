@@ -9,6 +9,8 @@
 #endif
 #include <glad/glad.h>
 
+#include<stdlib.h>
+
 #include <iostream>
 
 static unsigned int loadTexture(const char* path) {
@@ -17,18 +19,43 @@ static unsigned int loadTexture(const char* path) {
 
     int width, height, nrComponents;
     unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
+    size_t numPixels = width*height*nrComponents;
+    std::vector<float> dataf;
+    dataf.reserve(width*height*4);
+    if(nrComponents == 4){
+        for(size_t i = 0; i<numPixels ;i++){
+            dataf.push_back((float)(data[i]-'0')/255);
+        }
+    } else if (nrComponents == 3){
+        for(size_t i = 0; i<numPixels ;i+=3){
+            dataf.push_back((float)(data[i]-'0')/255);
+            dataf.push_back((float)(data[i+1]-'0')/255);
+            dataf.push_back((float)(data[i+2]-'0')/255);
+            dataf.push_back(1.0);
+        }
+    }else if (nrComponents == 1){
+        for(size_t i = 0; i<numPixels ;i++){
+            dataf.push_back((float)(data[i]-'0')/255);
+            dataf.push_back((float)(data[i]-'0')/255);
+            dataf.push_back((float)(data[i]-'0')/255);
+            dataf.push_back(1);
+        }
+    }
+
+    std::cout << "img: "<< path<<" " <<width<<"x"<<height<<"x"<<nrComponents<<" array:"<<dataf.size()<<std::endl;
+    for(int i =0; i<10;i++){
+        std::cout << (float)data[i]-'0' << " ";
+    }
+    std::cout << "\n";
+
     if (data) {
-        GLenum format = GL_RGBA;
-        if (nrComponents == 1)
-            format = GL_RED;
-        else if (nrComponents == 3)
-            format = GL_RGB;
-        else if (nrComponents == 4)
-            format = GL_RGBA;
+        GLenum format = GL_RGBA16F;
+        GLenum iformat = GL_RGBA;
+            
 
         glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
-                     GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, iformat,
+                     GL_FLOAT, &dataf[0]);
         glGenerateMipmap(GL_TEXTURE_2D);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -71,7 +98,7 @@ static unsigned int loadCubeMapTexture(std::string _directory) {
             }
         }
         if (data) {
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width,
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_SRGB, width,
                          height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 
             stbi_image_free(data);

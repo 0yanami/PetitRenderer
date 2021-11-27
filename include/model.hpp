@@ -8,6 +8,7 @@
 #include "camera.hpp"
 #include "utils.hpp"
 
+
 #include <vector>
 #include <string>
 
@@ -25,6 +26,8 @@ typedef enum {
     SMOOTH_NORMAL_ENABLE = true,
     SMOOTH_NORMAL_DISABLE = false
 } SMOOTH_NORMAL;
+
+class Scene;
 
 class Model{
 protected:
@@ -58,6 +61,8 @@ protected:
         std::vector<GLfloat> vertices, normals, textureCoord;
         std::vector<GLuint>  indices;
 
+        float displacementStrength = 0.01;
+
         glm::mat4 scale, rotation, translate;
     };
 
@@ -73,7 +78,7 @@ public:
     virtual void load() = 0;
 
     //! Render the object on screen.
-    virtual void render(std::vector<Light*>& _lights,Camera& _cam, SSAO* _ssao) = 0;
+    virtual void render(Scene* _scene) = 0;
     
     //! render objects faster for shadow map
     /**
@@ -106,6 +111,8 @@ public:
 
     //! Set specular color of object
     Model& setSpecular(glm::vec3 _color);
+
+    Model& displacementStrength(float _strength);
 };
 
 
@@ -123,7 +130,7 @@ public:
     
     
     void load();
-    void render(std::vector<Light*>& _lights,Camera& _cam, SSAO* _ssao);
+    void render(Scene* _scene);
     void renderForDepth(Shader& _shader);
 };
 
@@ -143,7 +150,7 @@ public:
     FileModel(std::string _path, SMOOTH_NORMAL _smoothNormals);
 
     void load();
-    void render(std::vector<Light*>& _lights,Camera& _cam, SSAO* _ssao);
+    void render(Scene* _scene);
     void renderForDepth(Shader& _shader);
 
     FileModel& setScale(glm::vec3 _scale);
@@ -154,6 +161,7 @@ public:
     FileModel& enableTesselation();
     FileModel& disableTesselation();
     FileModel& enableTesselation(TESS_QUALITY _quality);
+    FileModel& displacementStrength(float _strength);
 };
 
 
@@ -181,7 +189,7 @@ public:
     CubeMap(std::string _directory);
 
     void load();
-    void render(Camera& _cam);
+    void render(Scene* _scene);
 };
 
 

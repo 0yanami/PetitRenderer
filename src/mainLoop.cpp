@@ -15,14 +15,11 @@ MainLoop::MainLoop(Scene& _scene, Ui& _ui, Camera& _camera)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-    //glfwWindowHint(GLFW_SAMPLES, 8);
 
     window = glfwCreateWindow(windowWidth, windowHeight,
                               windowName.c_str(), nullptr, nullptr);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(0);
-    //glfwSetCursorPos(window,windowWidth/2, windowHeight/2);
-
     //Callbacks binding
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, Inputs::mouse_callback);
@@ -33,7 +30,7 @@ MainLoop::MainLoop(Scene& _scene, Ui& _ui, Camera& _camera)
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     glViewport(0, 0, windowWidth, windowHeight);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_MULTISAMPLE);
+    glEnable(GL_FRAMEBUFFER_SRGB); 
  
     // ImGui Setup
     IMGUI_CHECKVERSION();

@@ -22,7 +22,7 @@ struct CtlTriangle{
                p_201,p_210,
                   p_300;
     vec3 Normal[3];
-    vec2 TexCoord[3];
+    vec2 TexCoords[3];
 };
 //send control triangle to eval shader
 patch out CtlTriangle CtlTri;
@@ -34,7 +34,7 @@ void main(){
     // pass original points
     for (int i = 0 ; i < 3 ; i++) {
        CtlTri.Normal[i] = Normal_vert_out[i];
-       CtlTri.TexCoord[i] = TexCoords_vert_out[i];
+       CtlTri.TexCoords[i] = TexCoords_vert_out[i];
     }
 
     //1. original points of triangle

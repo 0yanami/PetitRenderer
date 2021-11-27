@@ -51,3 +51,8 @@ Model& Model::setSpecular(glm::vec3 _color){
 	m.specularColor = _color;
 	return *this;
 }
+
+Model& Model::displacementStrength(float _strength){
+    m.displacementStrength = _strength;
+    return *this;
+}

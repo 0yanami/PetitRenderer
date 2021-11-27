@@ -16,10 +16,10 @@ in vec3 WorldPos_ctl_out[];
 in vec2 TexCoords_ctl_out[];
 in vec3 Normal_ctl_out[];
 
-out vec3 FragPos_eval_out;
-out vec2 TexCoord_eval_out; 
-out vec3 Normal_eval_out;
-out vec4 Fragpos_lightSpace_eval_out[5];
+out vec3 FragPos_in;
+out vec2 TexCoords_in; 
+out vec3 Normal_in;
+out vec4 Fragpos_lightSpace_in[5];
 
 // get interpolation between 3 vectors
 vec2 interp2D(vec2 v0, vec2 v1, vec2 v2);
@@ -27,19 +27,19 @@ vec3 interp3D(vec3 v0, vec3 v1, vec3 v2);
 
 void main(){
     // interpolate and send to frag shader
-    TexCoord_eval_out = interp2D(TexCoords_ctl_out[0], TexCoords_ctl_out[1], TexCoords_ctl_out[2]);
-    Normal_eval_out = interp3D(Normal_ctl_out[0], Normal_ctl_out[1], Normal_ctl_out[2]);
-    Normal_eval_out = normalize(Normal_eval_out);
-    FragPos_eval_out = interp3D(WorldPos_ctl_out[0], WorldPos_ctl_out[1], WorldPos_ctl_out[2]);
+    TexCoords_in = interp2D(TexCoords_ctl_out[0], TexCoords_ctl_out[1], TexCoords_ctl_out[2]);
+    Normal_in = interp3D(Normal_ctl_out[0], Normal_ctl_out[1], Normal_ctl_out[2]);
+    Normal_in = normalize(Normal_in);
+    FragPos_in = interp3D(WorldPos_ctl_out[0], WorldPos_ctl_out[1], WorldPos_ctl_out[2]);
     //do displacement
-    float disp = texture(dispMap, TexCoord_eval_out).x;
-    FragPos_eval_out += Normal_eval_out * disp * dispStrength;
+    float disp = texture(dispMap, TexCoords_in).r;
+    FragPos_in += Normal_in * disp * dispStrength;
 
     for (int i = 0; i<5;i++){
-        Fragpos_lightSpace_eval_out[i] = lightSpaceMatrix[i] * vec4(FragPos_eval_out, 1.0);
+        Fragpos_lightSpace_in[i] = lightSpaceMatrix[i] * vec4(FragPos_in, 1.0);
     }
 
-    gl_Position = projection * view * vec4(FragPos_eval_out,1.0);
+    gl_Position = projection * view * vec4(FragPos_in,1.0);
 }
 
 vec2 interp2D(vec2 v0, vec2 v1, vec2 v2){

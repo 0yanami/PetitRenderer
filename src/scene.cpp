@@ -27,7 +27,7 @@ void Scene::load() {
 
 //! render cubeMap, this is the first object to render
 void Scene::renderCubeMap() {
-    if (cubeMap != nullptr) cubeMap->render(cam);
+    if (cubeMap != nullptr) cubeMap->render(this);
 }
 
 //! render depth map for each shadow map enabled light in scene
@@ -67,7 +67,7 @@ void Scene::SSAO_Pass(){
 //! Render all objects of scene
 void Scene::renderModels() {
     for (uint32_t i = 0; i < models.size(); i++) {
-        models[i]->render(lights, cam, ssao);
+        models[i]->render(this);
     }
 }
 
@@ -93,12 +93,6 @@ Scene& Scene::setCubeMap(CubeMap& _cubeMap) {
     cubeMap = &_cubeMap;
     return *this;
 }
-
-Scene& Scene::enableSSAO(){
-    ssaoEnabled = true;
-    return *this;
-}
-
 Scene& Scene::setCamera(Camera& _cam){
     cam = _cam;
     return *this;

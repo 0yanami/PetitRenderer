@@ -14,15 +14,15 @@ struct CtlTriangle{
                p_201,p_210,
                   p_300;
     vec3 Normal[3];
-    vec2 TexCoord[3];
+    vec2 TexCoords[3];
 };
 // triangle from control shader
 patch in CtlTriangle CtlTri;
 
-out vec3 FragPos_eval_out;
-out vec2 TexCoord_eval_out; 
-out vec3 Normal_eval_out;
-out vec4 Fragpos_lightSpace_eval_out[5];
+out vec3 FragPos_in;
+out vec2 TexCoords_in; 
+out vec3 Normal_in;
+out vec4 Fragpos_lightSpace_in[5];
 
 // get interpolation between 3 vectors
 vec2 interp2D(vec2 v0, vec2 v1, vec2 v2);
@@ -30,9 +30,9 @@ vec3 interp3D(vec3 v0, vec3 v1, vec3 v2);
 
 void main(){
     // interpolate and send to frag shader
-    TexCoord_eval_out = interp2D(CtlTri.TexCoord[0], CtlTri.TexCoord[1], CtlTri.TexCoord[2]);
-    Normal_eval_out = interp3D(CtlTri.Normal[0], CtlTri.Normal[1], CtlTri.Normal[2]);
-    Normal_eval_out = normalize(Normal_eval_out);
+    TexCoords_in = interp2D(CtlTri.TexCoords[0], CtlTri.TexCoords[1], CtlTri.TexCoords[2]);
+    Normal_in = interp3D(CtlTri.Normal[0], CtlTri.Normal[1], CtlTri.Normal[2]);
+    Normal_in = normalize(Normal_in);
     float u = gl_TessCoord.x;
     float v = gl_TessCoord.y;
     float w = gl_TessCoord.z;
@@ -47,9 +47,9 @@ void main(){
                   CtlTri.p_102 * 3.0 * w * pow(v, 2) +
                   CtlTri.p_012 * 3.0 * u * pow(v, 2) +
                   CtlTri.p_111 * 6.0 * w * u * v;
-    FragPos_eval_out = bezier;
+    FragPos_in = bezier;
     for (int i = 0; i<5;i++){
-        Fragpos_lightSpace_eval_out[i] = lightSpaceMatrix[i] * vec4(FragPos_eval_out, 1.0);
+        Fragpos_lightSpace_in[i] = lightSpaceMatrix[i] * vec4(FragPos_in, 1.0);
     }
     gl_Position = projection * view * vec4(bezier,1.0);
 }

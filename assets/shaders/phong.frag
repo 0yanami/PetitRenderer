@@ -1,6 +1,11 @@
 #version 410 core
-
 #define NR_LIGHTS 10
+
+
+// PHONG SHADER
+
+
+out vec4 FragColor;
 
 struct Material {
     bool hasTexture;
@@ -12,9 +17,9 @@ struct Material {
     float specularStrength;
 };
 
-struct Light {
+struct Light {  
     bool enabled;
-    int shadowMapId;
+    int shadowMapId;   
     vec3 position; 
 
     vec3 ambient;
@@ -26,42 +31,42 @@ struct Light {
     float quadratic; 
 }; 
 
-
-out vec4 FragColor;
-
-in vec3 FragPos_frag;
-in vec3 Normal_frag;
-in vec2 TexCoords_frag;
-in vec4 FragPos_lightSpace_frag[5];
-
-uniform bool SSAOenabled;
+in vec3 FragPos_in;
+in vec2 TexCoords_in;
+in vec3 Normal_in;
+in vec4 FragPos_lightSpace_in[5];
+  
 uniform vec3 viewPos;
 uniform vec2 screenSize;
+uniform float exposure;
 
+// SSAO
+uniform bool SSAOenabled;
 uniform sampler2D SSAOTexture;
+
 uniform sampler2D shadowMap[5];
 
-uniform Material material;
 uniform Light lights[NR_LIGHTS];
+uniform Material material;
 
 
-vec3 Calclight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir);
+vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir);
 float ComputeShadow(vec3 lightDir, int sMapId);
 
 void main()
 {
-    vec3 viewDir = normalize(viewPos - FragPos_frag);
+    vec3 viewDir = normalize(viewPos - FragPos_in);
     vec3 result = vec3(0,0,0);
 
     for(int i = 0; i < NR_LIGHTS; i++)
         if(lights[i].enabled)
-            result += Calclight(lights[i], Normal_frag, FragPos_frag, viewDir);    
+            result += CalcLight(lights[i], Normal_in, FragPos_in, viewDir);    
 
     FragColor = vec4(result, 1.0);
 }
 
 // Calculate values for point lights
-vec3 Calclight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
+vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - fragPos);
     // diffuse shading
@@ -69,21 +74,35 @@ vec3 Calclight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
     // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
- 
-    vec3 ambient  = vec3(0,0,0);
-    vec3 diffuse  = vec3(0,0,0);
+  
+    
+    vec3 ambient = vec3(0,0,0);
+    vec3 diffuse = vec3(0,0,0);
     vec3 specular = vec3(0,0,0);
-    // combine results
+
+    float gamma = 2.2;
+
+    vec3 diffuseColor;
+    vec3 specularColor;
     if(material.hasTexture){
-        ambient  = light.ambient  * vec3(texture(material.diffuseTex,TexCoords_frag));
-        diffuse  = light.diffuse  * diff * vec3(texture(material.diffuseTex,TexCoords_frag));
-        specular = light.specular * spec * vec3(texture(material.specularTex,TexCoords_frag))
-                    *vec3(material.specularStrength);
+        diffuseColor = pow(texture(material.diffuseTex,TexCoords_in).rgb,vec3(gamma));
+        specularColor = pow(texture(material.specularTex,TexCoords_in).rgb,vec3(gamma));
+        
     } else {
-        ambient  = light.ambient  * material.diffuse;
-        diffuse  = light.diffuse  * diff * material.diffuse;
-        specular = light.specular * spec * material.specular * vec3(material.specularStrength);
+        diffuseColor = pow(material.diffuse,vec3(gamma));
+        specularColor = pow(material.specular,vec3(gamma));
     }
+    diffuseColor = vec3(1.0) - exp(-diffuseColor * exposure);
+    specularColor = vec3(1.0) - exp(-specularColor * exposure);
+
+    diffuseColor = pow(diffuseColor, vec3(1.0 / gamma));
+    specularColor = pow(specularColor, vec3(1.0 / gamma));
+
+    ambient  = light.ambient  * diffuseColor;
+    diffuse  = light.diffuse  * diff * diffuseColor;
+    specular = light.specular * spec * specularColor *vec3(material.specularStrength);
+
+
     if(SSAOenabled){
         float AOfactor = texture(SSAOTexture,vec2(gl_FragCoord.x/screenSize.x,gl_FragCoord.y/screenSize.y)).r;
         ambient *= vec3(AOfactor);
@@ -93,7 +112,7 @@ vec3 Calclight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
     if (light.constant > 0){
         float distance    = length(light.position - fragPos);
         float attenuation = 1.0 / (light.constant + light.linear * distance + 
-  			    light.quadratic * (distance * distance));
+  			    light.quadratic * (distance));
 
         ambient  *= attenuation;
         diffuse  *= attenuation;
@@ -101,7 +120,6 @@ vec3 Calclight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
     }
 
     float shadow = 0;
-    // if light has shadow map
     if(light.shadowMapId>=0){
         shadow = ComputeShadow(lightDir,light.shadowMapId);
     }
@@ -109,17 +127,17 @@ vec3 Calclight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
     return (ambient + (1.0-shadow)*(diffuse + specular));
 }
 
+
 float rand(vec2 co){
   return 1/exp(fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453));
 }
 
-
 float ComputeShadow(vec3 lightDir, int sMapId){
-    vec3 projCoords = FragPos_lightSpace_frag[sMapId].xyz / FragPos_lightSpace_frag[sMapId].w;
+    vec3 projCoords = FragPos_lightSpace_in[sMapId].xyz / FragPos_lightSpace_in[sMapId].w;
     projCoords = projCoords * 0.5 + 0.5;
 
     //depth bias against acne
-    float bias = max(0.006 * (1.0 - dot(Normal_frag, lightDir)), 0.006);
+    float bias = max(0.006 * (1.0 - dot(Normal_in, lightDir)), 0.006);
 
 
     //get half of tex res for sampling

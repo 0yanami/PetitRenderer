@@ -1,4 +1,5 @@
 #include "model.hpp"
+#include "scene.hpp"
 
 CubeMap::CubeMap(std::string _directory){
     m.vertices = {
@@ -69,15 +70,15 @@ void CubeMap::load(){
     
 }
 
-void CubeMap::render(Camera& _cam){
+void CubeMap::render(Scene* _scene){
 
+    Camera& cam = _scene->getCam();
     glDepthMask(GL_FALSE);
 
     m.shader.use();
 
-    m.shader.setMat4("view", glm::mat4(glm::mat3(_cam.getView())));
-    //m.shader.setMat4("view",_cam.getView());
-    m.shader.setMat4("projection", _cam.getProj());
+    m.shader.setMat4("view", glm::mat4(glm::mat3(cam.getView())));
+    m.shader.setMat4("projection", cam.getProj());
     m.shader.setInt("skybox",0);
     
     glBindVertexArray(m.vao);
