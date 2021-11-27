@@ -13,6 +13,13 @@ struct Material {
     vec3 specular;
     sampler2D  diffuseTex;
     sampler2D  specularTex;
+
+    bool hasNormalMap;
+    sampler2D normalMap;
+
+    bool hasAOMap;
+    sampler2D AOmap;
+
     float shininess;
     float specularStrength;
 };
@@ -52,23 +59,34 @@ uniform Material material;
 
 vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir);
 float ComputeShadow(vec3 lightDir, int sMapId);
+vec3 CalcNormalMap(vec3 normal, vec3 viewDir);
+mat3 CalcTBN(vec3 normal, vec3 viewDir);
 
 void main()
 {
     vec3 viewDir = normalize(viewPos - FragPos_in);
     vec3 result = vec3(0,0,0);
 
+
     for(int i = 0; i < NR_LIGHTS; i++)
         if(lights[i].enabled)
             result += CalcLight(lights[i], Normal_in, FragPos_in, viewDir);    
 
     FragColor = vec4(result, 1.0);
+
+
 }
 
 // Calculate values for point lights
 vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - fragPos);
+
+    if (material.hasNormalMap){
+        normal = CalcNormalMap(normal,viewDir);
+    }
+    
+    
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
     // specular shading
@@ -87,7 +105,6 @@ vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
     if(material.hasTexture){
         diffuseColor = pow(texture(material.diffuseTex,TexCoords_in).rgb,vec3(gamma));
         specularColor = pow(texture(material.specularTex,TexCoords_in).rgb,vec3(gamma));
-        
     } else {
         diffuseColor = pow(material.diffuse,vec3(gamma));
         specularColor = pow(material.specular,vec3(gamma));
@@ -104,7 +121,12 @@ vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
 
 
     if(SSAOenabled){
-        float AOfactor = texture(SSAOTexture,vec2(gl_FragCoord.x/screenSize.x,gl_FragCoord.y/screenSize.y)).r;
+        float AOfactor = 1.0;
+        if(material.hasAOMap){
+            AOfactor = texture(material.AOmap,TexCoords_in).r;
+        } else {
+            AOfactor = texture(SSAOTexture,vec2(gl_FragCoord.x/screenSize.x,gl_FragCoord.y/screenSize.y)).r;
+        }
         ambient *= vec3(AOfactor);
     }
 
@@ -158,4 +180,30 @@ float ComputeShadow(vec3 lightDir, int sMapId){
     }
 
     return shadow;  
+}
+
+vec3 CalcNormalMap(vec3 normal, vec3 viewDir){
+    viewDir = normalize(viewDir);
+
+    vec3 texNormal = texture(material.normalMap,TexCoords_in).xyz;
+    texNormal = (texNormal * 2) - 1; //from 01 to -1 1
+    mat3 TBN = CalcTBN(normal, viewDir);
+
+    return normalize(TBN*texNormal);
+}
+
+mat3 CalcTBN(vec3 normal, vec3 viewDir){
+    vec3 camDir = -viewDir;
+    vec3 dp1 = dFdx(camDir);
+    vec3 dp2 = dFdy(camDir);
+    vec2 duv1 = dFdx(TexCoords_in);
+    vec2 duv2 = dFdy(TexCoords_in);
+
+    vec3 dp2perp = cross( dp2, normal );
+    vec3 dp1perp = cross( normal, dp1 );
+    vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
+    vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+
+    float invmax = inversesqrt( max( dot(T,T), dot(B,B) ) );
+    return mat3( T * invmax, B * invmax, normal );
 }

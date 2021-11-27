@@ -51,9 +51,14 @@ protected:
         int diffuseMap = -1;
         int specularMap = -1;
         int heightMap = -1;
+        int normalMap = -1;
+        int AOMap = -1;
+
         std::string diffuseMapPath = "";
         std::string specularMapPath = "";
         std::string heightMapPath = "";
+        std::string normalMapPath = "";
+        std::string AOMapPath = "";
 
         glm::vec3 diffuseColor = glm::vec3{0.9};
         glm::vec3 specularColor = glm::vec3{1.0};
@@ -95,11 +100,12 @@ public:
     //! Set the position of the object in world space.
     virtual Model& setPosition(glm::vec3 _pos);
 
-    //! Set textures for this model. Bump map is given so tesselation is enabled automatically.
-    Model& setTextures(std::string _diffusePath, std::string _specularPath, std::string _heightPath);
-
-    //! Set textures for this model. No bump map is given so tesselation is not enabled.
-    Model& setTextures(std::string _diffusePath, std::string _specularPath);
+    //! Set textures for this model. When bump map is given, tesselation is enabled automatically.
+    Model& setTexDiffuse(std::string _diffusePath);
+    Model& setTexSpecular(std::string _specularPath);
+    Model& setTexHeight( std::string _heightPath);
+    Model& setTexNormal( std::string _NormalPath);
+    Model& setTexAO( std::string _AOPath);
 
     //! Enable tessellation for this model.
     Model& enableTesselation();

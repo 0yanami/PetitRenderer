@@ -255,7 +255,6 @@ public:
         glBindVertexArray(0);
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
     };
 
     uint32_t getSSAOTexture(){return ssaoTexture;};

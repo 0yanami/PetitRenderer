@@ -27,6 +27,7 @@ private:
 
 public:
     Scene(Camera& _cam);
+    ~Scene();
 
     void load();
     void renderCubeMap();

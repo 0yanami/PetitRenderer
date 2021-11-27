@@ -5,6 +5,10 @@ Scene::Scene(Camera& _cam) : cam(_cam) {
     lights = {};
 }
 
+Scene::~Scene(){
+    delete ssao;
+}
+
 //! Load the scene models on GPU before rendering
 void Scene::load() {
     // create depth buffers for shadow map enabled lights

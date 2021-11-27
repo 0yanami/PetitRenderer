@@ -18,19 +18,30 @@ Model& Model::setPosition(glm::vec3 _pos){
     return *this;
 }
 
-Model& Model::setTextures(std::string _diffusePath, std::string _specularPath, std::string _heightPath){
-	m.diffuseMapPath = _diffusePath;
-    m.specularMapPath = _specularPath;
-    m.heightMapPath = _heightPath;
-    // heightmap given so enable tessellation
-    tessellation = true;
-	return *this;
+Model& Model::setTexDiffuse(std::string _diffusePath){
+    m.diffuseMapPath = _diffusePath;
+    return *this;
 }
 
-Model& Model::setTextures(std::string _diffusePath, std::string _specularPath){
-	m.diffuseMapPath = _diffusePath;
+Model& Model::setTexSpecular(std::string _specularPath){
     m.specularMapPath = _specularPath;
-	return *this;
+    return *this;
+}
+
+Model& Model::setTexHeight( std::string _heightPath){
+    m.heightMapPath = _heightPath;
+    tessellation = true;
+    return *this;
+}
+
+Model& Model::setTexNormal( std::string _normalPath){
+    m.normalMapPath = _normalPath;
+    return *this;
+}
+
+Model& Model::setTexAO( std::string _AOPath){
+    m.AOMapPath = _AOPath;
+    return *this;
 }
 
 Model& Model::enableTesselation(){

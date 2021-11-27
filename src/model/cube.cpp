@@ -218,10 +218,15 @@ void Cube::load(){
 	if (m.heightMapPath != ""){
 		m.heightMap = loadTexture(m.heightMapPath.c_str());
 	}
+	if (m.normalMapPath != ""){
+		m.normalMap = loadTexture(m.normalMapPath.c_str());
+	}
+	if (m.AOMapPath != ""){
+		m.AOMap = loadTexture(m.AOMapPath.c_str());
+	}
 
 	loadShaders();
 }
-
 
 void Cube::render(Scene* _scene)  {
 	Camera& cam = _scene->getCam();
@@ -229,7 +234,8 @@ void Cube::render(Scene* _scene)  {
 	std::vector<Light*>& lights =  _scene->getLights();
 
     m.shader.use();
-	
+	glm::vec3 axis{0,1,0};
+	m.rotation = glm::rotate(m.rotation,glm::radians(0.01f),axis);
     glm::mat4 model = m.translate*m.rotation*m.scale;
 
 	m.shader.setMat4("model", model);
@@ -239,79 +245,84 @@ void Cube::render(Scene* _scene)  {
     m.shader.setVec3("viewPos", cam.getPos());
 	m.shader.setFloat("exposure",_scene->getExposure());
 	
-
 	m.shader.setFloat("material.specularStrength", 0.5f);
+	m.shader.setFloat("material.shininess", 64.0f);
 
-	//if textures are defined set uniform values
-	if(m.diffuseMap != -1){
+	// bind diffuse texture
+	glActiveTexture(GL_TEXTURE0);
+	if (m.diffuseMap  != -1){
 		m.shader.setInt("material.diffuseTex", 0);
 		m.shader.setBool("material.hasTexture",true);
+		glBindTexture(GL_TEXTURE_2D, m.diffuseMap);
 	} else {
 		m.shader.setVec3("material.diffuse", m.diffuseColor);
 		m.shader.setBool("material.hasTexture",false);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-
-	if(m.specularMap != -1){
+	// bind specular texture
+	glActiveTexture(GL_TEXTURE1);
+	if(m.specularMap  != -1){
 		m.shader.setInt("material.specularTex", 1);
+		glBindTexture(GL_TEXTURE_2D, m.specularMap);
 	} else {
+		glBindTexture(GL_TEXTURE_2D, 0);
 		m.shader.setVec3("material.specular", m.specularColor);
 	}
-	m.shader.setFloat("material.shininess", 64.0f);
 
-	if(m.heightMap != -1){
+	// bind displacement map texture
+	glActiveTexture(GL_TEXTURE2);
+	if(m.heightMap  != -1 && tessellation){
 		m.shader.setInt("dispMap", 2);
 		m.shader.setInt("tes_lod0", 64);
 		m.shader.setInt("tes_lod1", 32);
 		m.shader.setInt("tes_lod2", 4);
 		m.shader.setFloat("dispStrength", m.displacementStrength);
-	}
-
-	// bind diffuse texture
-	glActiveTexture(GL_TEXTURE0);
-	if (m.diffuseMap  != -1){
-		glBindTexture(GL_TEXTURE_2D, m.diffuseMap);
-	} else {
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-
-	// bind specular texture
-	glActiveTexture(GL_TEXTURE1);
-	if(m.specularMap  != -1){
-		glBindTexture(GL_TEXTURE_2D, m.specularMap);
-	} else {
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-
-	// bind height map texture
-	glActiveTexture(GL_TEXTURE2);
-	if(m.heightMap  != -1){
 		glBindTexture(GL_TEXTURE_2D, m.heightMap);
 	} else {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	// bind SSAO texture if enabled
+	glActiveTexture(GL_TEXTURE3);
 	if (ssao != nullptr){
-		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, ssao->getSSAOBlurTexture());
 		m.shader.setInt("SSAOTexture", 3);
 		m.shader.setBool("SSAOenabled", true);
 	} else {
 		m.shader.setBool("SSAOenabled", false);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
+	glActiveTexture(GL_TEXTURE4);
+	if(m.normalMap != -1){
+		glBindTexture(GL_TEXTURE_2D, m.normalMap);
+		m.shader.setInt("material.normalMap", 4);
+		m.shader.setBool("material.hasNormalMap",true);
+	} else {
+		m.shader.setBool("material.hasNormalMap",false);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 
-	
+	glActiveTexture(GL_TEXTURE5);
+	if(m.AOMap != -1){
+		glBindTexture(GL_TEXTURE_2D, m.AOMap);
+		m.shader.setInt("material.AOmap", 5);
+		m.shader.setBool("material.hasAOMap",true);
+	} else {
+		m.shader.setBool("material.hasAOMap",false);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
 	size_t maxLights = 10;
 	int j = 0;
     for(uint32_t i = 0; i<std::min(lights.size(),maxLights); i++){
 		if(lights[i]->hasShadowMap()){
-			glActiveTexture(GL_TEXTURE4+j);
+			glActiveTexture(GL_TEXTURE6+j);
 			DistantLight* li = dynamic_cast<DistantLight*>(lights[i]);
 			glBindTexture(GL_TEXTURE_2D, li->getDepthTexture());
 
 			m.shader.setMat4("lightSpaceMatrix["+std::to_string(j)+"]", li->getLightSpacematrix());
-			m.shader.setInt("shadowMap["+std::to_string(j)+"]", 4+j);
+			m.shader.setInt("shadowMap["+std::to_string(j)+"]", 6+j);
 			m.shader.setInt("lights["+   std::to_string(i) + "].shadowMapId", j);
 			j++;
 		} else {
@@ -335,7 +346,6 @@ void Cube::render(Scene* _scene)  {
 			m.shader.setBool("lights["+   std::to_string(i) + "].enabled",0);
 		}
 	}
-
 
     glBindVertexArray(m.vao);
     

@@ -22,16 +22,16 @@ int main(int argc, char* argv[]) {
     // ####### we setup the scene by adding objects/lights #########
     Scene scene{cam};
     // enable SSAO for this scene
-    scene.setSSAO(true).setExposure(20.0);
+    scene.setSSAO(true).setExposure(2.0);
 
     //Create our lights
-    PointLight light1{glm::vec3{3,2,-4},glm::vec3{1.0f,1.0f,1.1f}};
-    PointLight light2{glm::vec3{0,3,2},glm::vec3{0.6f,1.0f,1.0f}};
+    PointLight light1{glm::vec3{3,2,-4},glm::vec3{3.0f,3.0f,3.0f}};
+    PointLight light2{glm::vec3{0,3,2},glm::vec3{3.0f,3.0f,3.0f}};
     // a distant light with 4k shadowmap enabled
     DistantLight light3{glm::vec3{-50,25,-40},glm::vec3{0.5f}};
     light3.enableShadowMap(4096,10.0f);
 
-    scene.addLight(light1).addLight(light2).addLight(light3);//.addLight(light2).addLight(light3);
+    scene.addLight(light2);//.addLight(light2).addLight(light3);
 
     //create a cubemap from a folder's images
     CubeMap cubemap{"textures/cubemaps/tantolunden5/"};
@@ -54,22 +54,24 @@ int main(int argc, char* argv[]) {
 
     // basic cube with textures
     Cube cube2(1.0f);
-    cube2.setTextures("textures/wood/basecolor.png",
-                    "textures/wood/roughness.png")
+    cube2.setTexDiffuse("textures/wood/basecolor.png").setTexSpecular("textures/wood/roughness.png")
     .setPosition({2.5f,1.8f,0.0f});
 
     // cube with texture + bump map tessellation
     Cube cube3(1.0f);
     cube3.setPosition({-2.5f,1.5f,0.0f})
-    .setTextures("textures/stoneWall/diffuse.png",
-                "textures/stoneWall/roughness.png",
-                "textures/stoneWall/height.png").displacementStrength(0.1);
-
+                .setTexDiffuse("textures/stoneWall/diffuse.png")
+                .setTexSpecular("textures/stoneWall/roughness.png")
+                .setTexHeight("textures/stoneWall/height.png").displacementStrength(0.1)
+                .setTexNormal("textures/stoneWall/normal.png")
+                .setTexAO("textures/stoneWall/ao.png");
+                
     Cube cube4(1.0f);
     cube4.setPosition({-2.5f,1.5f,-2.5f})
-    .setTextures("textures/tiles/basecolor.jpg",
-                "textures/tiles/roughness.jpg",
-                "textures/tiles/height.png");
+                .setTexDiffuse("textures/tiles/basecolor.jpg")
+                .setTexSpecular("textures/tiles/roughness.jpg")
+                .setTexHeight("textures/tiles/height.png");
+                
 
 
     scene.addModel(cube1).addModel(cube2).addModel(cube3).addModel(cube4);
