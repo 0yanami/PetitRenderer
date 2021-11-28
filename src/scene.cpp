@@ -39,7 +39,8 @@ void Scene::depthMaps_pass() {
     for (uint32_t i = 0; i < lights.size(); i++) {
         if (lights[i]->hasShadowMap()) {
             DistantLight* li = dynamic_cast<DistantLight*>(lights[i]);
-            Shader sh = {"shaders/depthMap.vert", "shaders/depthMap.frag"};
+            Shader sh = {"shaders/depthmap/depthmap.vert", 
+                        "shaders/depthmap/depthmap.frag"};
             
             sh.use();
             sh.setMat4("vp", li->getLightSpacematrix());

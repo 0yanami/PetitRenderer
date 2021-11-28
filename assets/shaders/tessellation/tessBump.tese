@@ -7,6 +7,7 @@ layout(triangles, equal_spacing, ccw) in;
 // vert disp parameters
 uniform sampler2D dispMap;
 uniform float dispStrength;
+uniform vec2 texScaling;
 
 uniform mat4 view;
 uniform mat4 projection;
@@ -32,7 +33,7 @@ void main(){
     Normal_in = normalize(Normal_in);
     FragPos_in = interp3D(WorldPos_ctl_out[0], WorldPos_ctl_out[1], WorldPos_ctl_out[2]);
     //do displacement
-    float disp = texture(dispMap, TexCoords_in).r;
+    float disp = texture(dispMap, TexCoords_in*texScaling).r;
     FragPos_in += Normal_in * disp * dispStrength;
 
     for (int i = 0; i<5;i++){

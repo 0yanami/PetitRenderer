@@ -93,5 +93,5 @@ void CubeMap::render(Scene* _scene){
 }
 
 void CubeMap::loadShaders(){
-    m.shader = {"shaders/cubemap.vert","shaders/cubemap.frag"};
+    m.shader = {"shaders/cubemap/cubemap.vert","shaders/cubemap/cubemap.frag"};
 }

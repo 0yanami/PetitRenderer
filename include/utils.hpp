@@ -12,10 +12,24 @@
 #include<stdlib.h>
 
 #include <iostream>
+#include <map>
+
+//TODO: map texture ids to path for unique texture loading
+
+static std::map<std::string,unsigned int> texturePathMap;
 
 static unsigned int loadTexture(const char* path) {
     unsigned int textureID;
-    glGenTextures(1, &textureID);
+
+    //load a texture only if it has not been laoded previously (avoid duplicates)
+    if (texturePathMap.find(path) == texturePathMap.end()){
+        glGenTextures(1, &textureID);
+        texturePathMap[path] = textureID;
+    } else {
+        return texturePathMap.find(path)->second;
+    }
+
+    
 
     int width, height, nrComponents;
     unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
@@ -41,12 +55,6 @@ static unsigned int loadTexture(const char* path) {
             dataf.push_back(1);
         }
     }
-
-    std::cout << "img: "<< path<<" " <<width<<"x"<<height<<"x"<<nrComponents<<" array:"<<dataf.size()<<std::endl;
-    for(int i =0; i<10;i++){
-        std::cout << (float)data[i]-'0' << " ";
-    }
-    std::cout << "\n";
 
     if (data) {
         GLenum format = GL_RGBA16F;

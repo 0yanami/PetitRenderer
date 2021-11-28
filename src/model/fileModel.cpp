@@ -9,6 +9,9 @@
 FileModel::FileModel(std::string _path, SMOOTH_NORMAL _smoothNormals){
 
 	Assimp::Importer importer;
+
+	std::cout << "loading "<< subModels.size()<< " submeshes from file : " 
+	<<_path<< " ..." << std::endl;
 	
 	const aiScene *scene = _smoothNormals?
 		importer.ReadFile(_path, 
@@ -33,8 +36,7 @@ FileModel::FileModel(std::string _path, SMOOTH_NORMAL _smoothNormals){
 	subModels.resize(scene->mNumMeshes);
 	//process each mesh of the model
 
-	std::cout << "processing "<< subModels.size()<< " submeshes from " 
-	<<_path<< " ..." << std::endl;
+	std::cout << "processing "<< subModels.size()<< " submeshes ..." << std::endl;
 
 	// configure each mesh
     for(size_t i = 0; i < scene->mNumMeshes; i++)
@@ -190,8 +192,10 @@ void FileModel::render(Scene* _scene)  {
 		sh.setVec2("screenSize", glm::vec2(cam.getResWidth(),cam.getResHeight()));
     	sh.setVec3("viewPos", cam.getPos());
 		sh.setFloat("exposure",_scene->getExposure());
+		sh.setVec2("texScaling", subModel.texScaling);
 
 		sh.setFloat("material.specularStrength", 1.0f);
+		sh.setFloat("material.shininess", 64.0f);
 
 		//if textures are defined
 		if(subModel.diffuseMap != -1){
@@ -208,28 +212,21 @@ void FileModel::render(Scene* _scene)  {
 			sh.setVec3("material.specular", subModel.specularColor);
 		}
 
-		sh.setFloat("material.shininess", 64.0f);
 
-		if(tessellation){
+		if(subModel.tessellation){
 			//level of detail based on distance , adapts to any triangle size
-			if(tqual == LOW){
+			if(subModel.tqual == LOW){
 				sh.setInt("tes_lod0", 16); //under 2 unit distance
 				sh.setInt("tes_lod1", 4); //2 to 5 distance
 				sh.setInt("tes_lod2", 2);  // farther than 5
-			} else if (tqual == MEDIUM){
+			} else if (subModel.tqual == MEDIUM){
 				sh.setInt("tes_lod0", 32); //under 2 unit distance
 				sh.setInt("tes_lod1", 8); //2 to 5 distance
 				sh.setInt("tes_lod2", 2);  // farther than 5
-			} else if(tqual == HIGH){
+			} else if(subModel.tqual == HIGH){
 				sh.setInt("tes_lod0", 64); //under 2 unit distance
 				sh.setInt("tes_lod1", 16); //2 to 5 distance
 				sh.setInt("tes_lod2", 4);  // farther than 5
-			}
-			
-			// height map based tess
-			if(m.heightMap != -1){
-				sh.setInt("dispMap", 2);
-				sh.setFloat("dispStrength", 0.01f);
 			}
 		}
 
@@ -296,7 +293,7 @@ void FileModel::render(Scene* _scene)  {
 		
     	glBindVertexArray(subModel.vao);
 		//glDrawArrays(GL_TRIANGLES, 0, subModel.vertices.size()/3);
-		if(tessellation){
+		if(subModel.tessellation){
 			glDrawElements( GL_PATCHES, subModel.indices.size(), GL_UNSIGNED_INT, nullptr);
 		} else {
 			glDrawElements( GL_TRIANGLES, subModel.indices.size(), GL_UNSIGNED_INT, nullptr);
@@ -319,6 +316,20 @@ void FileModel::renderForDepth(Shader& _shader){
 	}
 	glBindVertexArray(0);
 }
+
+void FileModel::loadShaders(modelDescription& model){
+	// load right shader
+	if(model.tessellation){
+		model.shader = {"shaders/tessellation/tess.vert",
+				 	"shaders/phong.frag",
+				 	"shaders/tessellation/tessPN.tesc",
+				 	"shaders/tessellation/tessPN.tese"};
+		
+	} else {
+		model.shader = {"shaders/default.vert", "shaders/phong.frag"};
+	}
+}
+
 
 FileModel& FileModel::setScale(glm::vec3  _scale){
 	for(auto& subModel : subModels){
@@ -344,19 +355,7 @@ FileModel& FileModel::setPosition(glm::vec3 _pos){
     return *this;
 }
 
-void FileModel::loadShaders(modelDescription& model){
-	// load right shader
-	if(tessellation){
-		model.shader = {"shaders/tessellation/phong.vert",
-				 	"shaders/phong.frag",
-				 	"shaders/tessellation/phongPN.tesc",
-				 	"shaders/tessellation/phongPN.tese"};
-		
-	} else {
-		model.shader = {"shaders/phong.vert", "shaders/phong.frag"};
-	}
-	
-}
+
 
 FileModel& FileModel::setDiffuse(glm::vec3 _color){
 	for(auto& subModel : subModels){
@@ -373,23 +372,36 @@ FileModel& FileModel::setSpecular(glm::vec3 _color){
 }
 
 FileModel& FileModel::enableTesselation(){
-    tessellation = true;
+	for(auto& subModel : subModels){
+    	subModel.tessellation = true;
+	}
     return *this;
 }
 FileModel& FileModel::disableTesselation(){
-    tessellation = false;
+	for(auto& subModel : subModels){
+    	subModel.tessellation = true;
+	}
     return *this;
 }
 
 FileModel& FileModel::enableTesselation(TESS_QUALITY _quality){
-    tessellation = true;
-	tqual = _quality;
+	for(auto& subModel : subModels){
+    	subModel.tessellation = true;
+		subModel.tqual = _quality;
+	}
     return *this;
 }
 
 FileModel& FileModel::displacementStrength(float _strength){
 	for(auto& subModel : subModels){
     subModel.displacementStrength = _strength;
+	}
+	return *this;
+}
+
+FileModel& FileModel::setTexScaling(glm::vec2 _scale){
+	for(auto& subModel : subModels){
+    subModel.texScaling = _scale;
 	}
 	return *this;
 }

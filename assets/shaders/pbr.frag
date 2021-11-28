@@ -46,7 +46,6 @@ in vec4 FragPos_lightSpace_in[5];
 uniform vec3 viewPos;
 uniform vec2 screenSize;
 uniform float exposure;
-uniform vec2 texScaling;
 
 // SSAO
 uniform bool SSAOenabled;
@@ -104,8 +103,8 @@ vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
     vec3 diffuseColor;
     vec3 specularColor;
     if(material.hasTexture){
-        diffuseColor = pow(texture(material.diffuseTex,TexCoords_in*texScaling).rgb,vec3(gamma));
-        specularColor = pow(texture(material.specularTex,TexCoords_in*texScaling).rgb,vec3(gamma));
+        diffuseColor = pow(texture(material.diffuseTex,TexCoords_in).rgb,vec3(gamma));
+        specularColor = pow(texture(material.specularTex,TexCoords_in).rgb,vec3(gamma));
     } else {
         diffuseColor = pow(material.diffuse,vec3(gamma));
         specularColor = pow(material.specular,vec3(gamma));
@@ -113,13 +112,16 @@ vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
     diffuseColor = vec3(1.0) - exp(-diffuseColor * exposure);
     specularColor = vec3(1.0) - exp(-specularColor * exposure);
 
+    diffuseColor = pow(diffuseColor, vec3(1.0 / gamma));
+    specularColor = pow(specularColor, vec3(1.0 / gamma));
+
     ambient  = light.ambient  * diffuseColor;
     diffuse  = light.diffuse  * diff * diffuseColor;
     specular = light.specular * spec * specularColor *vec3(material.specularStrength);
 
 
     if(SSAOenabled){
-        float AOfactor;
+        float AOfactor = 1.0;
         if(material.hasAOMap){
             AOfactor = texture(material.AOmap,TexCoords_in).r;
         } else {
@@ -132,7 +134,7 @@ vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
     if (light.constant > 0){
         float distance    = length(light.position - fragPos);
         float attenuation = 1.0 / (light.constant + light.linear * distance + 
-  			    light.quadratic * (distance*distance));
+  			    light.quadratic * (distance));
 
         ambient  *= attenuation;
         diffuse  *= attenuation;
@@ -183,7 +185,7 @@ float ComputeShadow(vec3 lightDir, int sMapId){
 vec3 CalcNormalMap(vec3 normal, vec3 viewDir){
     viewDir = normalize(viewDir);
 
-    vec3 texNormal = texture(material.normalMap,TexCoords_in*texScaling).xyz;
+    vec3 texNormal = texture(material.normalMap,TexCoords_in).xyz;
     texNormal = (texNormal * 2) - 1; //from 01 to -1 1
     mat3 TBN = CalcTBN(normal, viewDir);
 

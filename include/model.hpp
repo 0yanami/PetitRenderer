@@ -63,33 +63,38 @@ protected:
         glm::vec3 diffuseColor = glm::vec3{0.9};
         glm::vec3 specularColor = glm::vec3{1.0};
 
+        glm::vec2 texScaling = {1,1};
+
         std::vector<GLfloat> vertices, normals, textureCoord;
         std::vector<GLuint>  indices;
 
         float displacementStrength = 0.01;
 
         glm::mat4 scale, rotation, translate;
+
+        TESS_QUALITY tqual = MEDIUM;
+        bool tessellation = false;
     };
 
     modelDescription m;
     //! tessellation enabled or disabled (disabled by default)
-    bool tessellation = false;
+    
 
-
+    void loadShaders();
 public:
     Model(){};
 
     //! Load the object on the gpu. This action is performed after opengl/glfw initialization
-    virtual void load() = 0;
+    virtual void load();
 
     //! Render the object on screen.
-    virtual void render(Scene* _scene) = 0;
+    virtual void render(Scene* _scene);
     
     //! render objects faster for shadow map
     /**
      * \param _shader the depth map shader.
      **/
-    virtual void renderForDepth(Shader& _shader) = 0;
+    virtual void renderForDepth(Shader& _shader);
 
     //! Set the scale the object in x,y,z axis.
     virtual Model& setScale(glm::vec3 _scale);
@@ -106,40 +111,33 @@ public:
     Model& setTexHeight( std::string _heightPath);
     Model& setTexNormal( std::string _NormalPath);
     Model& setTexAO( std::string _AOPath);
+    Model& setTexScaling( glm::vec2 _scale);
 
-    //! Enable tessellation for this model.
+    //! Enable tessellation for this model default quality = medium
     Model& enableTesselation();
+    //! Enable tessellation for this model with set \param _quality
 
+    Model& enableTesselation(TESS_QUALITY _quality);
     //! Disable tessellation for this model.
     Model& disableTesselation();
+
     //! Set diffuse color of object (unused if textures are defined)
     Model& setDiffuse(glm::vec3 _color);
 
     //! Set specular color of object
     Model& setSpecular(glm::vec3 _color);
-
+    //! Set the displacement mutiplier factor to control displacement amount
     Model& displacementStrength(float _strength);
 };
 
 
 //! a simple cube to test shader on
 class Cube : public Model{
-private:
-    //! Load the right shader for the cube (phong,tessellation...)
-    void loadShaders();
-    glm::vec3 _cubeDiffuse = glm::vec3{0.9};
-
 public:
     Cube(){};
     //! Create a cube of size _edgeSize.
     Cube(float _edgeSize);
-    
-    
-    void load();
-    void render(Scene* _scene);
-    void renderForDepth(Shader& _shader);
 };
-
 
 
 //! A model loaded from a file, it can contain multiple subModels inside it.
@@ -147,8 +145,6 @@ class FileModel : public Model{
 private:
     
     std::vector<modelDescription> subModels;
-    TESS_QUALITY tqual = MEDIUM;
-    
 
     void loadShaders(modelDescription& model);
     void processMesh(aiMesh *_mesh, const aiScene *_scene, size_t _meshIdx);
@@ -157,7 +153,7 @@ public:
 
     void load();
     void render(Scene* _scene);
-    void renderForDepth(Shader& _shader);
+    void renderForDepth(Shader& _shader); 
 
     FileModel& setScale(glm::vec3 _scale);
     FileModel& setRotation(float _angle, glm::vec3 _axis);
@@ -168,6 +164,7 @@ public:
     FileModel& disableTesselation();
     FileModel& enableTesselation(TESS_QUALITY _quality);
     FileModel& displacementStrength(float _strength);
+    FileModel& setTexScaling(glm::vec2 _scale);
 };
 
 
@@ -180,17 +177,10 @@ private:
     
 public:
     CubeMap(){};
-    //! Directory of the images for the cubemap textures.
     /**
+    *  Create a Cubemap to be added to a scene.
     *  File extensions are found automatically (png,jpg,jpeg are supported).
-    * 
-    * \param _directory The texture file names in the directory should be named :
-    * - "right" (+x)
-    * - "left" (-x)
-    * - "top" (+y)
-    * - "bottom" (-y)
-    * - "back" (+z)
-    * - "front" (-z)
+    * \param _directory The texture files directory
     **/
     CubeMap(std::string _directory);
 
@@ -199,12 +189,16 @@ public:
 };
 
 
-class Sphere : public Model{
-
+class UVSphere : public Model{
+private:
+    void inline pushIndices(int ind_1, int ind_2, int ind_3);
+public:
+    UVSphere(float _radius, int _nCols, int _nRows);
 };
 
 class Plane : public Model{
-
+public: 
+    Plane(glm::vec2 _size, int _ncol, int _nrows);
 };
 
 #endif

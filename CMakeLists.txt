@@ -18,7 +18,8 @@ add_subdirectory(third_party/glfw)
 add_subdirectory(third_party/assimp)
 
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /DGLFW_INCLUDE_NONE /std:c++17 /MP8 /wd4100 /wd4505 /wd4201")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /DGLFW_INCLUDE_NONE /std:c++17 /MP8 
+        /wd4100 /wd4505 /wd4201 /wd4305 /wd4267 /wd4244 /wd4996")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall -std=c++17")
 endif()
