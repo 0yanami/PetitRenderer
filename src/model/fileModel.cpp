@@ -167,6 +167,15 @@ void FileModel::load(){
 		if (subModel.heightMapPath != ""){
 			subModel.heightMap = loadTexture(subModel.heightMapPath.c_str());
 		}
+		if (subModel.normalMapPath != ""){
+			subModel.normalMap = loadTexture(subModel.normalMapPath.c_str());
+		}
+		if (subModel.AOMapPath != ""){
+			subModel.AOMap = loadTexture(subModel.AOMapPath.c_str());
+		}
+		if(subModel.metallicMapPath != ""){
+			subModel.metallicMap = loadTexture(subModel.metallicMapPath.c_str());
+		}
 		loadShaders(subModel);
 	}
 }
@@ -175,9 +184,9 @@ void FileModel::load(){
 void FileModel::render(Scene* _scene)  {
 	Camera& cam = _scene->getCam();
 	SSAO* ssao =  _scene->getSSAO();
-	std::vector<Light*> lights =  _scene->getLights();
+	std::vector<Light*>& lights =  _scene->getLights();
 	for(auto& subModel : subModels){
-
+		
 		auto& sh = subModel.shader;
     	sh.use();
 
@@ -194,26 +203,72 @@ void FileModel::render(Scene* _scene)  {
 		sh.setFloat("exposure",_scene->getExposure());
 		sh.setVec2("texScaling", subModel.texScaling);
 
-		sh.setFloat("material.specularStrength", 1.0f);
-		sh.setFloat("material.shininess", 64.0f);
+		//TODO: texture support
+		sh.setBool("material.hasTexture",false);
+		sh.setBool("material.hasNormalMap",false);
+		sh.setBool("material.hasMetallicTex",false);
 
-		//if textures are defined
-		if(subModel.diffuseMap != -1){
-			sh.setInt("material.diffuseTex", 0);
-			sh.setBool("material.hasTexture",true);
-		} else {
+		
+		if(subModel.shaderType == PHONG){
+			sh.setFloat("material.specularStrength", 1.0f);
+			sh.setFloat("material.shininess", 64.0f);
 			sh.setVec3("material.diffuse", subModel.diffuseColor);
-			sh.setBool("material.hasTexture",false);
-		}
-
-		if(subModel.specularMap != -1){
-			sh.setInt("material.specularTex", 1);
-		} else {
 			sh.setVec3("material.specular", subModel.specularColor);
+		} else if (subModel.shaderType == PBR){
+			sh.setVec3("material.albedo", subModel.diffuseColor);
+			sh.setFloat("material.roughness", subModel.roughness);
+			sh.setFloat("material.metallic",subModel.metallic);
+		}	
+
+		// bind SSAO texture if enabled
+		if (ssao != nullptr){
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, ssao->getSSAOBlurTexture());
+			sh.setInt("SSAOTexture", 0);
+			sh.setBool("SSAOenabled", true);
+		} else {
+			sh.setBool("SSAOenabled", false);
 		}
 
+		// point lights properties
+		int j = 0;
+    	for(uint32_t i = 0; i<std::min(lights.size(),(size_t)MAXLIGHTS); i++){
+			if(lights[i]->hasShadowMap()){
+				glActiveTexture(GL_TEXTURE1+j);
+				DistantLight* li = dynamic_cast<DistantLight*>(lights[i]);
+				glBindTexture(GL_TEXTURE_2D, li->getDepthTexture());
 
-		if(subModel.tessellation){
+				sh.setMat4("lightSpaceMatrix["+std::to_string(j)+"]", li->getLightSpacematrix());
+				sh.setInt("shadowMap["+std::to_string(j)+"]", 1+j);
+				sh.setInt("lights["+   std::to_string(i) + "].shadowMapId", j);
+				j++;
+			} else {
+				sh.setInt("lights["+   std::to_string(i) + "].shadowMapId", -1);
+			}
+			
+			sh.setBool("lights["+   std::to_string(i) + "].enabled",1);
+
+    	    sh.setVec3("lights["+   std::to_string(i) + "].position",  lights[i]->getPos());
+			if(subModel.shaderType == PHONG){
+    	    sh.setVec3("lights[" +  std::to_string(i) + "].ambient",   lights[i]->getAmbiant());
+		    sh.setVec3("lights[" +  std::to_string(i) + "].diffuse",   lights[i]->getDiffuse());
+		    sh.setVec3("lights[" +  std::to_string(i) + "].specular",  lights[i]->getSpecular());
+
+		    sh.setFloat("lights[" + std::to_string(i) + "].constant",  lights[i]->getConstant());
+		    sh.setFloat("lights[" + std::to_string(i) + "].linear",    lights[i]->getLinear());
+		    sh.setFloat("lights[" + std::to_string(i) + "].quadratic", lights[i]->getQuadratic());
+			} 
+			else if (subModel.shaderType == PBR){
+				sh.setVec3("lights[" +  std::to_string(i) + "].color",   lights[i]->getDiffuse());
+			}
+		}
+		if (lights.size()<MAXLIGHTS){
+			for (size_t i = lights.size(); i<MAXLIGHTS; i++){
+				sh.setBool("lights["+   std::to_string(i) + "].enabled",0);
+			}
+		}
+
+				if(subModel.tessellation){
 			//level of detail based on distance , adapts to any triangle size
 			if(subModel.tqual == LOW){
 				sh.setInt("tes_lod0", 16); //under 2 unit distance
@@ -229,70 +284,9 @@ void FileModel::render(Scene* _scene)  {
 				sh.setInt("tes_lod2", 4);  // farther than 5
 			}
 		}
-
-		// texture loading 
-
-		glActiveTexture(GL_TEXTURE0);
-		if (subModel.diffuseMap  != -1){
-			glBindTexture(GL_TEXTURE_2D, subModel.diffuseMap);
-		} else {
-			glBindTexture(GL_TEXTURE_2D, 0);
-		}
-
-		glActiveTexture(GL_TEXTURE1);
-		if(subModel.specularMap  != -1){
-			glBindTexture(GL_TEXTURE_2D, subModel.specularMap);
-		} else {
-			glBindTexture(GL_TEXTURE_2D, 0);
-		}
-
-		// bind SSAO texture if enabled
-		if (ssao != nullptr){
-			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D, ssao->getSSAOBlurTexture());
-			sh.setInt("SSAOTexture", 2);
-			sh.setBool("SSAOenabled", true);
-		} else {
-			sh.setBool("SSAOenabled", false);
-		}
-
-		// point lights properties
-		size_t maxLights = 10;
-		int j = 0;
-    	for(uint32_t i = 0; i<std::min(lights.size(),maxLights); i++){
-			if(lights[i]->hasShadowMap()){
-				glActiveTexture(GL_TEXTURE3+j);
-				DistantLight* li = dynamic_cast<DistantLight*>(lights[i]);
-				glBindTexture(GL_TEXTURE_2D, li->getDepthTexture());
-
-				sh.setMat4("lightSpaceMatrix["+std::to_string(j)+"]", li->getLightSpacematrix());
-				sh.setInt("shadowMap["+std::to_string(j)+"]", 3+j);
-				sh.setInt("lights["+   std::to_string(i) + "].shadowMapId", j);
-				j++;
-			} else {
-				sh.setInt("lights["+   std::to_string(i) + "].shadowMapId", -1);
-			}
-			
-			sh.setBool("lights["+   std::to_string(i) + "].enabled",1);
-
-    	    sh.setVec3("lights["+   std::to_string(i) + "].position",  lights[i]->getPos());
-
-    	    sh.setVec3("lights[" +  std::to_string(i) + "].ambient",   lights[i]->getAmbiant());
-		    sh.setVec3("lights[" +  std::to_string(i) + "].diffuse",   lights[i]->getDiffuse());
-		    sh.setVec3("lights[" +  std::to_string(i) + "].specular",  lights[i]->getSpecular());
-
-		    sh.setFloat("lights[" + std::to_string(i) + "].constant",  lights[i]->getConstant());
-		    sh.setFloat("lights[" + std::to_string(i) + "].linear",    lights[i]->getLinear());
-		    sh.setFloat("lights[" + std::to_string(i) + "].quadratic", lights[i]->getQuadratic());
-    	}
-		if (lights.size()<maxLights){
-			for (size_t i = lights.size(); i<maxLights; i++){
-				sh.setBool("lights["+   std::to_string(i) + "].enabled",0);
-			}
-		}
 		
     	glBindVertexArray(subModel.vao);
-		//glDrawArrays(GL_TRIANGLES, 0, subModel.vertices.size()/3);
+		
 		if(subModel.tessellation){
 			glDrawElements( GL_PATCHES, subModel.indices.size(), GL_UNSIGNED_INT, nullptr);
 		} else {
@@ -319,14 +313,19 @@ void FileModel::renderForDepth(Shader& _shader){
 
 void FileModel::loadShaders(modelDescription& model){
 	// load right shader
+	std::string frag;
+	if(model.shaderType == PHONG){
+		frag = "shaders/phong.frag";
+	} else if (model.shaderType == PBR){
+		frag = "shaders/pbr.frag";
+	}
 	if(model.tessellation){
-		model.shader = {"shaders/tessellation/tess.vert",
-				 	"shaders/phong.frag",
+		model.shader = {"shaders/tessellation/tess.vert",frag,
 				 	"shaders/tessellation/tessPN.tesc",
 				 	"shaders/tessellation/tessPN.tese"};
 		
 	} else {
-		model.shader = {"shaders/default.vert", "shaders/phong.frag"};
+		model.shader = {"shaders/default.vert", frag};
 	}
 }
 
@@ -371,12 +370,34 @@ FileModel& FileModel::setSpecular(glm::vec3 _color){
 	return *this;
 }
 
+FileModel& FileModel::setAlbedo(glm::vec3 _color){
+	for(auto& subModel : subModels){
+	subModel.diffuseColor = _color;
+	}
+	return *this;
+}
+
+FileModel& FileModel::setRoughness(float _roughness){
+	for(auto& subModel : subModels){
+		subModel.roughness = _roughness;
+	}
+	return *this;
+}
+
+FileModel& FileModel::setMetallic(float _metallic){
+	for(auto& subModel : subModels){
+		subModel.metallic = _metallic;
+	}
+	return *this;
+}
+
 FileModel& FileModel::enableTesselation(){
 	for(auto& subModel : subModels){
     	subModel.tessellation = true;
 	}
     return *this;
 }
+
 FileModel& FileModel::disableTesselation(){
 	for(auto& subModel : subModels){
     	subModel.tessellation = true;
@@ -392,16 +413,9 @@ FileModel& FileModel::enableTesselation(TESS_QUALITY _quality){
     return *this;
 }
 
-FileModel& FileModel::displacementStrength(float _strength){
+FileModel& FileModel::setShaderType(SHADER_TYPE _type){
 	for(auto& subModel : subModels){
-    subModel.displacementStrength = _strength;
-	}
-	return *this;
-}
-
-FileModel& FileModel::setTexScaling(glm::vec2 _scale){
-	for(auto& subModel : subModels){
-    subModel.texScaling = _scale;
+		subModel.shaderType = _type;
 	}
 	return *this;
 }

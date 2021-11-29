@@ -1,6 +1,7 @@
 #version 410 core
-#define NR_LIGHTS 10
 
+#define NR_LIGHTS 100
+#define gamma 2.2
 
 // PHONG SHADER
 
@@ -62,7 +63,7 @@ vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir);
 float ComputeShadow(vec3 lightDir, int sMapId);
 vec3 CalcNormalMap(vec3 normal, vec3 viewDir);
 mat3 CalcTBN(vec3 normal, vec3 viewDir);
-
+    
 void main()
 {
     vec3 viewDir = normalize(viewPos - FragPos_in);
@@ -73,9 +74,8 @@ void main()
         if(lights[i].enabled)
             result += CalcLight(lights[i], Normal_in, FragPos_in, viewDir);    
 
+    
     FragColor = vec4(result, 1.0);
-
-
 }
 
 // Calculate values for point lights
@@ -99,17 +99,16 @@ vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
     vec3 diffuse = vec3(0,0,0);
     vec3 specular = vec3(0,0,0);
 
-    float gamma = 2.2;
-
     vec3 diffuseColor;
     vec3 specularColor;
     if(material.hasTexture){
-        diffuseColor = pow(texture(material.diffuseTex,TexCoords_in*texScaling).rgb,vec3(gamma));
-        specularColor = pow(texture(material.specularTex,TexCoords_in*texScaling).rgb,vec3(gamma));
+        diffuseColor =texture(material.diffuseTex,TexCoords_in*texScaling).rgb;
+        specularColor = texture(material.specularTex,TexCoords_in*texScaling).rgb;
     } else {
-        diffuseColor = pow(material.diffuse,vec3(gamma));
-        specularColor = pow(material.specular,vec3(gamma));
+        diffuseColor = material.diffuse;
+        specularColor = material.specular;
     }
+
     diffuseColor = vec3(1.0) - exp(-diffuseColor * exposure);
     specularColor = vec3(1.0) - exp(-specularColor * exposure);
 

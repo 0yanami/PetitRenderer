@@ -21,6 +21,7 @@ class Light {
    public:
     Light(){};
 
+    void setPosition(glm::vec3 _pos){position=_pos;}
     void setDiffuse(glm::vec3 _color) { diffuse = _color; }
     void setAmbiantStrength(float _strength) { ambiantStrength = _strength; }
     void setSpecular(glm::vec3 _color) { specular = _color; }

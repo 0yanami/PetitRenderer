@@ -5,11 +5,12 @@ fov(_fov),
 cameraPos(_cameraPos)
 {
 	yaw = 90.0;
-	pitch = -0.0;
+	pitch = 0.0;
 	lastX = _resHeight / 2.0;
 	lastY = _resWidth / 2.0;
 	cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
 	cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
 
 	resWidth = _resWidth;
 	resHeight = _resHeight;
@@ -31,29 +32,33 @@ glm::mat4 Camera::getView()
 
 glm::mat4 Camera::getProj()
 {
-	return glm::perspective(glm::radians(fov), (double)resWidth / resHeight, 0.1, 100.0);
+	return glm::perspective(glm::radians(fov), (double)resWidth / resHeight, 0.3, 100.0);
 }
 
 //direction
 void Camera::updateDirection()
 {
-	glm::vec3 direction;
-	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	direction.z = sin(glm::radians(yaw));
-	direction.y = sin(glm::radians(pitch)) * cos(glm::radians(pitch));
-	cameraFront = glm::normalize(direction);
+	glm::vec3 front;
+	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	
+	front.y = sin(glm::radians(pitch));
+	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	cameraFront = glm::normalize(front);
+
+	cameraRight = glm::normalize(glm::cross(cameraFront, {0,1,0}));
+	cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
 }
 
 double Camera::offsetPitch(double _offset, double _sensitivity)
 {
-	if (pitch + _offset > 45) {
-		pitch = 45.0f;
-	}
-	if (pitch + _offset < -45) {
-		pitch = -45.0f;
-	}
-	
 	pitch += _offset * _sensitivity;
+	if (pitch >= 85) {
+		pitch = 85.0f;
+	}
+	if (pitch <= -85) {
+		pitch = -85.0f;
+	}
+
 	updateDirection();
 	return pitch;
 }

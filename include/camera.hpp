@@ -13,6 +13,7 @@ private:
 	glm::vec3 cameraPos; 
 	glm::vec3 cameraFront;
 	glm::vec3 cameraUp;
+	glm::vec3 cameraRight;
  	double yaw;
  	double pitch;
  	double lastX;

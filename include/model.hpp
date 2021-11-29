@@ -1,6 +1,8 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#define MAXLIGHTS 100
+
 #include "headers.hpp"
 #include "shader.hpp"
 #include "light.hpp"
@@ -12,9 +14,6 @@
 #include <vector>
 #include <string>
 
-enum SHADER_TYPE{
-    PHONG
-};
 
 enum TESS_QUALITY{
     LOW,
@@ -50,25 +49,29 @@ protected:
 
         int diffuseMap = -1;
         int specularMap = -1;
+        int metallicMap = -1;
         int heightMap = -1;
         int normalMap = -1;
         int AOMap = -1;
 
         std::string diffuseMapPath = "";
         std::string specularMapPath = "";
+        std::string metallicMapPath = "";
         std::string heightMapPath = "";
         std::string normalMapPath = "";
         std::string AOMapPath = "";
 
         glm::vec3 diffuseColor = glm::vec3{0.9};
         glm::vec3 specularColor = glm::vec3{1.0};
+        float metallic = 0.0f;
+        float roughness = 0.0f;
 
         glm::vec2 texScaling = {1,1};
 
         std::vector<GLfloat> vertices, normals, textureCoord;
         std::vector<GLuint>  indices;
 
-        float displacementStrength = 0.01;
+        float displacementStrength = 0.01f;
 
         glm::mat4 scale, rotation, translate;
 
@@ -106,12 +109,19 @@ public:
     virtual Model& setPosition(glm::vec3 _pos);
 
     //! Set textures for this model. When bump map is given, tesselation is enabled automatically.
-    Model& setTexDiffuse(std::string _diffusePath);
-    Model& setTexSpecular(std::string _specularPath);
-    Model& setTexHeight( std::string _heightPath);
-    Model& setTexNormal( std::string _NormalPath);
-    Model& setTexAO( std::string _AOPath);
+    Model& setTexDiffuse(std::string _path);
+    Model& setTexSpecular(std::string _path);
+
+    Model& setTexAlbedo(std::string _path);
+    Model& setTexRoughness(std::string _path);
+    Model& setTexMetallic(std::string _path);
+
+    Model& setTexHeight( std::string _path);
+    Model& setTexNormal( std::string _path);
+    Model& setTexAO( std::string _path);
+
     Model& setTexScaling( glm::vec2 _scale);
+    Model& setShaderType(SHADER_TYPE _type);
 
     //! Enable tessellation for this model default quality = medium
     Model& enableTesselation();
@@ -121,11 +131,12 @@ public:
     //! Disable tessellation for this model.
     Model& disableTesselation();
 
-    //! Set diffuse color of object (unused if textures are defined)
+    //! Set color of object (unused if textures are defined)
     Model& setDiffuse(glm::vec3 _color);
-
-    //! Set specular color of object
     Model& setSpecular(glm::vec3 _color);
+    Model& setAlbedo(glm::vec3 _color);
+    Model& setRoughness(float _roughness);
+    Model& setMetallic(float _metallic);
     //! Set the displacement mutiplier factor to control displacement amount
     Model& displacementStrength(float _strength);
 };
@@ -163,8 +174,10 @@ public:
     FileModel& enableTesselation();
     FileModel& disableTesselation();
     FileModel& enableTesselation(TESS_QUALITY _quality);
-    FileModel& displacementStrength(float _strength);
-    FileModel& setTexScaling(glm::vec2 _scale);
+    FileModel& setShaderType(SHADER_TYPE _type);
+    FileModel& setRoughness(float _roughness);
+    FileModel& setMetallic(float _metallic);
+    FileModel& setAlbedo(glm::vec3 _color);
 };
 
 

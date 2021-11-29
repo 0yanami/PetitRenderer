@@ -14,6 +14,11 @@
 #include <iostream>
 
 
+enum SHADER_TYPE{
+    PHONG,
+    PBR
+};
+
 class Shader {
 private:
 	const char* loadShader(std::string path);
