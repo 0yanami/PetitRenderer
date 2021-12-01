@@ -82,6 +82,9 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
+<tr class="memitem:adedaa30ec1428f13b079abd9d1594a5d"><td class="memItemLeft" align="right" valign="top"><a id="adedaa30ec1428f13b079abd9d1594a5d" name="adedaa30ec1428f13b079abd9d1594a5d"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>
+<tr class="separator:adedaa30ec1428f13b079abd9d1594a5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a705f17a465b3f8b4bb53bd730e0efb10"><td class="memItemLeft" align="right" valign="top"><a id="a705f17a465b3f8b4bb53bd730e0efb10" name="a705f17a465b3f8b4bb53bd730e0efb10"></a>
 unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>vbo</b></td></tr>
 <tr class="separator:a705f17a465b3f8b4bb53bd730e0efb10"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -100,6 +103,9 @@ unsigned int&#160;</td><td class="memItemRight" valign="bottom"><b>vao</b></td><
 <tr class="memitem:a73a727059a4ebf75be6984a990d3c6df"><td class="memItemLeft" align="right" valign="top"><a id="a73a727059a4ebf75be6984a990d3c6df" name="a73a727059a4ebf75be6984a990d3c6df"></a>
 <a class="el" href="class_shader.html">Shader</a>&#160;</td><td class="memItemRight" valign="bottom"><b>shader</b></td></tr>
 <tr class="separator:a73a727059a4ebf75be6984a990d3c6df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aebdd56036bb802943c95ef418f8d34df"><td class="memItemLeft" align="right" valign="top"><a id="aebdd56036bb802943c95ef418f8d34df" name="aebdd56036bb802943c95ef418f8d34df"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>shaderLoaded</b> = false</td></tr>
+<tr class="separator:aebdd56036bb802943c95ef418f8d34df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad4161a8f41fb41119d31aa8b2aa856fc"><td class="memItemLeft" align="right" valign="top"><a id="ad4161a8f41fb41119d31aa8b2aa856fc" name="ad4161a8f41fb41119d31aa8b2aa856fc"></a>
 SHADER_TYPE&#160;</td><td class="memItemRight" valign="bottom"><b>shaderType</b> = PHONG</td></tr>
 <tr class="separator:ad4161a8f41fb41119d31aa8b2aa856fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -121,18 +127,54 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>diffuseMap</b> = -1</t
 <tr class="memitem:ac4dd3fc307f2886a25682bf130b2a00c"><td class="memItemLeft" align="right" valign="top"><a id="ac4dd3fc307f2886a25682bf130b2a00c" name="ac4dd3fc307f2886a25682bf130b2a00c"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>specularMap</b> = -1</td></tr>
 <tr class="separator:ac4dd3fc307f2886a25682bf130b2a00c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8cf5e5881603dcde7153676d74de78b8"><td class="memItemLeft" align="right" valign="top"><a id="a8cf5e5881603dcde7153676d74de78b8" name="a8cf5e5881603dcde7153676d74de78b8"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>metallicMap</b> = -1</td></tr>
+<tr class="separator:a8cf5e5881603dcde7153676d74de78b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aef0f3927c1ac0e83e21176dd114c53d0"><td class="memItemLeft" align="right" valign="top"><a id="aef0f3927c1ac0e83e21176dd114c53d0" name="aef0f3927c1ac0e83e21176dd114c53d0"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>heightMap</b> = -1</td></tr>
 <tr class="separator:aef0f3927c1ac0e83e21176dd114c53d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa50f9cb9fc9bd6f1ad04ae0cf7a5ff48"><td class="memItemLeft" align="right" valign="top"><a id="aa50f9cb9fc9bd6f1ad04ae0cf7a5ff48" name="aa50f9cb9fc9bd6f1ad04ae0cf7a5ff48"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>normalMap</b> = -1</td></tr>
+<tr class="separator:aa50f9cb9fc9bd6f1ad04ae0cf7a5ff48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a403a4376cd80bb08774a1b4b5c556788"><td class="memItemLeft" align="right" valign="top"><a id="a403a4376cd80bb08774a1b4b5c556788" name="a403a4376cd80bb08774a1b4b5c556788"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>AOMap</b> = -1</td></tr>
+<tr class="separator:a403a4376cd80bb08774a1b4b5c556788"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f1989021599d4b014d72ef240c5d801"><td class="memItemLeft" align="right" valign="top"><a id="a2f1989021599d4b014d72ef240c5d801" name="a2f1989021599d4b014d72ef240c5d801"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>diffuseMapPath</b> = &quot;&quot;</td></tr>
 <tr class="separator:a2f1989021599d4b014d72ef240c5d801"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f5559fb1a2c85b65c489ee78ab1c6ea"><td class="memItemLeft" align="right" valign="top"><a id="a9f5559fb1a2c85b65c489ee78ab1c6ea" name="a9f5559fb1a2c85b65c489ee78ab1c6ea"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>specularMapPath</b> = &quot;&quot;</td></tr>
 <tr class="separator:a9f5559fb1a2c85b65c489ee78ab1c6ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5129324db0cd133a1de2c31df3ad0e66"><td class="memItemLeft" align="right" valign="top"><a id="a5129324db0cd133a1de2c31df3ad0e66" name="a5129324db0cd133a1de2c31df3ad0e66"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>metallicMapPath</b> = &quot;&quot;</td></tr>
+<tr class="separator:a5129324db0cd133a1de2c31df3ad0e66"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab678481fbbe1e5d30c33dc7ee7e0eb99"><td class="memItemLeft" align="right" valign="top"><a id="ab678481fbbe1e5d30c33dc7ee7e0eb99" name="ab678481fbbe1e5d30c33dc7ee7e0eb99"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>heightMapPath</b> = &quot;&quot;</td></tr>
 <tr class="separator:ab678481fbbe1e5d30c33dc7ee7e0eb99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a305c1d24fe844afe41b8160bca135b4f"><td class="memItemLeft" align="right" valign="top"><a id="a305c1d24fe844afe41b8160bca135b4f" name="a305c1d24fe844afe41b8160bca135b4f"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>normalMapPath</b> = &quot;&quot;</td></tr>
+<tr class="separator:a305c1d24fe844afe41b8160bca135b4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2156267d598e8f7870477f7d99047887"><td class="memItemLeft" align="right" valign="top"><a id="a2156267d598e8f7870477f7d99047887" name="a2156267d598e8f7870477f7d99047887"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>AOMapPath</b> = &quot;&quot;</td></tr>
+<tr class="separator:a2156267d598e8f7870477f7d99047887"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af0abc330ebcc1c615c7fbbf861dd1d94"><td class="memItemLeft" align="right" valign="top"><a id="af0abc330ebcc1c615c7fbbf861dd1d94" name="af0abc330ebcc1c615c7fbbf861dd1d94"></a>
+glm::vec3&#160;</td><td class="memItemRight" valign="bottom"><b>diffuseColor</b> = glm::vec3{0.9}</td></tr>
+<tr class="separator:af0abc330ebcc1c615c7fbbf861dd1d94"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c6e73577aabfb2ba12291216c832444"><td class="memItemLeft" align="right" valign="top"><a id="a1c6e73577aabfb2ba12291216c832444" name="a1c6e73577aabfb2ba12291216c832444"></a>
+glm::vec3&#160;</td><td class="memItemRight" valign="bottom"><b>specularColor</b> = glm::vec3{1.0}</td></tr>
+<tr class="separator:a1c6e73577aabfb2ba12291216c832444"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af2e6c98af50233bff0854dd8b9b793f3"><td class="memItemLeft" align="right" valign="top"><a id="af2e6c98af50233bff0854dd8b9b793f3" name="af2e6c98af50233bff0854dd8b9b793f3"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>metallic</b> = 0.0f</td></tr>
+<tr class="separator:af2e6c98af50233bff0854dd8b9b793f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a34bce54be51993e44b0a92ac2948789c"><td class="memItemLeft" align="right" valign="top"><a id="a34bce54be51993e44b0a92ac2948789c" name="a34bce54be51993e44b0a92ac2948789c"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>roughness</b> = 0.0f</td></tr>
+<tr class="separator:a34bce54be51993e44b0a92ac2948789c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac541c2533b5ac0e5a2ee133ef25f5d13"><td class="memItemLeft" align="right" valign="top"><a id="ac541c2533b5ac0e5a2ee133ef25f5d13" name="ac541c2533b5ac0e5a2ee133ef25f5d13"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>shininess</b> = 64.0f</td></tr>
+<tr class="separator:ac541c2533b5ac0e5a2ee133ef25f5d13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f80e791e5b9525b20c63009e50ab82c"><td class="memItemLeft" align="right" valign="top"><a id="a6f80e791e5b9525b20c63009e50ab82c" name="a6f80e791e5b9525b20c63009e50ab82c"></a>
+glm::vec2&#160;</td><td class="memItemRight" valign="bottom"><b>texScaling</b> = {1,1}</td></tr>
+<tr class="separator:a6f80e791e5b9525b20c63009e50ab82c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a35c6c254cd648ec31cc53a896d545e10"><td class="memItemLeft" align="right" valign="top"><a id="a35c6c254cd648ec31cc53a896d545e10" name="a35c6c254cd648ec31cc53a896d545e10"></a>
 std::vector&lt; GLfloat &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>vertices</b></td></tr>
 <tr class="separator:a35c6c254cd648ec31cc53a896d545e10"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -145,6 +187,9 @@ std::vector&lt; GLfloat &gt;&#160;</td><td class="memItemRight" valign="bottom">
 <tr class="memitem:aa59c1d22ad6de733e2adf14bb5f45296"><td class="memItemLeft" align="right" valign="top"><a id="aa59c1d22ad6de733e2adf14bb5f45296" name="aa59c1d22ad6de733e2adf14bb5f45296"></a>
 std::vector&lt; GLuint &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>indices</b></td></tr>
 <tr class="separator:aa59c1d22ad6de733e2adf14bb5f45296"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33d6a5a603ac420728bd6a36917f4abc"><td class="memItemLeft" align="right" valign="top"><a id="a33d6a5a603ac420728bd6a36917f4abc" name="a33d6a5a603ac420728bd6a36917f4abc"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>displacementStrength</b> = 0.01f</td></tr>
+<tr class="separator:a33d6a5a603ac420728bd6a36917f4abc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a36b5db275a77ffcc864a36cd931b0e48"><td class="memItemLeft" align="right" valign="top"><a id="a36b5db275a77ffcc864a36cd931b0e48" name="a36b5db275a77ffcc864a36cd931b0e48"></a>
 glm::mat4&#160;</td><td class="memItemRight" valign="bottom"><b>scale</b></td></tr>
 <tr class="separator:a36b5db275a77ffcc864a36cd931b0e48"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -154,6 +199,12 @@ glm::mat4&#160;</td><td class="memItemRight" valign="bottom"><b>rotation</b></td
 <tr class="memitem:a143dafdbb15448f4cc85c9ef8a1f7ca7"><td class="memItemLeft" align="right" valign="top"><a id="a143dafdbb15448f4cc85c9ef8a1f7ca7" name="a143dafdbb15448f4cc85c9ef8a1f7ca7"></a>
 glm::mat4&#160;</td><td class="memItemRight" valign="bottom"><b>translate</b></td></tr>
 <tr class="separator:a143dafdbb15448f4cc85c9ef8a1f7ca7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4861aab6f292df4e9755cc24c3380634"><td class="memItemLeft" align="right" valign="top"><a id="a4861aab6f292df4e9755cc24c3380634" name="a4861aab6f292df4e9755cc24c3380634"></a>
+TESS_QUALITY&#160;</td><td class="memItemRight" valign="bottom"><b>tqual</b> = MEDIUM</td></tr>
+<tr class="separator:a4861aab6f292df4e9755cc24c3380634"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abccd36859c89012dc9e2cb2221a0c933"><td class="memItemLeft" align="right" valign="top"><a id="abccd36859c89012dc9e2cb2221a0c933" name="abccd36859c89012dc9e2cb2221a0c933"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>tessellation</b> = false</td></tr>
+<tr class="separator:abccd36859c89012dc9e2cb2221a0c933"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p >une structure qui encapsule la description d'un modèle </p>

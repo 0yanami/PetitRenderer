@@ -66,16 +66,30 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="class_light-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">Light Class Reference</div></div>
+  <div class="headertitle"><div class="title">Light Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div></div>
 </div><!--header-->
 <div class="contents">
+<div class="dynheader">
+Inheritance diagram for Light:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="class_light.png" usemap="#Light_map" alt=""/>
+  <map id="Light_map" name="Light_map">
+<area href="class_distant_light.html" alt="DistantLight" shape="rect" coords="0,56,77,80"/>
+<area href="class_point_light.html" alt="PointLight" shape="rect" coords="87,56,164,80"/>
+  </map>
+</div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:afe124f5b0a74e4625bc55aba1c791270"><td class="memItemLeft" align="right" valign="top"><a id="afe124f5b0a74e4625bc55aba1c791270" name="afe124f5b0a74e4625bc55aba1c791270"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Light</b> (glm::vec3 _position, glm::vec3 _color)</td></tr>
-<tr class="separator:afe124f5b0a74e4625bc55aba1c791270"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e7af58810d0b76f64e4fcd3aeae7713"><td class="memItemLeft" align="right" valign="top"><a id="a3e7af58810d0b76f64e4fcd3aeae7713" name="a3e7af58810d0b76f64e4fcd3aeae7713"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Light</b> (const <a class="el" href="class_light.html">Light</a> &amp;_light, std::string _name)</td></tr>
+<tr class="separator:a3e7af58810d0b76f64e4fcd3aeae7713"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b22dcc965abdbc0169f2062f6f7c404"><td class="memItemLeft" align="right" valign="top"><a id="a7b22dcc965abdbc0169f2062f6f7c404" name="a7b22dcc965abdbc0169f2062f6f7c404"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>setPosition</b> (glm::vec3 _pos)=0</td></tr>
+<tr class="separator:a7b22dcc965abdbc0169f2062f6f7c404"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac5a6f9a8ea3580edab1d615870ce893e"><td class="memItemLeft" align="right" valign="top"><a id="ac5a6f9a8ea3580edab1d615870ce893e" name="ac5a6f9a8ea3580edab1d615870ce893e"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setDiffuse</b> (glm::vec3 _color)</td></tr>
 <tr class="separator:ac5a6f9a8ea3580edab1d615870ce893e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -115,6 +129,45 @@ float&#160;</td><td class="memItemRight" valign="bottom"><b>getLinear</b> ()</td
 <tr class="memitem:a00c361277bfc6806c18126f665f64e74"><td class="memItemLeft" align="right" valign="top"><a id="a00c361277bfc6806c18126f665f64e74" name="a00c361277bfc6806c18126f665f64e74"></a>
 float&#160;</td><td class="memItemRight" valign="bottom"><b>getQuadratic</b> ()</td></tr>
 <tr class="separator:a00c361277bfc6806c18126f665f64e74"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a248c379885ea63ee7d71f7e19b0dab80"><td class="memItemLeft" align="right" valign="top"><a id="a248c379885ea63ee7d71f7e19b0dab80" name="a248c379885ea63ee7d71f7e19b0dab80"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>getName</b> ()</td></tr>
+<tr class="separator:a248c379885ea63ee7d71f7e19b0dab80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0c354c1d7eb1f3ce5a32f77ac94e7af8"><td class="memItemLeft" align="right" valign="top"><a id="a0c354c1d7eb1f3ce5a32f77ac94e7af8" name="a0c354c1d7eb1f3ce5a32f77ac94e7af8"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>hasShadowMap</b> ()=0</td></tr>
+<tr class="separator:a0c354c1d7eb1f3ce5a32f77ac94e7af8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b259e32996c331676469140e0ec6545"><td class="memItemLeft" align="right" valign="top"><a id="a6b259e32996c331676469140e0ec6545" name="a6b259e32996c331676469140e0ec6545"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>isDistant</b> ()=0</td></tr>
+<tr class="separator:a6b259e32996c331676469140e0ec6545"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:a89bffe071ec6431a21c5b54021fe08d6"><td class="memItemLeft" align="right" valign="top"><a id="a89bffe071ec6431a21c5b54021fe08d6" name="a89bffe071ec6431a21c5b54021fe08d6"></a>
+glm::vec3&#160;</td><td class="memItemRight" valign="bottom"><b>position</b></td></tr>
+<tr class="separator:a89bffe071ec6431a21c5b54021fe08d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed2e518d1e739c50c31ae77a865f51ed"><td class="memItemLeft" align="right" valign="top"><a id="aed2e518d1e739c50c31ae77a865f51ed" name="aed2e518d1e739c50c31ae77a865f51ed"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>
+<tr class="separator:aed2e518d1e739c50c31ae77a865f51ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ac1c224ceef6943506e99da1aed4857"><td class="memItemLeft" align="right" valign="top"><a id="a4ac1c224ceef6943506e99da1aed4857" name="a4ac1c224ceef6943506e99da1aed4857"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>instance</b></td></tr>
+<tr class="separator:a4ac1c224ceef6943506e99da1aed4857"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad47b5347556fd8cd9ebdc60fdfed196b"><td class="memItemLeft" align="right" valign="top"><a id="ad47b5347556fd8cd9ebdc60fdfed196b" name="ad47b5347556fd8cd9ebdc60fdfed196b"></a>
+glm::vec3&#160;</td><td class="memItemRight" valign="bottom"><b>diffuse</b></td></tr>
+<tr class="separator:ad47b5347556fd8cd9ebdc60fdfed196b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aefcfb83a0540ddb885c2622061b28d7e"><td class="memItemLeft" align="right" valign="top"><a id="aefcfb83a0540ddb885c2622061b28d7e" name="aefcfb83a0540ddb885c2622061b28d7e"></a>
+glm::vec3&#160;</td><td class="memItemRight" valign="bottom"><b>specular</b></td></tr>
+<tr class="separator:aefcfb83a0540ddb885c2622061b28d7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a711e8818acc0e92cdb554fdfb1372860"><td class="memItemLeft" align="right" valign="top"><a id="a711e8818acc0e92cdb554fdfb1372860" name="a711e8818acc0e92cdb554fdfb1372860"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>ambiantStrength</b></td></tr>
+<tr class="separator:a711e8818acc0e92cdb554fdfb1372860"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e211778e131611d35039827f36f51e5"><td class="memItemLeft" align="right" valign="top"><a id="a3e211778e131611d35039827f36f51e5" name="a3e211778e131611d35039827f36f51e5"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>constant</b></td></tr>
+<tr class="separator:a3e211778e131611d35039827f36f51e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d89a84a196a1329cda29df47a937e28"><td class="memItemLeft" align="right" valign="top"><a id="a9d89a84a196a1329cda29df47a937e28" name="a9d89a84a196a1329cda29df47a937e28"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>linear</b></td></tr>
+<tr class="separator:a9d89a84a196a1329cda29df47a937e28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0427bec0c2333a5dd9a18b2c282d952e"><td class="memItemLeft" align="right" valign="top"><a id="a0427bec0c2333a5dd9a18b2c282d952e" name="a0427bec0c2333a5dd9a18b2c282d952e"></a>
+float&#160;</td><td class="memItemRight" valign="bottom"><b>quadratic</b></td></tr>
+<tr class="separator:a0427bec0c2333a5dd9a18b2c282d952e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li>include/<a class="el" href="light_8hpp_source.html">light.hpp</a></li>

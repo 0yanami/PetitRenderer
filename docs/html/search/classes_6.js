@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['scene_0',['Scene',['../class_scene.html',1,'']]],
-  ['shader_1',['Shader',['../class_shader.html',1,'']]],
-  ['sphere_2',['Sphere',['../class_sphere.html',1,'']]]
+  ['plane_0',['Plane',['../class_plane.html',1,'']]],
+  ['pointlight_1',['PointLight',['../class_point_light.html',1,'']]]
 ];

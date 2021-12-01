@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['filemodel_0',['FileModel',['../class_file_model.html',1,'']]]
+  ['distantlight_0',['DistantLight',['../class_distant_light.html',1,'']]]
 ];
