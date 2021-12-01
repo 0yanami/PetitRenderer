@@ -5,9 +5,14 @@
 #include "headers.hpp"
 #include "shader.hpp"
 
+inline static int light_instance = 0;
+
 class Light {
    protected:
     glm::vec3 position;
+
+    std::string name;
+    int instance;
 
     glm::vec3 diffuse;
     glm::vec3 specular;
@@ -19,7 +24,23 @@ class Light {
     float quadratic;
 
    public:
-    Light(){};
+    Light(){instance = light_instance++;}
+    Light(const Light& _light, std::string _name){
+        position = _light.position;
+
+        instance = light_instance++;
+        name =  _name+std::to_string(instance) ;
+
+        diffuse = _light.diffuse;
+        specular = _light.specular;
+
+        // falloff parameters
+        ambiantStrength = _light.ambiantStrength;
+        constant = _light.constant;
+        linear = _light.linear;
+        quadratic = _light.quadratic;
+
+    }
 
     void setPosition(glm::vec3 _pos){position=_pos;}
     void setDiffuse(glm::vec3 _color) { diffuse = _color; }
@@ -37,13 +58,18 @@ class Light {
     float getConstant() { return constant; }
     float getLinear() { return linear; }
     float getQuadratic() { return quadratic; }
+    std::string getName(){return name;}
 
     virtual bool hasShadowMap() = 0;
 };
 
+
+
 class PointLight : public Light {
    public:
     PointLight(glm::vec3 _position, glm::vec3 _color) {
+        name = "PointLight_"+std::to_string(instance);
+
         position = _position;
 
         diffuse = _color;
@@ -54,6 +80,8 @@ class PointLight : public Light {
         linear = 0.22f;
         quadratic = 0.2f;
     }
+
+    PointLight(const PointLight& l) : Light(l,"PointLight_") {}
 
     bool hasShadowMap() {return false;}
 };
@@ -70,6 +98,7 @@ class DistantLight : public Light {
 
    public:
     DistantLight(glm::vec3 _position, glm::vec3 _color) {
+        name = "DistantLight_"+std::to_string(instance);
         position = _position;
 
         diffuse = _color;
@@ -81,6 +110,8 @@ class DistantLight : public Light {
         quadratic = -1.0f;
 
     }
+
+    DistantLight(const DistantLight& l) : Light(l,"DistantLight_") {}
 
     DistantLight& enableShadowMap(int _resolution,float _domainSize) {
         shadowMapEnabled = true;
@@ -130,4 +161,7 @@ class DistantLight : public Light {
     }
 };
 
+
+
 #endif
+

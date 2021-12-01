@@ -1,8 +1,12 @@
 #include "model.hpp"
 
 
+int Plane::instance = 0;
 
 Plane::Plane(glm::vec2 _size, int _nX, int _nY){
+    m.name = "Plane_"+std::to_string(instance);
+    instance++;
+
     GLuint idx = 0;
 
     float stepX = _size[0]/_nX;

@@ -33,13 +33,7 @@ MainLoop::MainLoop(Scene& _scene, Ui& _ui, Camera& _camera)
     glEnable(GL_FRAMEBUFFER_SRGB); 
  
     // ImGui Setup
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); //TODO: a voir en cas de bug imgui
-    (void)io;
-    ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
+    ui.load(window);
 
     //setup inputs
     inputs = {&cam};
@@ -88,18 +82,8 @@ void MainLoop::run() {
         // final rendering of scene
         scene.renderModels();
 
-
         // imgui part
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-        ImGui::Begin("General Parameters");
-        ImGui::Text("Selectionnez une scène à afficher:\n");
-        ImGui::End();
-
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        ui.render(&scene);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -120,11 +104,7 @@ void MainLoop::updateFpsCounter(uint32_t _updateRateMs){
     }
 }
 
-
 // end of render loop
 MainLoop::~MainLoop() {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
     glfwTerminate();
 }

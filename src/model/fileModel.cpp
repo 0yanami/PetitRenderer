@@ -4,13 +4,16 @@
 #include "glm/gtx/string_cast.hpp"
 #include <fstream>
 
-
+int FileModel::instance = 0;
 
 FileModel::FileModel(std::string _path, SMOOTH_NORMAL _smoothNormals){
 
+	name = _path.substr(_path.find_last_of("/")+1)+"_"+std::to_string(instance);
+	instance++;
+	
 	Assimp::Importer importer;
 
-	std::cout << "loading "<< subModels.size()<< " submeshes from file : " 
+	std::cout << "loading model from file : " 
 	<<_path<< " ..." << std::endl;
 	
 	const aiScene *scene = _smoothNormals?
@@ -418,4 +421,8 @@ FileModel& FileModel::setShaderType(SHADER_TYPE _type){
 		subModel.shaderType = _type;
 	}
 	return *this;
+}
+
+std::string FileModel::getName(){
+	return name;
 }

@@ -1,7 +1,6 @@
 #version 410 core
 
 #define NR_LIGHTS 100
-#define PI 3.1415926
 #define gamma 2.2
 
 // PHONG SHADER
@@ -65,6 +64,8 @@ float Smith(vec3 V, vec3 L);
 vec3 fresnel(float cosTheta, vec3 F0);
 
 // pbr params
+const float PI = 3.14159265359;
+
 vec3 albedo;
 float roughness;
 float metallic;
@@ -78,14 +79,14 @@ void main()
     vec3 viewDir = normalize(viewPos - FragPos_in);
 
     if(material.hasTexture){
-        albedo = texture(material.albedoTex,TexCoords_in*texScaling).rgb;
-        roughness = texture(material.roughnessTex,TexCoords_in*texScaling).r;
+        albedo = pow(texture(material.albedoTex,TexCoords_in*texScaling).rgb,vec3(gamma));
+        roughness = pow(texture(material.roughnessTex,TexCoords_in*texScaling).r,gamma);
     } else {
         albedo = material.albedo;
         roughness = material.roughness;
     }
+    roughness = max(roughness,0.02);
     
-
     if(material.hasMetallicTex){
         metallic = texture(material.metallicTex,TexCoords_in*texScaling).r;
     } else {
@@ -94,7 +95,7 @@ void main()
 
     if(SSAOenabled){
         if(material.hasAOMap){
-            AO = texture(material.AOmap,TexCoords_in*texScaling).r;
+            AO = pow(texture(material.AOmap,TexCoords_in*texScaling).r,gamma);
         } else {
             vec2 ScreenCoords = vec2(gl_FragCoord.x/screenSize.x,gl_FragCoord.y/screenSize.y);
             AO = texture(SSAOTexture,ScreenCoords).r;
@@ -112,22 +113,17 @@ void main()
     vec3 F0 = vec3(0.04); 
     F0 = mix(F0, albedo, metallic);
     
-    vec3 Lo;
+    vec3 Lo = vec3(0.0);
     for(int i = 0; i < NR_LIGHTS; i++)
         if(lights[i].enabled)
             Lo += calcLo(lights[i], viewDir, F0);    
 
     vec3 ambient = vec3(0.03) * albedo * AO;
-    
-
     vec3 color = ambient + Lo;
 
-    
     // HDR tonemapping
-    //if(material.hasTexture){
-    //    color = color / (color + vec3(1.0));
-    //    color = pow(color, vec3(1.0/gamma));
-    //}
+    color = color / (color + vec3(1.0));
+    color = pow(color, vec3(1.0/gamma));
 
     FragColor = vec4(color, 1.0);
 }
@@ -136,19 +132,20 @@ vec3 calcLo(Light light, vec3 viewDir, vec3 F0){
     vec3 lightDir = normalize(light.position - FragPos_in);
     vec3 H = normalize(viewDir + lightDir);
     float distance = length(light.position - FragPos_in);
-    float attenuation = 1.0 / distance;
+    float attenuation = 1.0 / (distance*distance);
     vec3 radiance = light.color * attenuation;
 
     float NDF = DistributionGGX(H);
     float G   = Smith(viewDir, lightDir);
     vec3 fresnel = fresnel(max(dot(H, viewDir), 0.0), F0);
 
-    vec3 specular = (NDF * G * fresnel) /
-        (4 * max(dot(normal, viewDir), 0.0) * 
-         max(dot(normal, lightDir), 0.0) + 0.0001);
-
     vec3 diffuse = vec3(1.0) - fresnel;
     diffuse *= 1.0 - metallic;
+
+    vec3 num = (NDF * G * fresnel);
+    float den = 4 * max(dot(normal, viewDir), 0.0) * max(dot(normal, lightDir),0.0) + 0.0001;
+    vec3 specular = num / den;
+
     float iAngle = max(dot(normal, lightDir), 0.0);
 
     vec3 lo = (diffuse*albedo / PI + specular) * radiance * iAngle;

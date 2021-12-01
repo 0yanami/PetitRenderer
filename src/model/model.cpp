@@ -120,15 +120,19 @@ void Model::render(Scene* _scene)  {
 	}
 	//bind mellatlic texture (if PBR)
 	glActiveTexture(GL_TEXTURE2);
-	if(m.metallicMap != 1 && m.shaderType == PBR){
-		m.shader.setBool("material.hasMetallicTexMap",true);
-		m.shader.setInt("material.metallicTex", 2);
-		glBindTexture(GL_TEXTURE_2D, m.metallicMap);
+	if(m.shaderType == PBR){
+		if(m.metallicMap != -1){
+			m.shader.setBool("material.hasMetallicTex",true);
+			m.shader.setInt("material.metallicTex", 2);
+			glBindTexture(GL_TEXTURE_2D, m.metallicMap);
+		} else {
+			m.shader.setFloat("material.metallic",m.metallic);
+			m.shader.setBool("material.hasMetallicTex",false);
+		}
 	} else {
-		m.shader.setFloat("material.metallic",m.metallic);
-		m.shader.setBool("material.hasMetallicTexMap",false);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+	
 
 	// bind displacement map texture
 	glActiveTexture(GL_TEXTURE3);
@@ -393,4 +397,8 @@ Model& Model::setTexScaling( glm::vec2 _scale){
 Model& Model::setShaderType(SHADER_TYPE _type){
 	m.shaderType = _type;
 	return *this;
+}
+
+std::string Model::getName(){
+	return m.name;
 }

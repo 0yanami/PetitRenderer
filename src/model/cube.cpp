@@ -4,8 +4,11 @@
 #include "glm/gtx/string_cast.hpp"
 #include <algorithm>
 
+int Cube::instance = 0;
 
 Cube::Cube(float _edgeSize){
+	m.name = "Cube_"+std::to_string(instance);
+	instance++;
 
 	m.vertices = {
         -0.5f, -0.5f, -0.5f,

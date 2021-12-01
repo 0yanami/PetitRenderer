@@ -32,7 +32,9 @@ class Model{
 protected:
     //! une structure qui encapsule la description d'un modèle
     struct modelDescription{
-            // vbo = vertices
+        // The name of the object in the UI.
+        std::string name;
+        // vbo = vertices
         // nbo = normals
         // ebo = indices
         // tbo = texture coord
@@ -139,11 +141,14 @@ public:
     Model& setMetallic(float _metallic);
     //! Set the displacement mutiplier factor to control displacement amount
     Model& displacementStrength(float _strength);
+
+    std::string getName();
 };
 
 
 //! a simple cube to test shader on
 class Cube : public Model{
+    static int instance;
 public:
     Cube(){};
     //! Create a cube of size _edgeSize.
@@ -154,7 +159,8 @@ public:
 //! A model loaded from a file, it can contain multiple subModels inside it.
 class FileModel : public Model{
 private:
-    
+    std::string name;
+    static int instance;
     std::vector<modelDescription> subModels;
 
     void loadShaders(modelDescription& model);
@@ -178,6 +184,7 @@ public:
     FileModel& setRoughness(float _roughness);
     FileModel& setMetallic(float _metallic);
     FileModel& setAlbedo(glm::vec3 _color);
+    std::string getName();
 };
 
 
@@ -204,12 +211,15 @@ public:
 
 class UVSphere : public Model{
 private:
+    static int instance;
     void inline pushIndices(int ind_1, int ind_2, int ind_3);
 public:
     UVSphere(float _radius, int _nCols, int _nRows);
 };
 
 class Plane : public Model{
+private:
+    static int instance;
 public: 
     Plane(glm::vec2 _size, int _ncol, int _nrows);
 };

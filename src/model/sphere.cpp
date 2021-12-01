@@ -1,6 +1,10 @@
 #include "model.hpp"
 
+int UVSphere::instance = 0;
 UVSphere::UVSphere(float _radius, int _nCols, int _nRows){
+    m.name = "UVSphere_"+std::to_string(instance);
+    instance++;
+
     float x, y, z, xy, s, t;
 
     m.vertices.reserve(3*_nCols*_nRows);
