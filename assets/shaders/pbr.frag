@@ -86,6 +86,7 @@ void main()
         roughness = material.roughness;
     }
     roughness = max(roughness,0.02);
+    albedo = vec3(1.0) - exp(-albedo * exposure);
     
     if(material.hasMetallicTex){
         metallic = texture(material.metallicTex,TexCoords_in*texScaling).r;
@@ -95,7 +96,7 @@ void main()
 
     if(SSAOenabled){
         if(material.hasAOMap){
-            AO = pow(texture(material.AOmap,TexCoords_in*texScaling).r,gamma);
+            AO = texture(material.AOmap,TexCoords_in*texScaling).r;
         } else {
             vec2 ScreenCoords = vec2(gl_FragCoord.x/screenSize.x,gl_FragCoord.y/screenSize.y);
             AO = texture(SSAOTexture,ScreenCoords).r;
@@ -131,8 +132,16 @@ void main()
 vec3 calcLo(Light light, vec3 viewDir, vec3 F0){
     vec3 lightDir = normalize(light.position - FragPos_in);
     vec3 H = normalize(viewDir + lightDir);
-    float distance = length(light.position - FragPos_in);
-    float attenuation = 1.0 / (distance*distance);
+    
+    float attenuation;
+    if(light.shadowMapId >=0){
+        attenuation = 1.0; // no light attenuation for sun
+        
+    } else {
+        float dist = length(light.position - FragPos_in);
+        attenuation = 1.0 / (dist*dist);
+    }
+    
     vec3 radiance = light.color * attenuation;
 
     float NDF = DistributionGGX(H);
@@ -172,7 +181,7 @@ float ComputeShadow(vec3 lightDir, int sMapId){
 
 
     //get half of tex res for sampling
-    float offset = textureSize(shadowMap[sMapId],0).x*0.5;
+    float offset = textureSize(shadowMap[sMapId],0).x*0.25;
     
     float lightDepth;
     float shadow = 0;

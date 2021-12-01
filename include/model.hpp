@@ -16,6 +16,7 @@
 
 
 enum TESS_QUALITY{
+    DISABLED,
     LOW,
     MEDIUM,
     HIGH
@@ -42,6 +43,7 @@ protected:
 
         // shading
         Shader shader;
+        bool shaderLoaded = false;
         SHADER_TYPE shaderType = PHONG;
 
         std::string shaderVertPath = "";
@@ -67,6 +69,7 @@ protected:
         glm::vec3 specularColor = glm::vec3{1.0};
         float metallic = 0.0f;
         float roughness = 0.0f;
+        float shininess = 64.0f;
 
         glm::vec2 texScaling = {1,1};
 
@@ -85,12 +88,14 @@ protected:
     //! tessellation enabled or disabled (disabled by default)
     
 
-    void loadShaders();
+    
 public:
     Model(){};
 
     //! Load the object on the gpu. This action is performed after opengl/glfw initialization
     virtual void load();
+
+    virtual void loadShaders();
 
     //! Render the object on screen.
     virtual void render(Scene* _scene);
@@ -101,13 +106,8 @@ public:
      **/
     virtual void renderForDepth(Shader& _shader);
 
-    //! Set the scale the object in x,y,z axis.
     virtual Model& setScale(glm::vec3 _scale);
-
-    //! Rotate the object around the given axis, angle is in degrees.
     virtual Model& setRotation(float _angle, glm::vec3 _axis);
-
-    //! Set the position of the object in world space.
     virtual Model& setPosition(glm::vec3 _pos);
 
     //! Set textures for this model. When bump map is given, tesselation is enabled automatically.
@@ -122,27 +122,43 @@ public:
     Model& setTexNormal( std::string _path);
     Model& setTexAO( std::string _path);
 
-    Model& setTexScaling( glm::vec2 _scale);
-    Model& setShaderType(SHADER_TYPE _type);
+    virtual Model& setTexScaling( glm::vec2 _scale);
+    virtual Model& setShaderType(SHADER_TYPE _type);
 
     //! Enable tessellation for this model default quality = medium
-    Model& enableTesselation();
+    virtual Model& enableTesselation();
     //! Enable tessellation for this model with set \param _quality
 
-    Model& enableTesselation(TESS_QUALITY _quality);
+    virtual Model& enableTesselation(TESS_QUALITY _quality);
     //! Disable tessellation for this model.
-    Model& disableTesselation();
+    virtual Model& disableTesselation();
 
     //! Set color of object (unused if textures are defined)
-    Model& setDiffuse(glm::vec3 _color);
-    Model& setSpecular(glm::vec3 _color);
-    Model& setAlbedo(glm::vec3 _color);
-    Model& setRoughness(float _roughness);
-    Model& setMetallic(float _metallic);
+    virtual Model& setDiffuse(glm::vec3 _color);
+    virtual Model& setSpecular(glm::vec3 _color);
+    virtual Model& setAlbedo(glm::vec3 _color);
+    virtual Model& setRoughness(float _roughness);
+    virtual Model& setMetallic(float _metallic);
+    virtual Model& setShininess(float _shininess);
+
+    virtual glm::vec3 getPosition(){return glm::vec3(m.translate[3]);}
+    virtual glm::vec3 getScale(){return glm::vec3(m.scale[0][0],m.scale[1][1],m.scale[2][2]);}
+    virtual glm::vec3 getDiffuse(){return m.diffuseColor;}
+    virtual glm::vec3 getSpecular(){return m.specularColor;}
+    virtual float getRoughness(){return m.roughness;}
+    virtual float getMetallic(){return m.metallic;}
+    virtual float getShininess() {return m.shininess;}
+    virtual glm::vec2 getTexScaling(){return m.texScaling;}
+    virtual std::string getName() = 0;
+    virtual TESS_QUALITY getTesselationStatus(){return m.tqual;}
+    virtual bool hasTextures(){return m.diffuseMap != -1;}
+
+    virtual SHADER_TYPE getShaderType(){return m.shaderType;}
+
     //! Set the displacement mutiplier factor to control displacement amount
     Model& displacementStrength(float _strength);
 
-    std::string getName();
+    
 };
 
 
@@ -151,6 +167,7 @@ class Cube : public Model{
     static int instance;
 public:
     Cube(){};
+    std::string getName(){return m.name;}
     //! Create a cube of size _edgeSize.
     Cube(float _edgeSize);
 };
@@ -167,8 +184,8 @@ private:
     void processMesh(aiMesh *_mesh, const aiScene *_scene, size_t _meshIdx);
 public:
     FileModel(std::string _path, SMOOTH_NORMAL _smoothNormals);
-
     void load();
+    void loadShaders();
     void render(Scene* _scene);
     void renderForDepth(Shader& _shader); 
 
@@ -184,7 +201,21 @@ public:
     FileModel& setRoughness(float _roughness);
     FileModel& setMetallic(float _metallic);
     FileModel& setAlbedo(glm::vec3 _color);
-    std::string getName();
+
+    std::string getName(){return name;}
+    glm::vec3 getPosition(){return glm::vec3(subModels[0].translate[3]);}
+    glm::vec3 getScale(){return glm::vec3(subModels[0].scale[0][0],
+                                        subModels[0].scale[1][1]
+                                        ,subModels[0].scale[2][2]);}
+    glm::vec3 getDiffuse(){return subModels[0].diffuseColor;}
+    glm::vec3 getSpecular(){return subModels[0].specularColor;}
+    float getRoughness(){return subModels[0].roughness;}
+    float getMetallic(){return subModels[0].metallic;}
+    float getShininess() {return subModels[0].shininess;}
+    SHADER_TYPE getShaderType(){return subModels[0].shaderType;}
+    virtual TESS_QUALITY getTesselationStatus(){return subModels[0].tqual;}
+    bool hasTextures(){return false;}
+
 };
 
 
@@ -204,6 +235,7 @@ public:
     **/
     CubeMap(std::string _directory);
 
+    std::string getName(){return m.name;}
     void load();
     void render(Scene* _scene);
 };
@@ -215,6 +247,7 @@ private:
     void inline pushIndices(int ind_1, int ind_2, int ind_3);
 public:
     UVSphere(float _radius, int _nCols, int _nRows);
+    std::string getName(){return m.name;}
 };
 
 class Plane : public Model{
@@ -222,6 +255,7 @@ private:
     static int instance;
 public: 
     Plane(glm::vec2 _size, int _ncol, int _nrows);
+    std::string getName(){return m.name;}
 };
 
 #endif

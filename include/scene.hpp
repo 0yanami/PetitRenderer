@@ -55,7 +55,9 @@ public:
     float getExposure(){return exposure;}
     Camera& getCam(){return cam;}
     SSAO* getSSAO(){return ssao;}
+    bool SSAOstatus();
     std::vector<Light*>& getLights(){return lights;}
+    std::vector<Model*>& getModels(){return models;}
 };
 
 #endif

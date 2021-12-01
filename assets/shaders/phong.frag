@@ -127,8 +127,8 @@ vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
         ambient *= vec3(AOfactor);
     }
 
-    // calculate attenuation ( constant < 0 to bypass)
-    if (light.constant > 0){
+    // calculate attenuation ( constant < 0 to bypass) and distant light have no falloff
+    if (light.constant > 0 || light.shadowMapId>=0){
         float distance    = length(light.position - fragPos);
         float attenuation = 1.0 / (light.constant + light.linear * distance + 
   			    light.quadratic * (distance*distance));
@@ -160,7 +160,7 @@ float ComputeShadow(vec3 lightDir, int sMapId){
 
 
     //get half of tex res for sampling
-    float offset = textureSize(shadowMap[sMapId],0).x*0.5;
+    float offset = textureSize(shadowMap[sMapId],0).x*0.25;
     
     float lightDepth;
     float shadow = 0;

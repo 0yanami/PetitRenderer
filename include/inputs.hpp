@@ -14,9 +14,10 @@ private:
     inline static float mouseSensitivity;
     inline static Camera* cam;
     inline static bool resetFocus;
+    inline static int lastDrawMode;
 
 public:
-    Inputs(){};
+    Inputs(){lastDrawMode=0;}
     Inputs(Camera* _cam);
     
     void setCamera(Camera* _cam){

@@ -14,8 +14,6 @@
 #include <iostream>
 #include <map>
 
-//TODO: map texture ids to path for unique texture loading
-
 static std::map<std::string,unsigned int> texturePathMap;
 
 static unsigned int loadTexture(const char* path) {
@@ -71,8 +69,6 @@ static unsigned int loadTexture(const char* path) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
                         GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        // std::cout << "texture[" << textureID <<"] loaded with path: " << path
-        // << std::endl;
         stbi_image_free(data);
     } else {
         std::cout
@@ -110,8 +106,6 @@ static unsigned int loadCubeMapTexture(std::string _directory) {
                          height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 
             stbi_image_free(data);
-            std::cout << "Texture loaded at path: " << fname << std::endl;
-
         } else {
             std::cout << "Texture failed to load at path: " << fname
                       << std::endl;

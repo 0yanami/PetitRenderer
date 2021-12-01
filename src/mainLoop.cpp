@@ -106,5 +106,8 @@ void MainLoop::updateFpsCounter(uint32_t _updateRateMs){
 
 // end of render loop
 MainLoop::~MainLoop() {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     glfwTerminate();
 }

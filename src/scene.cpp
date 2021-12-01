@@ -15,7 +15,6 @@ void Scene::load() {
     for (uint32_t i = 0; i < lights.size(); i++) {
         if (lights[i]->hasShadowMap()) {
             DistantLight* li = dynamic_cast<DistantLight*>(lights[i]);
-            std::cout << "creating depth buffer\n";
             li->createDepthBuffer();
         }
     }
@@ -45,7 +44,7 @@ void Scene::depthMaps_pass() {
             sh.use();
             sh.setMat4("vp", li->getLightSpacematrix());
 
-            uint32_t res = li->getShadowMapRes();
+            uint32_t res = li->getSMRes();
             glViewport(0, 0, res, res);
             glBindFramebuffer(GL_FRAMEBUFFER, li->getFbo());
             glClear(GL_DEPTH_BUFFER_BIT);
@@ -67,6 +66,10 @@ void Scene::SSAO_Pass(){
         ssao->SSAOPass(cam);
         ssao->blurPass();
     }
+}
+
+bool Scene::SSAOstatus(){
+    return ssaoEnabled;
 }
 
 //! Render all objects of scene

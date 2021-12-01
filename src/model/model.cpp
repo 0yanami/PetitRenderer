@@ -17,7 +17,7 @@ void Model::load(){
 	// Bind the vao
     glBindVertexArray(m.vao);
 
-    // create and fill vertex data buffer
+    // create and fill vertex data 
     glBindBuffer(GL_ARRAY_BUFFER, m.vbo);
     glBufferData(GL_ARRAY_BUFFER, m.vertices.size() * sizeof(GLfloat), m.vertices.data(), GL_STATIC_DRAW);
 	// set vertex attribute pointer
@@ -91,7 +91,7 @@ void Model::render(Scene* _scene)  {
 	
 	if(m.shaderType == PHONG){
 		m.shader.setFloat("material.specularStrength", 0.5f);
-		m.shader.setFloat("material.shininess", 64.0f);
+		m.shader.setFloat("material.shininess", m.shininess);
 	}
 	
 	// bind diffuse/albedo texture
@@ -147,7 +147,7 @@ void Model::render(Scene* _scene)  {
 
 	// bind SSAO texture if enabled
 	glActiveTexture(GL_TEXTURE4);
-	if (ssao != nullptr){
+	if (_scene->SSAOstatus()){
 		glBindTexture(GL_TEXTURE_2D, ssao->getSSAOBlurTexture());
 		m.shader.setInt("SSAOTexture", 4);
 		m.shader.setBool("SSAOenabled", true);
@@ -215,7 +215,7 @@ void Model::render(Scene* _scene)  {
 		}
 	}
 	
-	if(m.tessellation){
+	if(m.tqual != DISABLED){
 		if(m.tqual == LOW){
 				m.shader.setInt("tes_lod0", 16); //under 2 unit distance
 				m.shader.setInt("tes_lod1", 4); //2 to 5 distance
@@ -233,7 +233,7 @@ void Model::render(Scene* _scene)  {
 
     glBindVertexArray(m.vao);
     
-	if(m.tessellation){
+	if(m.tqual != DISABLED){
 		glDrawElements(GL_PATCHES , m.indices.size(), GL_UNSIGNED_INT, nullptr);
 	} else {
 		glDrawElements(GL_TRIANGLES , m.indices.size(), GL_UNSIGNED_INT, nullptr);
@@ -264,7 +264,7 @@ void Model::loadShaders(){
 		frag = "shaders/pbr.frag";
 	}
 	// load right shader
-	if(m.tessellation){
+	if(m.tqual != DISABLED){
 		if (m.heightMapPath != ""){
 			m.shader = {"shaders/tessellation/tess.vert", frag,
 				 "shaders/tessellation/tessBump.tesc",
@@ -313,6 +313,11 @@ Model& Model::setTexSpecular(std::string _path){
     return *this;
 }
 
+Model& Model::setShininess(float _shininess){
+	m.shininess = _shininess;
+	return *this;
+}
+
 Model& Model::setTexAlbedo(std::string _path){
     m.diffuseMapPath = _path;
     return *this;
@@ -330,7 +335,7 @@ Model& Model::setTexMetallic(std::string _path){
 
 Model& Model::setTexHeight( std::string _heightPath){
     m.heightMapPath = _heightPath;
-    m.tessellation = true;
+    m.tqual = MEDIUM;
     return *this;
 }
 
@@ -345,17 +350,16 @@ Model& Model::setTexAO( std::string _AOPath){
 }
 
 Model& Model::enableTesselation(TESS_QUALITY _quality){
-    m.tessellation = true;
     m.tqual = _quality;
     return *this;
 }
 
 Model& Model::enableTesselation(){
-    m.tessellation = true;
+    m.tessellation = MEDIUM;
     return *this;
 }
 Model& Model::disableTesselation(){
-    m.tessellation = false;
+    m.tessellation = DISABLED;
     return *this;
 }
 
@@ -396,9 +400,8 @@ Model& Model::setTexScaling( glm::vec2 _scale){
 
 Model& Model::setShaderType(SHADER_TYPE _type){
 	m.shaderType = _type;
+	if(m.shaderLoaded){
+		loadShaders();
+	}
 	return *this;
-}
-
-std::string Model::getName(){
-	return m.name;
 }

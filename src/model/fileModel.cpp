@@ -105,13 +105,6 @@ void FileModel::processMesh(aiMesh *_mesh, const aiScene *_scene, size_t _meshId
     	for(size_t j = 0; j < face.mNumIndices; j++)
         ind.push_back(face.mIndices[j]);
 	}
-	////if they exist add texture coordinates
-	//if(_mesh->HasTextureCoords(0)){
-	//	for(unsigned int i = 0; i < _mesh->mNumVertices; i++){
-	//		tex.insert(tex.end(),
-	//			{_mesh->mTextureCoords[0][i].x,_mesh->mTextureCoords[0][i].y});// TODO: add z if cubemap
-    //	}
-	//}
 
 }
 
@@ -192,9 +185,6 @@ void FileModel::render(Scene* _scene)  {
 		
 		auto& sh = subModel.shader;
     	sh.use();
-
-		glm::vec3 axis{0,1,0};
-		subModel.rotation = glm::rotate(subModel.rotation,glm::radians(0.03f),axis);
 	
     	glm::mat4 model = subModel.translate*subModel.rotation*subModel.scale;
 
@@ -206,7 +196,6 @@ void FileModel::render(Scene* _scene)  {
 		sh.setFloat("exposure",_scene->getExposure());
 		sh.setVec2("texScaling", subModel.texScaling);
 
-		//TODO: texture support
 		sh.setBool("material.hasTexture",false);
 		sh.setBool("material.hasNormalMap",false);
 		sh.setBool("material.hasMetallicTex",false);
@@ -224,11 +213,11 @@ void FileModel::render(Scene* _scene)  {
 		}	
 
 		// bind SSAO texture if enabled
-		if (ssao != nullptr){
+		if (_scene->SSAOstatus()){
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, ssao->getSSAOBlurTexture());
 			sh.setInt("SSAOTexture", 0);
-			sh.setBool("SSAOenabled", true);
+			sh.setBool("SSAOenabled",true);
 		} else {
 			sh.setBool("SSAOenabled", false);
 		}
@@ -271,7 +260,7 @@ void FileModel::render(Scene* _scene)  {
 			}
 		}
 
-				if(subModel.tessellation){
+		if(subModel.tqual != DISABLED){
 			//level of detail based on distance , adapts to any triangle size
 			if(subModel.tqual == LOW){
 				sh.setInt("tes_lod0", 16); //under 2 unit distance
@@ -290,7 +279,7 @@ void FileModel::render(Scene* _scene)  {
 		
     	glBindVertexArray(subModel.vao);
 		
-		if(subModel.tessellation){
+		if(subModel.tqual != DISABLED){
 			glDrawElements( GL_PATCHES, subModel.indices.size(), GL_UNSIGNED_INT, nullptr);
 		} else {
 			glDrawElements( GL_TRIANGLES, subModel.indices.size(), GL_UNSIGNED_INT, nullptr);
@@ -322,7 +311,7 @@ void FileModel::loadShaders(modelDescription& model){
 	} else if (model.shaderType == PBR){
 		frag = "shaders/pbr.frag";
 	}
-	if(model.tessellation){
+	if(model.tqual != DISABLED){
 		model.shader = {"shaders/tessellation/tess.vert",frag,
 				 	"shaders/tessellation/tessPN.tesc",
 				 	"shaders/tessellation/tessPN.tese"};
@@ -330,6 +319,11 @@ void FileModel::loadShaders(modelDescription& model){
 	} else {
 		model.shader = {"shaders/default.vert", frag};
 	}
+}
+
+void FileModel::loadShaders(){
+	for(auto& subModel: subModels)
+		loadShaders(subModel);
 }
 
 
@@ -396,21 +390,20 @@ FileModel& FileModel::setMetallic(float _metallic){
 
 FileModel& FileModel::enableTesselation(){
 	for(auto& subModel : subModels){
-    	subModel.tessellation = true;
+    	subModel.tqual = MEDIUM;
 	}
     return *this;
 }
 
 FileModel& FileModel::disableTesselation(){
 	for(auto& subModel : subModels){
-    	subModel.tessellation = true;
+    	subModel.tqual = DISABLED;
 	}
     return *this;
 }
 
 FileModel& FileModel::enableTesselation(TESS_QUALITY _quality){
 	for(auto& subModel : subModels){
-    	subModel.tessellation = true;
 		subModel.tqual = _quality;
 	}
     return *this;
@@ -421,8 +414,4 @@ FileModel& FileModel::setShaderType(SHADER_TYPE _type){
 		subModel.shaderType = _type;
 	}
 	return *this;
-}
-
-std::string FileModel::getName(){
-	return name;
 }

@@ -25,6 +25,7 @@ class Light {
 
    public:
     Light(){instance = light_instance++;}
+    ~Light(){};
     Light(const Light& _light, std::string _name){
         position = _light.position;
 
@@ -42,7 +43,7 @@ class Light {
 
     }
 
-    void setPosition(glm::vec3 _pos){position=_pos;}
+    virtual void setPosition(glm::vec3 _pos) = 0;
     void setDiffuse(glm::vec3 _color) { diffuse = _color; }
     void setAmbiantStrength(float _strength) { ambiantStrength = _strength; }
     void setSpecular(glm::vec3 _color) { specular = _color; }
@@ -61,6 +62,7 @@ class Light {
     std::string getName(){return name;}
 
     virtual bool hasShadowMap() = 0;
+    virtual bool isDistant() = 0;
 };
 
 
@@ -83,7 +85,14 @@ class PointLight : public Light {
 
     PointLight(const PointLight& l) : Light(l,"PointLight_") {}
 
+    ~PointLight(){};
+
+    void setPosition(glm::vec3 _pos){
+        position = _pos;
+    }
+
     bool hasShadowMap() {return false;}
+    bool isDistant(){return false;}
 };
 
 class DistantLight : public Light {
@@ -93,13 +102,24 @@ class DistantLight : public Light {
     uint32_t depthTexture;
     uint32_t textureRes;
     uint32_t fbo;
+    float domainSize;
 
     glm::mat4 lightSpaceMatrix;
 
+    void updateLightMatrix(){
+        glm::mat4 projection =
+                glm::ortho(-domainSize, domainSize, -domainSize, domainSize, 0.1f, domainSize*2);
+        glm::mat4 view = glm::lookAt(glm::normalize(position)*(domainSize/2), glm::vec3(0.0f),
+                                         glm::vec3(0.0, 1.0, 0.0));
+
+        lightSpaceMatrix = projection * view;
+    }
+
    public:
+  
     DistantLight(glm::vec3 _position, glm::vec3 _color) {
         name = "DistantLight_"+std::to_string(instance);
-        position = _position;
+        position = 10000.0f*glm::normalize(_position);
 
         diffuse = _color;
         ambiantStrength = 0.25f;
@@ -109,24 +129,40 @@ class DistantLight : public Light {
         linear = -1.0f;
         quadratic = -1.0f;
 
+        updateLightMatrix();
     }
-
+    
     DistantLight(const DistantLight& l) : Light(l,"DistantLight_") {}
+    ~DistantLight(){};
 
     DistantLight& enableShadowMap(int _resolution,float _domainSize) {
         shadowMapEnabled = true;
         textureRes = _resolution;
-        float d = _domainSize;
+        domainSize = _domainSize;
 
-        glm::mat4 projection =
-                glm::ortho(-d, d, -d, d, 0.1f, d*2);
-        glm::mat4 view = glm::lookAt(glm::normalize(position)*(d/2), glm::vec3(0.0f),
-                                         glm::vec3(0.0, 1.0, 0.0));
-
-        lightSpaceMatrix = projection * view;
-
+        updateLightMatrix();
         return *this;
     }
+
+    DistantLight& disableShadowMap() {
+        shadowMapEnabled = false;
+        return *this;
+    }
+
+    
+
+    DistantLight& updateShadowMap(int _resolution,float _domainSize,bool _shadowMapEnabled) {
+        shadowMapEnabled = _shadowMapEnabled;
+        textureRes = _resolution;
+        domainSize = _domainSize;
+
+        if(shadowMapEnabled){
+            updateLightMatrix();
+            createDepthBuffer();
+        }
+        return *this;
+    }
+
 
     void createDepthBuffer() {
         glGenFramebuffers(1, &fbo);
@@ -152,13 +188,21 @@ class DistantLight : public Light {
 
     bool hasShadowMap() { return shadowMapEnabled; }
     
-    uint32_t getShadowMapRes() { return textureRes; }
+    uint32_t getSMRes() { return textureRes; }
 
+    float getSMDomainSize() { return domainSize; }
+    
     uint32_t getFbo(){return fbo;}
 
     glm::mat4 getLightSpacematrix(){
         return lightSpaceMatrix;
     }
+
+    void setPosition(glm::vec3 _pos){
+        position = 10000.0f*glm::normalize(_pos);
+        updateLightMatrix();
+    }
+    bool isDistant(){return true;}
 };
 
 

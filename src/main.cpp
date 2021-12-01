@@ -24,37 +24,28 @@ int main(int argc, char* argv[]) {
     // enable SSAO for this scene
     scene.setSSAO(true).setExposure(1.0);
 
-    PointLight light{{0,0,0},{0.1,0.1,0.1}};
-    Cube cubelight(.2f);
+    // create a grid of lights for the scene
+    PointLight light{{0,0,0},{0.2,0.2,0.2}};
 
-    int liS = 10;
-    int liNum = 4;
+    int liS = 10; //size of grid
+    int liNum = 4; // 4*4 lights
     std::vector<PointLight> lights = std::vector(liNum*liNum,light);
-    std::vector<Cube> cubeLights = std::vector(liNum*liNum,cubelight);
     //Create our lights
     float liStep = liS/liNum;
     for(int i=0; i<liNum*liNum;i++){
         lights[i].setPosition({-liS/2+(i%(int)liNum)*liStep*2,3.5,-liS/2 +(int)(i/liNum)*liStep*2});
         scene.addLight(lights[i]);
-        cubeLights[i].setPosition(lights[i].getPos());
-        scene.addModel(cubeLights[i]);
     }
 
-    //DistantLight light3{glm::vec3{-50,25,-40},glm::vec3{1.0f}};
-    //light3.enableShadowMap(4096,10.0f);
+    DistantLight light3{glm::vec3{-50,25,-40},glm::vec3{0.8f}};
+    light3.enableShadowMap(4096,10.0f);
 
-    //scene.addLight(light3);
+    scene.addLight(light3);
 
     //create a cubemap and add it to the scene
     CubeMap cubemap{"textures/cubemaps/yokohama/"};
     scene.setCubeMap(cubemap);
-    
-    // to represent the light as a cube
-    //Cube cubelight3(.3f);
-    //cubelight3.setPosition(light3.getPos());
 
-    //scene.addModel(cubelight3);
-    //basic colored cube
     Cube cube0{1.0f};
     cube0.setPosition({1.1f,1.5f,0.0f}).setDiffuse({0.0f,1.0f,0.0f}).setSpecular(glm::vec3{0.9})
         .setShaderType(PHONG);
@@ -70,14 +61,12 @@ int main(int argc, char* argv[]) {
                 .setTexRoughness("textures/tiles/roughness.jpg")
                 .setTexHeight("textures/tiles/height.png").setShaderType(PBR);
 
-    std::cout << cube4.getName() << std::endl;
     scene.addModel(cube0).addModel(cube1).addModel(cube4);
 
     UVSphere sphere1(1.0,25,20);
     sphere1.setPosition({3.5,1.5,3.5}).setRotation(-90,{1,0,0}).
     setAlbedo({1,0,0}).setRoughness(0.2).setMetallic(0.95).setShaderType(PBR).enableTesselation(HIGH);
     scene.addModel(sphere1);
-    std::cout << sphere1.getName() << std::endl;
 
     Plane plane1{{20,20},30,30};
     plane1.setRotation(-90,{1,0,0}).setTexAlbedo("textures/stoneWall/diffuse.png")
@@ -87,12 +76,6 @@ int main(int argc, char* argv[]) {
                 .setTexAO("textures/stoneWall/ao.png")
                 .setTexScaling({4,4}).enableTesselation(LOW).setShaderType(PBR);
     scene.addModel(plane1);
-
-    //cube with texture + bump map + normal map
-    //TODO:
-
-    //Cube ground(1.0f);
-    //ground.setScale({20.0f,0.5f,20.0f}).setSpecular(glm::vec3{0.0f}).setDiffuse(glm::vec3{0.5f});
 
     Cube wall(1.0f);
     wall.setScale({7.0f,3.5f,0.3f}).setRotation(45,{0,1,0}).setPosition({-4,0,-2});
@@ -104,14 +87,14 @@ int main(int argc, char* argv[]) {
        .setAlbedo({1.0f,0.5f,0.0f}).setRoughness(0.1).setMetallic(0.95)
        .enableTesselation(HIGH).setShaderType(PBR);
     scene.addModel(teapot);
-    std::cout << teapot.getName() << std::endl;
+
     //FileModel acCobra{"models/AC_Cobra/Shelby.obj",SMOOTH_NORMAL_ENABLE};
     //acCobra.setScale(glm::vec3{1.0f}).setPosition({0.0f,2.0f,5.0f});
 
     //FileModel suzanne{"models/suzanne.obj",SMOOTH_NORMAL_ENABLE};
     //suzanne.setScale(glm::vec3{0.5f}).setPosition({-2.5f,2.0f,-2.0f}).enableTesselation(HIGH).setDiffuse({0.1f,0.1f,0.9f});
    
-    //scene.addModel(acCobra).addModel(suzanne).addModel(teapot);
+    //scene.addModel(acCobra).addModel(suzanne);
 
 
     // ########## start the render loop, give it the scene/cameras etc.. #########
