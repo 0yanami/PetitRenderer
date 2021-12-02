@@ -30,7 +30,8 @@ struct Material {
 
 struct Light {  
     bool enabled;
-    int shadowMapId;   
+    bool distant;
+    int shadowMapId;
     vec3 position; 
 
     vec3 color;
@@ -134,7 +135,7 @@ vec3 calcLo(Light light, vec3 viewDir, vec3 F0){
     vec3 H = normalize(viewDir + lightDir);
     
     float attenuation;
-    if(light.shadowMapId >=0){
+    if(light.shadowMapId<0 || light.distant){
         attenuation = 1.0; // no light attenuation for sun
         
     } else {

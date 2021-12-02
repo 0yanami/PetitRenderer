@@ -80,8 +80,7 @@ protected:
 
         glm::mat4 scale, rotation, translate;
 
-        TESS_QUALITY tqual = MEDIUM;
-        bool tessellation = false;
+        TESS_QUALITY tqual = DISABLED;
     };
 
     modelDescription m;
@@ -201,6 +200,7 @@ public:
     FileModel& setRoughness(float _roughness);
     FileModel& setMetallic(float _metallic);
     FileModel& setAlbedo(glm::vec3 _color);
+    FileModel& setShininess(float _shininess);
 
     std::string getName(){return name;}
     glm::vec3 getPosition(){return glm::vec3(subModels[0].translate[3]);}

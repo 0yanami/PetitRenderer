@@ -27,6 +27,7 @@ struct Material {
 
 struct Light {  
     bool enabled;
+    bool distant;
     int shadowMapId;   
     vec3 position; 
 
@@ -128,7 +129,7 @@ vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir)
     }
 
     // calculate attenuation ( constant < 0 to bypass) and distant light have no falloff
-    if (light.constant > 0 || light.shadowMapId>=0){
+    if (light.shadowMapId<0 || !light.distant){
         float distance    = length(light.position - fragPos);
         float attenuation = 1.0 / (light.constant + light.linear * distance + 
   			    light.quadratic * (distance*distance));

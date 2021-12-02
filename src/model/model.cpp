@@ -191,6 +191,11 @@ void Model::render(Scene* _scene)  {
 		} else {
 			m.shader.setInt("lights["+   std::to_string(i) + "].shadowMapId", -1);
 		}
+		if(lights[i]->isDistant()){
+			m.shader.setBool("lights["+   std::to_string(i) + "].distant",true);
+		} else {
+			m.shader.setBool("lights["+   std::to_string(i) + "].distant",false);
+		}
 
 		m.shader.setBool("lights["+   std::to_string(i) + "].enabled",1);
 
@@ -355,11 +360,11 @@ Model& Model::enableTesselation(TESS_QUALITY _quality){
 }
 
 Model& Model::enableTesselation(){
-    m.tessellation = MEDIUM;
+    m.tqual = MEDIUM;
     return *this;
 }
 Model& Model::disableTesselation(){
-    m.tessellation = DISABLED;
+    m.tqual = DISABLED;
     return *this;
 }
 

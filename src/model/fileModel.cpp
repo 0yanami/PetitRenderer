@@ -203,7 +203,7 @@ void FileModel::render(Scene* _scene)  {
 		
 		if(subModel.shaderType == PHONG){
 			sh.setFloat("material.specularStrength", 1.0f);
-			sh.setFloat("material.shininess", 64.0f);
+			sh.setFloat("material.shininess", subModel.shininess);
 			sh.setVec3("material.diffuse", subModel.diffuseColor);
 			sh.setVec3("material.specular", subModel.specularColor);
 		} else if (subModel.shaderType == PBR){
@@ -236,6 +236,12 @@ void FileModel::render(Scene* _scene)  {
 				j++;
 			} else {
 				sh.setInt("lights["+   std::to_string(i) + "].shadowMapId", -1);
+			}
+
+			if(lights[i]->isDistant()){
+				sh.setBool("lights["+   std::to_string(i) + "].distant",1);
+			} else {
+				sh.setBool("lights["+   std::to_string(i) + "].distant",0);
 			}
 			
 			sh.setBool("lights["+   std::to_string(i) + "].enabled",1);
@@ -412,6 +418,13 @@ FileModel& FileModel::enableTesselation(TESS_QUALITY _quality){
 FileModel& FileModel::setShaderType(SHADER_TYPE _type){
 	for(auto& subModel : subModels){
 		subModel.shaderType = _type;
+	}
+	return *this;
+}
+
+FileModel& FileModel::setShininess(float _shininess){
+	for(auto& subModel : subModels){
+		subModel.shininess = _shininess;
 	}
 	return *this;
 }
